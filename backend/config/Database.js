@@ -1,9 +1,11 @@
 import { createNamespace } from "cls-hooked";
 import process from "node:process";
 import pg from "pg";
+import dotenv from "dotenv";
 import { Sequelize } from "sequelize";
 const namespace = createNamespace("sequelize-transaction");
 Sequelize.useCLS(namespace);
+dotenv.config()
 const { DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD, DATABASE_HOST, DATABASE_PORT, } = process.env;
 if (DATABASE_NAME == null ||
     DATABASE_USER == null ||

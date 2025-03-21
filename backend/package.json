@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --env-file=.env index.js"
+    "start": "node --env-file=.env index.js",
+    "migration:create": "npx sequelize-cli migration:create --name",
+    "migrate": "npx sequelize-cli db:migrate",
+    "migrate:rollback": "npx sequelize-cli db:migrate:undo"
   },
   "keywords": [],
   "author": "",
@@ -13,12 +16,23 @@
   "description": "",
   "dependencies": {
     "axios": "^1.8.3",
+    "bcryptjs": "^3.0.2",
     "cls-hooked": "^4.2.2",
     "connect-session-sequelize": "^7.1.7",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "eslint-config-prettier": "^10.1.1",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
     "pg": "^8.14.0",
-    "sequelize": "^6.37.6"
+    "prettier": "^3.5.3",
+    "sequelize": "^6.37.6",
+    "sequelize-cli": "^6.6.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.22.0",
+    "eslint": "^9.22.0",
+    "eslint-plugin-react": "^7.37.4",
+    "globals": "^16.0.0"
   }
 }
