@@ -7,21 +7,24 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^13.5.0",
+    "@vitejs/plugin-react-swc": "^3.8.1",
     "antd": "^5.24.4",
     "axios": "^1.8.4",
     "dayjs": "^1.11.13",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-redux": "^9.2.0",
     "react-router-dom": "^7.4.0",
     "react-scripts": "5.0.1",
-    "vite": "^6.2.2",
+    "vite": "^6.2.6",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "vite --port 3000",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "dev": "vite --port 3000",
+    "eject": "react-scripts eject",
+    "lint": "npx eslint --ext=js,jsx,ts,tsx "
   },
   "eslintConfig": {
     "extends": [
