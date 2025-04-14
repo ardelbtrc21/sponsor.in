@@ -5,6 +5,7 @@ import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import schedule from "node-schedule";
 import sequelize, { Op } from "sequelize";
+import path from "path";
 
 export const getUserDetail = async (username) => {
     try {
@@ -23,33 +24,57 @@ export const getUserDetail = async (username) => {
 };
 
 export const createUser = async (req, res) => {
-    const { username, name, email, password, role, category,  } = req.body;
+    const { username, name, email, password, role, category, nib, document } = req.body;
     try {
         let errors = {};
-        const regex_udomain_contain_space = /( )+/;
-
-        if (!udomain || udomain == "") errors.udomain = "Udomain must be filled in !";
-        if (biro.length < 2) errors.biro = "Biro at least minimum 2 characters !";
-        if (udomain.length < 5) errors.udomain = "Udomain at least minimum 5 characters !";
-        if (regex_udomain_contain_space.test(udomain)) errors.udomain = "Udomain must not contain space !";
-        if (!name) errors.name = "Name must be filled in !";
-        if (name.length < 3) errors.name = "Name at least minimum 3 characters !";
-        if (!(role == "Admin" || role == "User" || role == "SAN")) errors.role = "The selected role is invalid !";
-
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const passwordRegexUpperCase = /^(?=.*?[A-Z])/;
+        const passwordRegexLowerCase = /(?=.*?[a-z])/;
+        const passwordRegexDigit = /(?=.*?[0-9])/;
+        const passwordRegexSpecialChar = /(?=.*?[^A-Za-z0-9])/;
+        const passwordRegexMinLen = /.{8,}$/;
+        if (!username || username == "") errors.username = "Username must be filled in!";
+        if (username && username != "" && username.length < 5) errors.username = "Username at least minimum 5 characters!";
         //cek jika user sudah terdaftar atau belum
         const user = await User.findOne({
             where: {
-                udomain: udomain.toLowerCase()
+                username: username.toLowerCase()
             }
         });
+        if (user) errors.username = "Username is already registered";
+        if (!name || name == "") errors.name = "Name must be filled in!";
+        if (name && name != "" && name.length < 3) errors.name = "Name at least minimum 3 characters!";
+        if (emailRegex.test(email) == false) errors.email = "Email is invalid!";
+        if (!password || password == "") errors.password = "Password must be filled in!";
+        if (passwordRegexUpperCase.test(password)) errors.password = "Password must contain at least one uppercase letter!";
+        if (passwordRegexLowerCase.test(password)) errors.password = "Password must contain at least one lowercase letter!";
+        if (passwordRegexDigit.test(password)) errors.password = "Password must contain at least one number!";
+        if (passwordRegexSpecialChar.test(password)) errors.password = "Password must contain at least one special character!";
+        if (passwordRegexMinLen.test(password)) errors.password = "Password at least minimum 8 characters!";
+        if (!role || role == "") errors.role = "Role must be filled in!";
+        if (role == "sponsoree" && !category && category=="") errors.category = "Category must be filled in!"
+        if (role == "sponsor" && !nib && nib=="") errors.nib = "NIB must be filled in!"
+        if (role == "sponsor" && !document) errors.document = "Please submit NIB document!"
 
-        if (user) errors.udomain = "udomain is already registered";
+        if (role == "sponsor" && document.length > 0){
+            for (let i = 1; i <= Object.keys(document).length; i++) {
+                const file = eval("document.dokumen" + String(i));
+                const ext = path.extname(String(file.name)).toLowerCase();
+                if(ext != "pdf"){
+                    errors.files = `File of ${file.name} file must be in PDF extension.`;
+                }
+                const fileSize = file.data.length;
+                if (fileSize > 10000000) {
+                    errors.files = `File of ${file.name} must be less than 10 MB.`;
+                }
+            }
+        }
 
         if (Object.keys(errors).length != 0) {
             return res.status(404).json(errors);
         }
 
-        let password = "Bcabca01";
+        //hari ini sampe sini
         const hashPassword = await bcrypt.hash(password, 10);
         await User.create({
             udomain: udomain.toLowerCase(),
