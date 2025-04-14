@@ -15,7 +15,11 @@ export default {
         type: Sequelize.TEXT,
         allowNull: false
       },
-      category: {
+      nib: {
+        type: Sequelize.TEXT,
+        allowNull: false
+      },
+      document: {
         type: Sequelize.TEXT,
         allowNull: false
       },
