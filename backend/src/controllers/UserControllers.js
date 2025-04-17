@@ -52,44 +52,66 @@ export const createUser = async (req, res) => {
         if (passwordRegexSpecialChar.test(password)) errors.password = "Password must contain at least one special character!";
         if (passwordRegexMinLen.test(password)) errors.password = "Password at least minimum 8 characters!";
         if (!role || role == "") errors.role = "Role must be filled in!";
-        if (role == "sponsoree" && !category && category=="") errors.category = "Category must be filled in!"
-        if (role == "sponsor" && !nib && nib=="") errors.nib = "NIB must be filled in!"
+        if (role == "sponsoree" && !category && category == "") errors.category = "Category must be filled in!"
+        if (role == "sponsor" && !nib && nib == "") errors.nib = "NIB must be filled in!"
         if (role == "sponsor" && !document) errors.document = "Please submit NIB document!"
 
-        if (role == "sponsor" && document.length > 0){
-            for (let i = 1; i <= Object.keys(document).length; i++) {
-                const file = eval("document.dokumen" + String(i));
-                const ext = path.extname(String(file.name)).toLowerCase();
-                if(ext != "pdf"){
-                    errors.files = `File of ${file.name} file must be in PDF extension.`;
-                }
-                const fileSize = file.data.length;
-                if (fileSize > 10000000) {
-                    errors.files = `File of ${file.name} must be less than 10 MB.`;
-                }
-            }
+        // if (role == "sponsor"){
+        //     for (let i = 1; i <= Object.keys(document).length; i++) {
+        const file = eval("document.dokumen");
+        const ext = path.extname(String(file.name)).toLowerCase();
+        if (ext != "pdf") {
+            errors.files = `File of ${file.name} file must be in PDF extension.`;
         }
+        const fileSize = file.data.length;
+        if (fileSize > 10000000) {
+            errors.files = `File of ${file.name} must be less than 10 MB.`;
+        }
+        const fileName = username + "_" + String(file.name);
+        const url = `../../data/nib/${fileName}`;
+        //     }
+        // }
 
         if (Object.keys(errors).length != 0) {
             return res.status(404).json(errors);
         }
 
-        //hari ini sampe sini
         const hashPassword = await bcrypt.hash(password, 10);
         await User.create({
-            udomain: udomain.toLowerCase(),
+            username: username.toLowerCase(),
             name: name,
-            status: "Active",
-            role: role,
-            biro: biro,
+            email: email,
             password: hashPassword,
-            ever_reset_password: "false",
-        });
-
-        await UserRole.create({
-            udomain: udomain.toLowerCase(),
             role: role
         });
+
+        if (role == "Sponsor") {
+            try {
+                file.mv(`${url}`, async () => {
+                    try {
+                        await Sponsor.create({
+                            username: username,
+                            nib: nib,
+                            document: url
+                        })
+                    } catch (error) {
+                        console.log(error.message);
+                    }
+                });
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
+        if (role == "Sponsoree") {
+            try {
+                await Sponsoree.create({
+                    username: username,
+                    category: category
+                })
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
         res.status(201).json({ msg: "Register User Berhasil" });
     } catch (error) {
         res.status(400).json({ msg: error.message });
@@ -101,6 +123,7 @@ export const getUsers = async (req, res) => {
         const sortBy = req.query.sortBy || "name";
         const order = req.query.order || "ASC";
         const keyword = req.query.keyword || "";
+        const role_req = req.query.role_req | ""
 
         // pagination
         const page = parseInt(req.query.page) || 0;
@@ -113,44 +136,23 @@ export const getUsers = async (req, res) => {
                         [Op.iLike]: "%" + keyword + "%"
                     }
                 }, {
-                    udomain: {
+                    username: {
                         [Op.iLike]: "%" + keyword + "%"
                     }
-                }, {
-                    name: {
-                        [Op.iLike]: "%" + keyword + "%"
-                    }
-                }, {
-                    role: {
-                        [Op.iLike]: "%" + keyword + "%"
-                    }
-                }, {
-                    email: {
-                        [Op.iLike]: "%" + keyword + "%"
-                    }
-                }, {
-                    position: {
-                        [Op.iLike]: "%" + keyword + "%"
-                    }
-                }, {
-                    biro: {
-                        [Op.iLike]: "%" + keyword + "%"
-                    }
-                }, {
-                    name: {
-                        [Op.iLike]: "%" + keyword + "%"
-                    }
-                },
-                { "$user_roles.role$": { [Op.iLike]: "%" + keyword + "%" } }
+                }
             ], [Op.and]: [
                 {
-                    udomain: {
-                        [Op.not]: req.session.userId
+                    username: {
+                        [Op.not]: req.session.username
                     }
+                }, {
+                    role: role_req
                 }
             ]
 
         };
+
+        // sampai sini
 
         let include = [
             { model: UserRole, as: "user_roles", required: false, attributes: ["udomain", "role"], duplicating: false }
@@ -310,7 +312,7 @@ export const updateUserAccount = async (req, res) => {
 
     if (!biro) {
         errors.biro = "Biro must be filled in !";
-    } 
+    }
 
     if (Object.keys(errors).length != 0) {
         return res.status(404).json(errors);
