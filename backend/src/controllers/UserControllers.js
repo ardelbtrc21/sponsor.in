@@ -3,8 +3,30 @@ import Sponsor from "../models/sponsor.js";
 import Sponsoree from "../models/sponsoree.js";
 import User from "../models/user.js";
 import bcrypt from "bcryptjs";
-import schedule from "node-schedule";
 import sequelize, { Op } from "sequelize";
+import path from "path";
+import { unlink } from 'node:fs';
+
+export const createUserAdmin = async () => {
+    const username = "admin";
+    const name = "Admin";
+    const email = "sponsorin13@gmail.com";
+    const password = await bcrypt.hash("adminsponsorin", 10);
+    const role = "Admin"
+    try {
+        await User.create({
+            username: username,
+            name: name,
+            email: email,
+            password: password,
+            role: role
+        });
+        console.log("Register Admin Berhasil!")
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 
 export const getUserDetail = async (username) => {
     try {
@@ -23,48 +45,94 @@ export const getUserDetail = async (username) => {
 };
 
 export const createUser = async (req, res) => {
-    const { username, name, email, password, role, category,  } = req.body;
+    const { username, name, email, password, role, category, nib, document } = req.body;
     try {
         let errors = {};
-        const regex_udomain_contain_space = /( )+/;
-
-        if (!udomain || udomain == "") errors.udomain = "Udomain must be filled in !";
-        if (biro.length < 2) errors.biro = "Biro at least minimum 2 characters !";
-        if (udomain.length < 5) errors.udomain = "Udomain at least minimum 5 characters !";
-        if (regex_udomain_contain_space.test(udomain)) errors.udomain = "Udomain must not contain space !";
-        if (!name) errors.name = "Name must be filled in !";
-        if (name.length < 3) errors.name = "Name at least minimum 3 characters !";
-        if (!(role == "Admin" || role == "User" || role == "SAN")) errors.role = "The selected role is invalid !";
-
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const passwordRegexUpperCase = /^(?=.*?[A-Z])/;
+        const passwordRegexLowerCase = /(?=.*?[a-z])/;
+        const passwordRegexDigit = /(?=.*?[0-9])/;
+        const passwordRegexSpecialChar = /(?=.*?[^A-Za-z0-9])/;
+        const passwordRegexMinLen = /.{8,}$/;
+        if (!username || username == "") errors.username = "Username must be filled in!";
+        if (username && username != "" && username.length < 5) errors.username = "Username at least minimum 5 characters!";
         //cek jika user sudah terdaftar atau belum
         const user = await User.findOne({
             where: {
-                udomain: udomain.toLowerCase()
+                username: username.toLowerCase()
             }
         });
+        if (user) errors.username = "Username is already registered";
+        if (!name || name == "") errors.name = "Name must be filled in!";
+        if (name && name != "" && name.length < 3) errors.name = "Name at least minimum 3 characters!";
+        if (emailRegex.test(email) == false) errors.email = "Email is invalid!";
+        if (!password || password == "") errors.password = "Password must be filled in!";
+        if (passwordRegexUpperCase.test(password)) errors.password = "Password must contain at least one uppercase letter!";
+        if (passwordRegexLowerCase.test(password)) errors.password = "Password must contain at least one lowercase letter!";
+        if (passwordRegexDigit.test(password)) errors.password = "Password must contain at least one number!";
+        if (passwordRegexSpecialChar.test(password)) errors.password = "Password must contain at least one special character!";
+        if (passwordRegexMinLen.test(password)) errors.password = "Password at least minimum 8 characters!";
+        if (!role || role == "") errors.role = "Role must be filled in!";
+        if (role == "sponsoree" && !category && category == "") errors.category = "Category must be filled in!"
+        if (role == "sponsor" && !nib && nib == "") errors.nib = "NIB must be filled in!"
+        if (role == "sponsor" && !document) errors.document = "Please submit NIB document!"
 
-        if (user) errors.udomain = "udomain is already registered";
+        // if (role == "sponsor"){
+        //     for (let i = 1; i <= Object.keys(document).length; i++) {
+        const file = eval("document.dokumen");
+        const ext = path.extname(String(file.name)).toLowerCase();
+        if (ext != "pdf") {
+            errors.files = `File of ${file.name} file must be in PDF extension.`;
+        }
+        const fileSize = file.data.length;
+        if (fileSize > 10000000) {
+            errors.files = `File of ${file.name} must be less than 10 MB.`;
+        }
+        const fileName = username + "_" + String(file.name);
+        const url = `../../data/nib/${fileName}`;
+        //     }
+        // }
 
         if (Object.keys(errors).length != 0) {
             return res.status(404).json(errors);
         }
 
-        let password = "Bcabca01";
         const hashPassword = await bcrypt.hash(password, 10);
         await User.create({
-            udomain: udomain.toLowerCase(),
+            username: username.toLowerCase(),
             name: name,
-            status: "Active",
-            role: role,
-            biro: biro,
+            email: email,
             password: hashPassword,
-            ever_reset_password: "false",
-        });
-
-        await UserRole.create({
-            udomain: udomain.toLowerCase(),
             role: role
         });
+
+        if (role == "Sponsor") {
+            try {
+                file.mv(`${url}`, async () => {
+                    try {
+                        await Sponsor.create({
+                            username: username,
+                            nib: nib,
+                            document: url
+                        })
+                    } catch (error) {
+                        console.log(error.message);
+                    }
+                });
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
+        if (role == "Sponsoree") {
+            try {
+                await Sponsoree.create({
+                    username: username,
+                    category: category
+                })
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
         res.status(201).json({ msg: "Register User Berhasil" });
     } catch (error) {
         res.status(400).json({ msg: error.message });
@@ -76,6 +144,7 @@ export const getUsers = async (req, res) => {
         const sortBy = req.query.sortBy || "name";
         const order = req.query.order || "ASC";
         const keyword = req.query.keyword || "";
+        const role_req = req.query.role_req | ""
 
         // pagination
         const page = parseInt(req.query.page) || 0;
@@ -88,57 +157,71 @@ export const getUsers = async (req, res) => {
                         [Op.iLike]: "%" + keyword + "%"
                     }
                 }, {
-                    udomain: {
+                    username: {
                         [Op.iLike]: "%" + keyword + "%"
                     }
-                }, {
-                    name: {
-                        [Op.iLike]: "%" + keyword + "%"
-                    }
-                }, {
-                    role: {
-                        [Op.iLike]: "%" + keyword + "%"
-                    }
-                }, {
-                    email: {
-                        [Op.iLike]: "%" + keyword + "%"
-                    }
-                }, {
-                    position: {
-                        [Op.iLike]: "%" + keyword + "%"
-                    }
-                }, {
-                    biro: {
-                        [Op.iLike]: "%" + keyword + "%"
-                    }
-                }, {
-                    name: {
-                        [Op.iLike]: "%" + keyword + "%"
-                    }
-                },
-                { "$user_roles.role$": { [Op.iLike]: "%" + keyword + "%" } }
+                }
             ], [Op.and]: [
                 {
-                    udomain: {
-                        [Op.not]: req.session.userId
+                    username: {
+                        [Op.not]: req.session.username
                     }
+                }, {
+                    role: role_req
                 }
             ]
 
         };
+        let include;
 
-        let include = [
-            { model: UserRole, as: "user_roles", required: false, attributes: ["udomain", "role"], duplicating: false }
-        ];
+        if (role_req == "Sponsor") {
+            include = [
+                {
+                    model: Sponsor,
+                    as: "user_sponsors",
+                    required: true,
+                    attributes: ["username", "nib", "document"],
+                    duplicating: false
+                }
+            ];
+        }
+        if (role_req == "Sponsoree") {
+            include = [
+                {
+                    model: Sponsoree,
+                    as: "user_sponsorees",
+                    required: true,
+                    attributes: ["username", "category"],
+                    duplicating: false
+                }
+            ];
+        }
+        if (role_req == "") {
+            include = [
+                {
+                    model: Sponsor,
+                    as: "user_sponsors",
+                    required: true,
+                    attributes: ["username", "nib", "document"],
+                    duplicating: false
+                },
+                {
+                    model: Sponsoree,
+                    as: "user_sponsorees",
+                    required: true,
+                    attributes: ["username", "category"],
+                    duplicating: false
+                }
+            ];
+        }
 
         let result = await User.findAll({
             where: where,
             include: include,
             order: [
-                [`${sortBy}`, `${order}`],
-                [{ model: UserRole, as: "user_roles" }, "role", "ASC"]
+                [`${sortBy}`, `${order}`]
             ],
-            attributes: ["name", "udomain", "role", "email", "position", "biro", "last_login"]
+            attributes: ["username", "name", "email", "role", "profile_photo", "last_login"]
         });
 
         const totalRows = Object.keys(result).length;
@@ -165,30 +248,40 @@ export const getUsers = async (req, res) => {
 
 export const getUserById = async (req, res) => {
     try {
-        const udomain = req.params.udomain.toLowerCase();
+        const username = req.params.username.toLowerCase();
 
-        //mau edit akun user lain
-        if (udomain !== req.session.userId) {
-            //cek user yang akses, admin atau bukan
-            const userCheck = await User.findOne({
-                where: {
-                    udomain: req.session.userId
-                }
-            });
+        // //mau edit akun user lain
+        // if (udomain !== req.session.userId) {
+        //     //cek user yang akses, admin atau bukan
+        //     const userCheck = await User.findOne({
+        //         where: {
+        //             udomain: req.session.userId
+        //         }
+        //     });
 
-            if (userCheck.role !== "Admin") {
-                return res.status(400).json({ msg: "Access Forbidden !" });
-            }
-        }
+        //     if (userCheck.role !== "Admin") {
+        //         return res.status(400).json({ msg: "Access Forbidden !" });
+        //     }
+        // }
 
         const user = await User.findOne({
             where: {
-                udomain: udomain
+                username: username
             }, include: [
-                { model: UserRole, as: "user_roles" }
-            ], order: [
-                [{ model: UserRole, as: "user_roles" }, "role", "ASC"]
-
+                {
+                    model: Sponsor,
+                    as: "user_sponsors",
+                    required: true,
+                    attributes: ["username", "nib", "document"],
+                    duplicating: false
+                },
+                {
+                    model: Sponsoree,
+                    as: "user_sponsorees",
+                    required: true,
+                    attributes: ["username", "category"],
+                    duplicating: false
+                }
             ]
         });
 
@@ -202,108 +295,104 @@ export const getUserById = async (req, res) => {
     }
 };
 
-export const resetPassword = async (req, res) => {
-    try {
-        let { udomain } = req.body;
+// export const resetPassword = async (req, res) => {
+//     try {
+//         let { udomain } = req.body;
 
-        //mau edit akun user lain
-        if (udomain !== req.session.userId) {
-            //cek user yang akses, admin atau bukan
-            const userCheck = await User.findOne({
-                where: {
-                    udomain: req.session.userId
-                }
-            });
+//         //mau edit akun user lain
+//         if (udomain !== req.session.userId) {
+//             //cek user yang akses, admin atau bukan
+//             const userCheck = await User.findOne({
+//                 where: {
+//                     udomain: req.session.userId
+//                 }
+//             });
 
-            if (userCheck.role !== "Admin") {
-                return res.status(400).json({ msg: "Access Forbidden !" });
-            }
-        }
+//             if (userCheck.role !== "Admin") {
+//                 return res.status(400).json({ msg: "Access Forbidden !" });
+//             }
+//         }
 
-        const user = await User.findOne({
-            where: {
-                udomain: udomain.toLowerCase()
-            }
-        });
+//         const user = await User.findOne({
+//             where: {
+//                 udomain: udomain.toLowerCase()
+//             }
+//         });
 
-        if (!user) {
-            return res.status(400).json({ msg: "User not found !" });
-        }
+//         if (!user) {
+//             return res.status(400).json({ msg: "User not found !" });
+//         }
 
-        let password = "Bcabca01";
-        const hashPassword = await bcrypt.hash(password, 10);
+//         let password = "Bcabca01";
+//         const hashPassword = await bcrypt.hash(password, 10);
 
-        await User.update({
-            password: hashPassword,
-            ever_reset_password: "false"
-        }, {
-            where: {
-                udomain: udomain
-            }
-        });
+//         await User.update({
+//             password: hashPassword,
+//             ever_reset_password: "false"
+//         }, {
+//             where: {
+//                 udomain: udomain
+//             }
+//         });
 
-        res.status(200).json(user);
-    } catch (error) {
-        res.status(500).json({ msg: error.message });
-    }
-};
+//         res.status(200).json(user);
+//     } catch (error) {
+//         res.status(500).json({ msg: error.message });
+//     }
+// };
 
 export const updateUserAccount = async (req, res) => {
-    let { name, email, position, biro, udomain } = req.body;
-    let errors = {};
-    const user = await getUserDetail(udomain);
-    const me = await getUserDetail(req.session.userId);
-
-    //cek user yang akses, admin atau bukan
-    //mau edit akun user lain
-    if (me.role !== "Admin" && udomain !== req.session.userId) {
-        return res.status(403).json({ msg: "Access Forbidden !" });
-    }
-
-    if (!user) {
-        errors.udomain = "Udomain not found !";
-    }
-
-
-    const regex_contain_number = /[0-9]+/;
-    if (!name) {
-        errors.name = "Name must be filled in !";
-    } else if (regex_contain_number.test(name)) {
-        errors.name = "Name must not contain number !";
-    }
-
-    const regex_email = /(.)*@bca.co.id$/i;
-
-    if (!email || email == "") { email = null; }
-    else if (email && !regex_email.test(email)) {
-        errors.email = "Email must be ended with \"@bca.co.id\" !";
-    }
-
-    if (position && regex_contain_number.test(position)) {
-        errors.position = "Position must not contain number !";
-    }
-
-    if (!biro) {
-        errors.biro = "Biro must be filled in !";
-    } 
-
-    if (Object.keys(errors).length != 0) {
-        return res.status(404).json(errors);
-    }
-
+    let { username, name, email, profile_photo } = req.body;
 
     try {
-        await User.update({
-            name: name,
-            email: email,
-            position: position,
-            biro: biro
-        }, {
-            where: {
-                udomain: udomain
+        let errors = {};
+        const user = await getUserDetail(username);
+
+        //cek user yang akses, admin atau bukan
+        //mau edit akun user lain
+        if (username !== req.session.username) {
+            return res.status(403).json({ msg: "Access Forbidden !" });
+        }
+
+        if (!user) {
+            errors.username = "Username not found !";
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!name || name == "") errors.name = "Name must be filled in!";
+        if (name && name != "" && name.length < 3) errors.name = "Name at least minimum 3 characters!";
+        if (emailRegex.test(email) == false) errors.email = "Email is invalid!";
+        const ext_photo = ["jpg", "jpeg", "png"]
+        // if (role == "sponsor"){
+        //     for (let i = 1; i <= Object.keys(document).length; i++) {
+        const file = eval("profile_photo.photo");
+        const ext = path.extname(String(file.name)).toLowerCase();
+        if (!ext_photo.includes(ext)) {
+            errors.files = `File of ${file.name} file must be in .jpg/.jpeg/.png extension.`;
+        }
+        const fileSize = file.data.length;
+        if (fileSize > 10000000) {
+            errors.files = `File of ${file.name} must be less than 10 MB.`;
+        }
+        const fileName = username + "_" + String(file.name);
+        const url = `../../data/photo_profile/${fileName}`;
+        //     }
+        // }
+
+        if (Object.keys(errors).length != 0) {
+            return res.status(404).json(errors);
+        }
+        unlink(`${user.profile_photo}`, file.mv(`${url}`, async () => {
+            try {
+                await User.update({
+                    name: name,
+                    email: email,
+                    profile_photo: profile_photo
+                });
+            } catch (error) {
+                console.log(error.message);
             }
-        });
-        res.status(200).json({ msg: "User Updated" });
+        }));
+        res.status(201).json({ msg: "Update User Berhasil" });
     } catch (error) {
         res.status(400).json({ msg: error.message });
     }
@@ -320,7 +409,7 @@ export const changePassword = async (req, res) => {
 
     const user = await User.findOne({
         where: {
-            udomain: req.session.userId
+            username: req.session.username
         }
     });
 
@@ -330,11 +419,10 @@ export const changePassword = async (req, res) => {
     try {
         const hashPassword = await bcrypt.hash(newPassword, 10);
         await User.update({
-            password: hashPassword,
-            ever_reset_password: true
+            password: hashPassword
         }, {
             where: {
-                udomain: req.session.userId
+                username: req.session.username
             }
         });
         res.status(200).json({ msg: "Change Password Successfully" });
@@ -346,17 +434,17 @@ export const changePassword = async (req, res) => {
 export const deleteUser = async (req, res) => {
     const user = await User.findOne({
         where: {
-            udomain: req.params.udomain.toLowerCase()
+            username: req.session.username
         }
     });
-    if (!user) return res.status(404).json({ msg: "User tidak ditemukan" });
+    if (!user) return res.status(404).json({ msg: "User Not Found" });
     try {
         await User.destroy({
             where: {
-                udomain: user.udomain
+                username: user.username
             }
         });
-        res.status(200).json({ msg: "User Deleted" });
+        res.status(200).json({ msg: "User Successfully Deleted!" });
     } catch (error) {
         res.status(400).json({ msg: error.message });
     }

@@ -1,6 +1,6 @@
 import { ConfigProvider } from "antd";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Test from "./components/Test";
+import Login from "./pages/Login";
 import "./Style/index.css";
 
 function ThemeProvider({ children }) {
@@ -45,7 +45,7 @@ function App() {
         {/* <AuthContext.Provider value={prov}> */}
           <BrowserRouter>
             <Routes>
-              <Route path="/test" element={<Test />} />
+              <Route path="/" element={<Login />} />
               {/* <Route path="*" element={<PageNotFound />} /> */}
             </Routes>
           </BrowserRouter>

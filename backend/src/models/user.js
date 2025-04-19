@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize";
-import db from "../config/Database.js"
+import db from "../../config/Database.js";
 import Sponsor from "./sponsor.js";
 import Sponsoree from "./sponsoree.js";
 
@@ -50,25 +50,25 @@ const User = db.define("user", {
     },
 }, {});
 
-User.hasOne(Sponsor, { 
-    foreignKey: "username", 
-    as: "user_sponsors", 
-    onDelete: "CASCADE", 
-    onUpdate: "CASCADE" 
+User.hasOne(Sponsor, {
+    foreignKey: "username",
+    as: "user_sponsors",
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE"
 });
-Sponsor.belongsTo(User, { 
-    foreignKey: "user_sponsors", 
-    as: "username"
+Sponsor.belongsTo(User, {
+    foreignKey: "username",
+    as: "user_sponsors"
 });
-User.hasOne(Sponsoree, { 
-    foreignKey: "username", 
-    as: "user_sponsorees", 
-    onDelete: "CASCADE", 
-    onUpdate: "CASCADE" 
+User.hasOne(Sponsoree, {
+    foreignKey: "username",
+    as: "user_sponsorees",
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE"
 });
-Sponsoree.belongsTo(User, { 
-    foreignKey: "username", 
+Sponsoree.belongsTo(User, {
+    foreignKey: "username",
     as: "user_sponsorees"
 });
 
-export default User;
+export default User;
