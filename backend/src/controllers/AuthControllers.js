@@ -12,7 +12,7 @@ export const Login = async (req, res) => {
     if (!user) return res.status(404).json({ msg: "User Not Found !" });
     const match = await bcrypt.compare(req.body.password, user.password);
     if (!match) return res.status(400).json({ msg: "Wrong Password !" });
-    
+
     req.session.username = user.username;
     req.session.last_login = user.last_login;
 
@@ -36,22 +36,28 @@ export const Login = async (req, res) => {
 };
 
 export const Me = async (req, res) => {
-    //{ msg: "Please login to your account !" }
-    if (!req.session.username) {
-        return res.status(401).json();
-    }
-    const user = await User.findOne({
-        attributes: ["username", "name", "email", "role", "profile_photo"],
-        where: {
-            udomain: req.session.username
+    try {
+        if (!req.session.username) {
+            return res.status(401).json();
         }
-    });
-    user.dataValues.last_login = req.session.last_login;
-    if (!user) return res.status(404).json({ msg: "User Not Found !" });
-    return res.status(200).json(user);
+        const user = await User.findOne({
+            attributes: ["username", "name", "email", "role", "profile_photo"],
+            where: {
+                username: req.session.username
+            }
+        });
+
+        if (!user) return res.status(404).json({ msg: "User Not Found!" });
+
+        user.dataValues.last_login = req.session.last_login;
+        return res.status(200).json(user);
+    } catch (error) {
+        console.error("Error in Me:", error); // <== tambahin ini
+        return res.status(500).json({ msg: "Internal Server Error" });
+    }
 };
 
-export const logout = (req, res) => {
+export const Logout = (req, res) => {
     try {
         req.session.destroy();
         res.status(200).json({ msg: "You have successfully logged out " });

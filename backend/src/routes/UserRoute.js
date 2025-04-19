@@ -1,6 +1,6 @@
 import express from "express";
-import { createUser, getUserById, getUsers, updateUserAccount, changePassword, deleteUser } from "../controllers/UserControllers";
-import { verifyUser, checkUserRole } from "../middleware/AuthUser";
+import { createUser, getUserById, getUsers, updateUserAccount, changePassword, deleteUser } from "../controllers/UserControllers.js";
+import { verifyUser, checkUserRole } from "../middleware/AuthUser.js";
 const router = express.Router();
 
 router.post("/api/user", createUser);

@@ -16,7 +16,7 @@ export const LoginUser = createAsyncThunk("user/LoginUser", async (user, thunkAP
             url:"/api/login",
             timeout:5000,
             data:{
-                udomain: user.udomain,
+                username: user.username,
                 password: user.password
             }
         });

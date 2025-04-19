@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { LoginUser, reset } from "../../features/authSlice";
-import { getMe } from "../../features/authSlice";
+import { LoginUser, reset, getMe } from "../features/authSlice";
 
 const Login = () => {
     // let search = window.location.search;
     // let params = new URLSearchParams(search);
     // const redirectTo = params.get("redirectTo");
-    const [udomain, setUdomain] = useState("");
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -35,12 +34,13 @@ const Login = () => {
 
     const Auth = (e) => {
         e.preventDefault();
-        dispatch(LoginUser({ udomain, password }));
+        dispatch(LoginUser({ username, password }));
     };
 
 
     return (
         <div className="w-full h-full">
+            {console.log("masuk")}
             <div className="w-full h-24 bg-gradient-to-r from-[#0360AC] to-[#0783AA]">
                 <img className="h-full ml-7" src="/assets/Logo_BCA_Putih.png" alt="" />
             </div>
@@ -51,10 +51,10 @@ const Login = () => {
                 <section className="bg-gray-50 rounded-lg drop-shadow-2xl min-w-100">
                     <div className="flex flex-col items-center justify-center mx-auto h-[600px] min-[1450px]:h-[800px] lg:py-0">
                         <div className="font-sans text-2xl md:text-4xl min-[1450px]:text-[60px] font-bold text-sky-800 mt-5 min-[1450px]:mb-3">
-                LINUX PORTAL   
+                SPONSOR.IN  
                         </div>
                         <div className="font-sans min-[860px]:text-sm min-[1450px]:text-2xl font-semi-bold mb-10 text-sky-800 text-left">
-                Linux Server Documentation Apps    
+                Connect. Collaborate. Get Sponsored.    
                         </div>           
                         <div className="w-full  bg-white rounded-lg shadow border md:mt-0 max-w-[83%] min-h-[55%] p-auto xl:p-0">
                             <div className="p-6 space-y-4 md:space-y-6 sm:p-8 p-auto">
@@ -63,8 +63,8 @@ const Login = () => {
                                 </h1>
                                 <form onSubmit={Auth}  className="space-y-4 md:space-y-6" action="#">
                                     <div>
-                                        <label className="block mb-2 text-sm font-medium text-gray-900">Udomain</label>
-                                        <input type="text" value={udomain} onChange={(e) => setUdomain(e.target.value)}placeholder="" className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"/>
+                                        <label className="block mb-2 text-sm font-medium text-gray-900">Username</label>
+                                        <input type="text" value={username} onChange={(e) => setUsername(e.target.value)}placeholder="" className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"/>
                                     </div>
                                     <div>
                                         <label className="block mb-2 text-sm font-medium text-gray-900">Password</label>

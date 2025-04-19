@@ -3,10 +3,30 @@ import Sponsor from "../models/sponsor.js";
 import Sponsoree from "../models/sponsoree.js";
 import User from "../models/user.js";
 import bcrypt from "bcryptjs";
-import schedule from "node-schedule";
 import sequelize, { Op } from "sequelize";
 import path from "path";
 import { unlink } from 'node:fs';
+
+export const createUserAdmin = async () => {
+    const username = "admin";
+    const name = "Admin";
+    const email = "sponsorin13@gmail.com";
+    const password = await bcrypt.hash("adminsponsorin", 10);
+    const role = "Admin"
+    try {
+        await User.create({
+            username: username,
+            name: name,
+            email: email,
+            password: password,
+            role: role
+        });
+        console.log("Register Admin Berhasil!")
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 
 export const getUserDetail = async (username) => {
     try {
@@ -367,7 +387,7 @@ export const updateUserAccount = async (req, res) => {
                     name: name,
                     email: email,
                     profile_photo: profile_photo
-                });                
+                });
             } catch (error) {
                 console.log(error.message);
             }
