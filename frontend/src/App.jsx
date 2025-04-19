@@ -1,6 +1,7 @@
 import { ConfigProvider } from "antd";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
+import Sidebar from "./components/Sidebar";
 import "./Style/index.css";
 
 function ThemeProvider({ children }) {
@@ -46,6 +47,7 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Login />} />
+              <Route path="/dashboard" element={<Sidebar />} />
               {/* <Route path="*" element={<PageNotFound />} /> */}
             </Routes>
           </BrowserRouter>
