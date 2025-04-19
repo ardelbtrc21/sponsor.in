@@ -3,6 +3,7 @@ import cors from "cors";
 import db from "./config/Database.js";
 import session from "express-session";
 import SequelizeStore from "connect-session-sequelize";
+import UserRoute from "./src/routes/UserRoute.js";
 
 const app = express ();
 
@@ -30,6 +31,8 @@ app.set("query parser", "extended");
 app.disable("etag");
 app.use(express.json());
 app.use(express.static("public"));
+app.use(UserRoute);
+
 app.listen(process.env.APP_PORT, ()=>{
     console.log("Server up and running...")
 });
