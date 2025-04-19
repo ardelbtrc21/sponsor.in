@@ -40,7 +40,6 @@ const Login = () => {
 
     return (
         <div className="w-full h-full">
-            {console.log("masuk")}
             <div className="w-full h-24 bg-gradient-to-r from-[#0360AC] to-[#0783AA]">
                 <img className="h-full ml-7" src="/assets/Logo_BCA_Putih.png" alt="" />
             </div>
