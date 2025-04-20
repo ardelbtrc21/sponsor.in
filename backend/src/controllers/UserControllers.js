@@ -45,8 +45,9 @@ export const getUserDetail = async (username) => {
 };
 
 export const createUser = async (req, res) => {
-    let { username, name, email, password, confirmPassword, role, category, nib, document } = req.body;
-    console.log(req.body)
+    let { username, name, email, password, confirmPassword, role, category, nib } = req.body;
+    let document = req.files?.document || null;
+    console.log(req)
 
     if (!username) {
         username = ""
@@ -80,18 +81,18 @@ export const createUser = async (req, res) => {
         if (!name || name == "") errors.name = "Name must be filled in!";
         if (name && name != "" && name.length < 3) errors.name = "Name at least minimum 3 characters!";
         if (!email || email == "") errors.email = "Email must be filled in!";
-        if (emailRegex.test(email) == false) errors.email = "Email is invalid!";
+        if (email && emailRegex.test(email) == false) errors.email = "Email is invalid!";
         if (!password || password == "") errors.password = "Password must be filled in!";
         if (!confirmPassword || confirmPassword == "") errors.confirmPassword = "Confirmation Password must be filled in!";
-        if (passwordRegexUpperCase.test(password)) errors.password = "Password must contain at least one uppercase letter!";
-        if (passwordRegexLowerCase.test(password)) errors.password = "Password must contain at least one lowercase letter!";
-        if (passwordRegexDigit.test(password)) errors.password = "Password must contain at least one number!";
-        if (passwordRegexSpecialChar.test(password)) errors.password = "Password must contain at least one special character!";
-        if (passwordRegexMinLen.test(password)) errors.password = "Password at least minimum 8 characters!";
+        if (!passwordRegexUpperCase.test(password)) errors.password = "Password must contain at least one uppercase letter!";
+        if (!passwordRegexLowerCase.test(password)) errors.password = "Password must contain at least one lowercase letter!";
+        if (!passwordRegexDigit.test(password)) errors.password = "Password must contain at least one number!";
+        if (!passwordRegexSpecialChar.test(password)) errors.password = "Password must contain at least one special character!";
+        if (password && password.length < 8) errors.password = "Password at least minimum 8 characters!";
         if (password !== confirmPassword) errors.confirmPassword = "Passwords do not match"
         if (!role || role == "") errors.role = "Role must be filled in!";
         if (role == "Sponsoree" && !category && category == "") errors.category = "Category must be filled in!"
-        if (role == "Sponsor" && !nib && nib == ""){
+        if (role == "Sponsor" && !nib && nib == "") {
             errors.nib = "NIB must be filled in!"
             console.log("masuk")
         }
@@ -99,17 +100,18 @@ export const createUser = async (req, res) => {
 
         // if (role == "sponsor"){
         //     for (let i = 1; i <= Object.keys(document).length; i++) {
-        if (role == "Sponsor") {
-            const file = eval("document.dokumen");
-            const ext = path.extname(String(file.name)).toLowerCase();
-            if (ext != "pdf") {
-                errors.files = `File of ${file.name} file must be in PDF extension.`;
+        if (role == "Sponsor" && document !== null) {
+            console.log(document)
+            const ext = path.extname(String(document.name)).toLowerCase();
+            console.log(ext)
+            if (ext != ".pdf") {
+                errors.files = `File of ${document.name} file must be in PDF extension.`;
             }
-            const fileSize = file.data.length;
+            const fileSize = document.data.length;
             if (fileSize > 10000000) {
-                errors.files = `File of ${file.name} must be less than 10 MB.`;
+                errors.files = `File of ${document.name} must be less than 10 MB.`;
             }
-            const fileName = username + "_" + String(file.name);
+            const fileName = username + "_" + String(document.name);
             const url = `../../data/nib/${fileName}`;
         }
         //     }
@@ -128,9 +130,9 @@ export const createUser = async (req, res) => {
             role: role
         });
 
-        if (role == "Sponsor") {
+        if (role === "Sponsor") {
             try {
-                file.mv(`${url}`, async () => {
+                document.mv(`${url}`, async () => {
                     try {
                         await Sponsor.create({
                             username: username,
@@ -145,7 +147,7 @@ export const createUser = async (req, res) => {
                 console.log(error.message);
             }
         }
-        if (role == "Sponsoree") {
+        if (role === "Sponsoree") {
             try {
                 await Sponsoree.create({
                     username: username,
