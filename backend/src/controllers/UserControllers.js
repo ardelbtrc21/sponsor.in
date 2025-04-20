@@ -45,7 +45,21 @@ export const getUserDetail = async (username) => {
 };
 
 export const createUser = async (req, res) => {
-    const { username, name, email, password, role, category, nib, document } = req.body;
+    let { username, name, email, password, confirmPassword, role, category, nib, document } = req.body;
+    console.log(req.body)
+
+    if (!username) {
+        username = ""
+    }
+    if (!name) {
+        name = ""
+    }
+    if (!email) {
+        email = ""
+    }
+    if (!role) {
+        role = ""
+    }
     try {
         let errors = {};
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -65,31 +79,39 @@ export const createUser = async (req, res) => {
         if (user) errors.username = "Username is already registered";
         if (!name || name == "") errors.name = "Name must be filled in!";
         if (name && name != "" && name.length < 3) errors.name = "Name at least minimum 3 characters!";
+        if (!email || email == "") errors.email = "Email must be filled in!";
         if (emailRegex.test(email) == false) errors.email = "Email is invalid!";
         if (!password || password == "") errors.password = "Password must be filled in!";
+        if (!confirmPassword || confirmPassword == "") errors.confirmPassword = "Confirmation Password must be filled in!";
         if (passwordRegexUpperCase.test(password)) errors.password = "Password must contain at least one uppercase letter!";
         if (passwordRegexLowerCase.test(password)) errors.password = "Password must contain at least one lowercase letter!";
         if (passwordRegexDigit.test(password)) errors.password = "Password must contain at least one number!";
         if (passwordRegexSpecialChar.test(password)) errors.password = "Password must contain at least one special character!";
         if (passwordRegexMinLen.test(password)) errors.password = "Password at least minimum 8 characters!";
+        if (password !== confirmPassword) errors.confirmPassword = "Passwords do not match"
         if (!role || role == "") errors.role = "Role must be filled in!";
-        if (role == "sponsoree" && !category && category == "") errors.category = "Category must be filled in!"
-        if (role == "sponsor" && !nib && nib == "") errors.nib = "NIB must be filled in!"
-        if (role == "sponsor" && !document) errors.document = "Please submit NIB document!"
+        if (role == "Sponsoree" && !category && category == "") errors.category = "Category must be filled in!"
+        if (role == "Sponsor" && !nib && nib == ""){
+            errors.nib = "NIB must be filled in!"
+            console.log("masuk")
+        }
+        if (role == "Sponsor" && !document) errors.document = "Please submit NIB document!"
 
         // if (role == "sponsor"){
         //     for (let i = 1; i <= Object.keys(document).length; i++) {
-        const file = eval("document.dokumen");
-        const ext = path.extname(String(file.name)).toLowerCase();
-        if (ext != "pdf") {
-            errors.files = `File of ${file.name} file must be in PDF extension.`;
+        if (role == "Sponsor") {
+            const file = eval("document.dokumen");
+            const ext = path.extname(String(file.name)).toLowerCase();
+            if (ext != "pdf") {
+                errors.files = `File of ${file.name} file must be in PDF extension.`;
+            }
+            const fileSize = file.data.length;
+            if (fileSize > 10000000) {
+                errors.files = `File of ${file.name} must be less than 10 MB.`;
+            }
+            const fileName = username + "_" + String(file.name);
+            const url = `../../data/nib/${fileName}`;
         }
-        const fileSize = file.data.length;
-        if (fileSize > 10000000) {
-            errors.files = `File of ${file.name} must be less than 10 MB.`;
-        }
-        const fileName = username + "_" + String(file.name);
-        const url = `../../data/nib/${fileName}`;
         //     }
         // }
 
@@ -135,6 +157,7 @@ export const createUser = async (req, res) => {
         }
         res.status(201).json({ msg: "Register User Berhasil" });
     } catch (error) {
+        console.log(error.message)
         res.status(400).json({ msg: error.message });
     }
 };

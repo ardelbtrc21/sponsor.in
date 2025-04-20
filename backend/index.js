@@ -6,6 +6,7 @@ import session from "express-session";
 import SequelizeStore from "connect-session-sequelize";
 import UserRoute from "./src/routes/UserRoute.js";
 import AuthRoute from "./src/routes/AuthRoute.js";
+import fileUpload from "express-fileupload";
 // import { createUserAdmin } from "./src/controllers/UserControllers.js";
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.use(cors({
 app.set("query parser", "extended");
 app.disable("etag");
 app.use(express.json());
+app.use(fileUpload());
 app.use(express.static("public"));
 app.use(UserRoute);
 app.use(AuthRoute);
