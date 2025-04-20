@@ -2,6 +2,7 @@ import { ConfigProvider } from "antd";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
 import Sidebar from "./components/Sidebar";
+import Register from "./pages/Register";
 import "./Style/index.css";
 
 function ThemeProvider({ children }) {
@@ -48,6 +49,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Login />} />
               <Route path="/dashboard" element={<Sidebar />} />
+              <Route path="/signUp" element={<Register />} />
               {/* <Route path="*" element={<PageNotFound />} /> */}
             </Routes>
           </BrowserRouter>
