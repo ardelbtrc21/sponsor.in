@@ -1,9 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import Swal from "sweetalert2";
+import { message, Upload } from "antd";
+import { InboxOutlined } from "@ant-design/icons";
+import { EyeIcon, EyeSlashIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
+import { NavLink, useNavigate } from "react-router-dom";
+const { Dragger } = Upload;
 
 export default function RegisterPage() {
+    const navigate = useNavigate();
     const [formErrors, setFormErrors] = useState({});
+    const [fileList, setFileList] = useState([]);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [formData, setFormData] = useState({
         username: '',
         name: '',
@@ -12,10 +21,12 @@ export default function RegisterPage() {
         confirmPassword: '',
         document: null,
         role: 'Sponsoree',
-        nib: ''
+        nib: '',
+        category: ''
     });
 
     const handleChange = (e) => {
+        console.log(e)
         const { name, value, files } = e.target;
         if (name === 'document') {
             setFormData({ ...formData, [name]: files[0] });
@@ -24,8 +35,57 @@ export default function RegisterPage() {
         }
     };
 
+    useEffect(() => {
+        console.log("formData updated: ", formData);
+    }, [formData]);
+
+    const props = {
+        type: "file",
+        name: "document",
+        multiple: false,
+        openFileDialogOnClick: true,
+        beforeUpload: (file) => {
+            // Validasi tipe file
+            if (file.type !== "application/pdf") {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "Only PDF files are allowed.",
+                });
+                return Upload.LIST_IGNORE;
+            }
+            // Validasi ukuran file
+            if (file.size > 10 * 1024 * 1024) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "File must be smaller than 10MB.",
+                });
+                return Upload.LIST_IGNORE;
+            }
+            return false; // mencegah auto upload
+        },
+        onChange(info) {
+            const file = info.file;
+            const newFileList = info.fileList.slice(-1);
+            setFileList(newFileList);
+            console.log(file)
+            if (file) {
+                setFormData({ ...formData, document: file })
+            }
+
+            const { status } = info.file;
+            if (status === "done") {
+                message.success(`${info.file.name} file uploaded successfully.`);
+            } else if (status === "error") {
+                message.error(`${info.file.name} file upload failed.`);
+            }
+        },
+        fileList,
+    };
+
     const handleRoleChange = (selectedRole) => {
-        setFormData({ ...formData, username: "", name: "", email: "", password: "", confirmPassword: "", document: null, role: selectedRole });
+        setFormData({ ...formData, username: "", name: "", email: "", password: "", confirmPassword: "", category: '', document: null, role: selectedRole });
         setFormErrors({});
     }
 
@@ -43,14 +103,14 @@ export default function RegisterPage() {
             console.log(formData)
             for (let [key, value] of data.entries()) {
                 console.log(`${key}:`, value);
-              }
+            }
 
             await axios.post("/api/user", data, {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 }
             });
-
+            navigate("/");
             Swal.fire({
                 title: "Create User Successful!",
                 icon: "success",
@@ -75,7 +135,7 @@ export default function RegisterPage() {
 
     return (
         <div className="w-full h-full flex items-center justify-center bg-white text-black">
-            <div className="flex w-[80%] h-[80%] overflow-hidden shadow-lg">
+            <div className="flex w-screen h-full overflow-hidden shadow-lg">
                 {/* Left Panel */}
                 <div className="w-1/2 flex-1 bg-gradient-to-b from-secondary via-primary to-black p-10 md:p-16 flex flex-col justify-center rounded-r-3xl">
                     <div className="text-center text-white">
@@ -84,7 +144,7 @@ export default function RegisterPage() {
                         <div className="space-y-4">
                             <div className="flex items-center space-x-4 bg-white text-black px-4 py-2 rounded-xl">
                                 <div className="font-bold">1</div>
-                                <span>Sign up your account</span>
+                                <span>Register your account</span>
                             </div>
                             <div className="flex items-center space-x-4 bg-[#223A59] px-4 py-2 rounded-xl">
                                 <div className="font-bold">2</div>
@@ -99,8 +159,8 @@ export default function RegisterPage() {
                 </div>
 
                 {/* Right Panel */}
-                <div className="w-1/2 bg-white p-10 text-black mt-4">
-                    <h2 className="text-2xl font-bold mb-6 text-center">Sign Up Account</h2>
+                <div className="w-3/5 bg-white p-10 text-black mt-4">
+                    <h2 className="text-2xl font-bold mb-6 text-center">Register Account</h2>
 
                     {/* Toggle Switch */}
                     <div className="mx-auto mb-6 bg-blue-300 rounded-full p-1 flex w-7/12 justify-center">
@@ -132,7 +192,7 @@ export default function RegisterPage() {
                         <input
                             type="text"
                             name="name"
-                            placeholder="Name"
+                            placeholder={`${formData.role === 'Sponsoree' ? "Name" : "Company Name"}`}
                             value={formData.name}
                             onChange={handleChange}
                             className="w-full p-3 border rounded-xl"
@@ -142,14 +202,86 @@ export default function RegisterPage() {
                         <input
                             type="email"
                             name="email"
-                            placeholder="Email"
+                            placeholder={`${formData.role === 'Sponsoree' ? "Email" : "Company Email"}`}
                             value={formData.email}
                             onChange={handleChange}
                             className="w-full p-3 border rounded-xl"
                         />
                         <span className="text-sm text-red-800 p-3">{formErrors.email}</span>
 
-                        <input
+                        {formData.role === 'Sponsoree' && (
+                            <div className="relative w-full mb-4">
+                                <select
+                                    name="category"
+                                    value={formData.category}
+                                    onChange={handleChange}
+                                    className="w-full appearance-none p-3 pr-10 border rounded-xl bg-white"
+                                >
+                                    <option value="">Select Category</option>
+                                    <option value="school">School</option>
+                                    <option value="university">University</option>
+                                    <option value="social organization">Social Organization</option>
+                                    <option value="religious organization">Religious Organization</option>
+                                    <option value="art organization">Art Organization</option>
+                                    <option value="environmental organization">Environmental Organization</option>
+                                    <option value="personal">Personal</option>
+                                    <option value="others">Others</option>
+                                </select>
+
+                                <div className="pointer-events-none absolute right-4 inset-y-0 flex items-center">
+                                    <ChevronDownIcon className="w-5 h-5 text-gray-600" />
+                                </div>
+                                <span className="text-sm text-red-800 p-3">{formErrors.category}</span>
+                            </div>
+                        )}
+
+                        {/* Password */}
+                        <div className="relative w-full mb-4">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                name="password"
+                                placeholder="Password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                className="w-full p-3 border rounded-xl pr-12"
+                            />
+                            <div
+                                className="absolute right-4 inset-y-0 flex items-center cursor-pointer text-gray-600"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? (
+                                    <EyeSlashIcon className="h-5 w-5" />
+                                ) : (
+                                    <EyeIcon className="h-5 w-5" />
+                                )}
+                            </div>
+                            <span className="text-sm text-red-800 p-3">{formErrors.password}</span>
+                        </div>
+
+                        {/* Confirm Password */}
+                        <div className="relative w-full mb-4">
+                            <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                name="confirmPassword"
+                                placeholder="Confirm Password"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                                className="w-full p-3 border rounded-xl pr-12"
+                            />
+                            <div
+                                className="absolute right-4 inset-y-0 flex items-center cursor-pointer text-gray-600"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            >
+                                {showConfirmPassword ? (
+                                    <EyeSlashIcon className="h-5 w-5" />
+                                ) : (
+                                    <EyeIcon className="h-5 w-5" />
+                                )}
+                            </div>
+                            <span className="text-sm text-red-800 p-3">{formErrors.confirmPassword}</span>
+                        </div>
+
+                        {/* <input
                             type="password"
                             name="password"
                             placeholder="Password"
@@ -167,7 +299,7 @@ export default function RegisterPage() {
                             onChange={handleChange}
                             className="w-full p-3 border rounded-xl"
                         />
-                        <span className="text-sm text-red-800 p-3">{formErrors.confirmPassword}</span>
+                        <span className="text-sm text-red-800 p-3">{formErrors.confirmPassword}</span> */}
 
                         {formData.role === 'Sponsor' && (
                             <div>
@@ -180,13 +312,28 @@ export default function RegisterPage() {
                                     className="w-full p-3 border rounded-xl"
                                 />
                                 <span className="text-sm text-red-800 p-3">{formErrors.nib}</span>
-                                <input
+                                <div className="col-span-full pt-3">
+                                    <label htmlFor="cover-photo" className="block text-base font-medium leading-6 text-gray-900">
+                                        NIB File
+                                    </label>
+                                    <Dragger {...props}>
+                                        <p className="ant-upload-drag-icon">
+                                            <InboxOutlined />
+                                        </p>
+                                        <p className="ant-upload-text">Click or drag file to this area to upload</p>
+                                        <p className="ant-upload-hint">
+                                            Only Accept PDF File and Accept Size Max (10 Mb)
+                                        </p>
+                                    </Dragger>
+                                    <span className="text-sm text-red-800">{formErrors.document}</span>
+                                </div>
+                                {/* <input
                                     type="file"
                                     name="document"
                                     onChange={handleChange}
                                     className="w-full text-secondary"
                                 />
-                                <span className="text-sm text-red-800 p-3">{formErrors.files}</span>
+                                <span className="text-sm text-red-800 p-3">{formErrors.files}</span> */}
                             </div>
                         )}
 
