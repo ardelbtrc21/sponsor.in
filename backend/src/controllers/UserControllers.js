@@ -6,6 +6,10 @@ import bcrypt from "bcryptjs";
 import sequelize, { Op } from "sequelize";
 import path from "path";
 import { unlink } from 'node:fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const createUserAdmin = async () => {
     const username = "admin";
@@ -40,14 +44,13 @@ export const getUserDetail = async (username) => {
 
         return user;
     } catch (error) {
-        console.log(error);
+        res.status(500).json({ msg: error.message });
     }
 };
 
 export const createUser = async (req, res) => {
     let { username, name, email, password, confirmPassword, role, category, nib } = req.body;
     let document = req.files?.document || null;
-    console.log(req)
 
     if (!username) {
         username = ""
@@ -68,7 +71,7 @@ export const createUser = async (req, res) => {
         const passwordRegexLowerCase = /(?=.*?[a-z])/;
         const passwordRegexDigit = /(?=.*?[0-9])/;
         const passwordRegexSpecialChar = /(?=.*?[^A-Za-z0-9])/;
-        const passwordRegexMinLen = /.{8,}$/;
+        const numberOnly = /^\d+$/;
         if (!username || username == "") errors.username = "Username must be filled in!";
         if (username && username != "" && username.length < 5) errors.username = "Username at least minimum 5 characters!";
         //cek jika user sudah terdaftar atau belum
@@ -77,33 +80,40 @@ export const createUser = async (req, res) => {
                 username: username.toLowerCase()
             }
         });
+        const email_found = await User.findOne({
+            where: {
+                email: email.toLowerCase()
+            }
+        });
         if (user) errors.username = "Username is already registered";
         if (!name || name == "") errors.name = "Name must be filled in!";
         if (name && name != "" && name.length < 3) errors.name = "Name at least minimum 3 characters!";
         if (!email || email == "") errors.email = "Email must be filled in!";
+        if (email_found) errors.email = "Email already registered!";
         if (email && emailRegex.test(email) == false) errors.email = "Email is invalid!";
         if (!password || password == "") errors.password = "Password must be filled in!";
-        if (!confirmPassword || confirmPassword == "") errors.confirmPassword = "Confirmation Password must be filled in!";
-        if (!passwordRegexUpperCase.test(password)) errors.password = "Password must contain at least one uppercase letter!";
-        if (!passwordRegexLowerCase.test(password)) errors.password = "Password must contain at least one lowercase letter!";
-        if (!passwordRegexDigit.test(password)) errors.password = "Password must contain at least one number!";
-        if (!passwordRegexSpecialChar.test(password)) errors.password = "Password must contain at least one special character!";
+        if (password && !confirmPassword || confirmPassword == "") errors.confirmPassword = "Confirmation Password must be filled in!";
+        if (password && !passwordRegexUpperCase.test(password)) errors.password = "Password must contain at least one uppercase letter!";
+        if (password && !passwordRegexLowerCase.test(password)) errors.password = "Password must contain at least one lowercase letter!";
+        if (password && !passwordRegexDigit.test(password)) errors.password = "Password must contain at least one number!";
+        if (password && !passwordRegexSpecialChar.test(password)) errors.password = "Password must contain at least one special character!";
         if (password && password.length < 8) errors.password = "Password at least minimum 8 characters!";
         if (password !== confirmPassword) errors.confirmPassword = "Passwords do not match"
         if (!role || role == "") errors.role = "Role must be filled in!";
         if (role == "Sponsoree" && !category && category == "") errors.category = "Category must be filled in!"
         if (role == "Sponsor" && !nib && nib == "") {
             errors.nib = "NIB must be filled in!"
-            console.log("masuk")
+        } else if (!numberOnly.test(nib)) {
+            errors.nib = "NIB only contains number!"
+        } else if (nib.length != 13) {
+            errors.nib = "NIB invalid!"
         }
         if (role == "Sponsor" && !document) errors.document = "Please submit NIB document!"
 
-        // if (role == "sponsor"){
-        //     for (let i = 1; i <= Object.keys(document).length; i++) {
+        let uploadPath = ""
+        let fileName = ""
         if (role == "Sponsor" && document !== null) {
-            console.log(document)
             const ext = path.extname(String(document.name)).toLowerCase();
-            console.log(ext)
             if (ext != ".pdf") {
                 errors.files = `File of ${document.name} file must be in PDF extension.`;
             }
@@ -111,11 +121,9 @@ export const createUser = async (req, res) => {
             if (fileSize > 10000000) {
                 errors.files = `File of ${document.name} must be less than 10 MB.`;
             }
-            const fileName = username + "_" + String(document.name);
-            const url = `../../data/nib/${fileName}`;
+            fileName = username + "_" + String(document.name);
+            uploadPath = path.join(__dirname, "..", "..", "data", "nib", fileName);
         }
-        //     }
-        // }
 
         if (Object.keys(errors).length != 0) {
             return res.status(404).json(errors);
@@ -131,21 +139,20 @@ export const createUser = async (req, res) => {
         });
 
         if (role === "Sponsor") {
-            try {
-                document.mv(`${url}`, async () => {
-                    try {
-                        await Sponsor.create({
-                            username: username,
-                            nib: nib,
-                            document: url
-                        })
-                    } catch (error) {
-                        console.log(error.message);
-                    }
-                });
-            } catch (error) {
-                console.log(error.message);
-            }
+            document.mv(uploadPath, async (err) => {
+                if (err) {
+                    return res.status(500).json({ msg: "File upload failed", error: err });
+                }
+                try {
+                    await Sponsor.create({
+                        username: username,
+                        nib: nib,
+                        document: fileName
+                    })
+                } catch (error) {
+                    res.status(400).json({ msg: error.message });
+                }
+            });
         }
         if (role === "Sponsoree") {
             try {
@@ -154,13 +161,12 @@ export const createUser = async (req, res) => {
                     category: category
                 })
             } catch (error) {
-                console.log(error.message);
+                res.status(400).json({ msg: error.message });
             }
         }
         res.status(201).json({ msg: "Register User Berhasil" });
     } catch (error) {
-        console.log(error.message)
-        res.status(400).json({ msg: error.message });
+        res.status(500).json({ msg: error.message });
     }
 };
 
@@ -275,20 +281,6 @@ export const getUserById = async (req, res) => {
     try {
         const username = req.params.username.toLowerCase();
 
-        // //mau edit akun user lain
-        // if (udomain !== req.session.userId) {
-        //     //cek user yang akses, admin atau bukan
-        //     const userCheck = await User.findOne({
-        //         where: {
-        //             udomain: req.session.userId
-        //         }
-        //     });
-
-        //     if (userCheck.role !== "Admin") {
-        //         return res.status(400).json({ msg: "Access Forbidden !" });
-        //     }
-        // }
-
         const user = await User.findOne({
             where: {
                 username: username
@@ -319,52 +311,6 @@ export const getUserById = async (req, res) => {
         res.status(500).json({ msg: error.message });
     }
 };
-
-// export const resetPassword = async (req, res) => {
-//     try {
-//         let { udomain } = req.body;
-
-//         //mau edit akun user lain
-//         if (udomain !== req.session.userId) {
-//             //cek user yang akses, admin atau bukan
-//             const userCheck = await User.findOne({
-//                 where: {
-//                     udomain: req.session.userId
-//                 }
-//             });
-
-//             if (userCheck.role !== "Admin") {
-//                 return res.status(400).json({ msg: "Access Forbidden !" });
-//             }
-//         }
-
-//         const user = await User.findOne({
-//             where: {
-//                 udomain: udomain.toLowerCase()
-//             }
-//         });
-
-//         if (!user) {
-//             return res.status(400).json({ msg: "User not found !" });
-//         }
-
-//         let password = "Bcabca01";
-//         const hashPassword = await bcrypt.hash(password, 10);
-
-//         await User.update({
-//             password: hashPassword,
-//             ever_reset_password: "false"
-//         }, {
-//             where: {
-//                 udomain: udomain
-//             }
-//         });
-
-//         res.status(200).json(user);
-//     } catch (error) {
-//         res.status(500).json({ msg: error.message });
-//     }
-// };
 
 export const updateUserAccount = async (req, res) => {
     let { username, name, email, profile_photo } = req.body;
@@ -414,7 +360,7 @@ export const updateUserAccount = async (req, res) => {
                     profile_photo: profile_photo
                 });
             } catch (error) {
-                console.log(error.message);
+                res.status(500).json({ msg: error.message });
             }
         }));
         res.status(201).json({ msg: "Update User Berhasil" });

@@ -144,7 +144,7 @@ export default function RegisterPage() {
                         <div className="space-y-4">
                             <div className="flex items-center space-x-4 bg-white text-black px-4 py-2 rounded-xl">
                                 <div className="font-bold">1</div>
-                                <span>Sign up your account</span>
+                                <span>Register your account</span>
                             </div>
                             <div className="flex items-center space-x-4 bg-[#223A59] px-4 py-2 rounded-xl">
                                 <div className="font-bold">2</div>
@@ -160,7 +160,7 @@ export default function RegisterPage() {
 
                 {/* Right Panel */}
                 <div className="w-3/5 bg-white p-10 text-black mt-4">
-                    <h2 className="text-2xl font-bold mb-6 text-center">Sign Up Account</h2>
+                    <h2 className="text-2xl font-bold mb-6 text-center">Register Account</h2>
 
                     {/* Toggle Switch */}
                     <div className="mx-auto mb-6 bg-blue-300 rounded-full p-1 flex w-7/12 justify-center">
