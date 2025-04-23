@@ -1,5 +1,6 @@
 import { Sequelize } from "sequelize";
 import db from "../../config/Database.js";
+import { v4 as uuidv4 } from "uuid";
 
 const Sponsor = db.define("sponsor", {
     sponsor_id: {

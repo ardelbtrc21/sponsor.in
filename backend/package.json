@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --env-file=.env index.js",
+    "start": "nodemon index.js",
     "migration:create": "npx sequelize-cli migration:create --name",
     "migrate": "npx sequelize-cli db:migrate",
     "migrate:rollback": "npx sequelize-cli db:migrate:undo"
@@ -24,17 +24,20 @@
     "dotenv": "^16.4.7",
     "eslint-config-prettier": "^10.1.1",
     "express": "^4.21.2",
+    "express-fileupload": "^1.5.1",
     "express-session": "^1.18.1",
     "path": "^0.12.7",
     "pg": "^8.14.0",
     "prettier": "^3.5.3",
-    "sequelize": "^6.37.6",
+    "react-icons": "^5.5.0",
+    "sequelize": "^6.37.7",
     "sequelize-cli": "^6.6.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
     "eslint": "^9.22.0",
     "eslint-plugin-react": "^7.37.4",
-    "globals": "^16.0.0"
+    "globals": "^16.0.0",
+    "nodemon": "^3.1.9"
   }
 }

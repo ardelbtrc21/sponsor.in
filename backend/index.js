@@ -6,13 +6,33 @@ import session from "express-session";
 import SequelizeStore from "connect-session-sequelize";
 import UserRoute from "./src/routes/UserRoute.js";
 import AuthRoute from "./src/routes/AuthRoute.js";
+import fileUpload from "express-fileupload";
+import proposalRoutes from '../backend/src/routes/Proposal.js';
+import listProposalRoutes from '../backend/src/routes/ListProposal.js';
+import milestoneRoutes from '../backend/src/routes/Milestone.js';
 // import { createUserAdmin } from "./src/controllers/UserControllers.js";
 import SponsorRoute from './src/routes/SponsorRoute.js'
 import ReportRoute from './src/routes/ReportRoute.js';
 
 dotenv.config();
+import proposalRoutes from '../backend/src/routes/Proposal.js';
+import listProposalRoutes from '../backend/src/routes/ListProposal.js';
+import milestoneRoutes from '../backend/src/routes/Milestone.js';
 
 const app = express();
+
+app.use(express.json()); 
+
+app.use(cors({
+    credentials: true,
+    origin: "http://localhost:3000",
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+}));
+
+app.use("/api/proposals", proposalRoutes);
+app.use("/api", listProposalRoutes);
+app.use("/api", milestoneRoutes);
+
 
 const sessionStore = SequelizeStore(session.Store)
 const store = new sessionStore({
@@ -36,15 +56,16 @@ app.use(session({
         secure: "auto"
     }
 }))
-app.use(cors({
-    credentials: true,
-    origin: "http://localhost:3000",
-}));
+// app.use(cors({
+//     credentials: true,
+//     origin: "http://localhost:3000",
+// }));
 
 app.use("/api/sponsors", SponsorRoute);
 app.set("query parser", "extended");
 app.disable("etag");
 app.use(express.json());
+app.use(fileUpload());
 app.use(express.static("public"));
 app.use("/api/sponsors", SponsorRoute);
 app.use("/api/report", ReportRoute);
