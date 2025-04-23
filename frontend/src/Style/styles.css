@@ -1,0 +1,104 @@
+root{
+    color: #031930;
+}
+
+.hdr{
+    background-color: #031930;
+    height: 50px;
+    color: white;
+    size: 20px;
+    letter-spacing: 1px;
+}
+
+.ftr{
+    display: block;
+    align-items: end;
+    margin-bottom: 0px;
+}
+
+.btn{
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.btn-primary{
+    background-color: #031930;
+    border-color: #031930 !important;
+    letter-spacing: 2px;
+    border-width: 4px;
+    font-weight: 600;
+    border-radius: 15px;
+}
+
+.btn-secondary{
+    background-color: white;
+    border-color: #031930 !important;
+    border-width: 4px;
+    letter-spacing: 2px;
+    font-weight: 600;
+    border-radius: 15px;
+}
+
+.btn-secondary-without-border{
+    background-color: white;
+    letter-spacing: 2px;
+    font-weight: 600;
+    border-radius: 15px;
+}
+
+.custom-header{
+    font-size: 32px;
+    color: #031930;
+    display: flex;
+    justify-content: center;
+    letter-spacing: 3px;
+}
+
+.custom-menu{
+    display: flex;
+    padding-top: 15px;
+    justify-content: space-between;
+    letter-spacing: 2px;
+    color: #031930;
+}
+
+.custom-box{
+    width: 320px;
+    height: 41px;
+}
+
+.event-group{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid black;
+    padding-bottom: 15px;
+}
+
+.event-name{
+    width: 400px;
+    display: flex;
+    justify-content: center;
+}
+
+.event-desc{
+    width: 720px;
+    display: flex;
+    justify-content: center;
+}
+
+.event-date{
+    width: 200px;
+    display: flex;
+    justify-content: center;
+}
+
+.custom-title{
+    font-size: 20px;
+    color: #031930;
+    display: flex;
+    justify-content: center;
+    letter-spacing: 1px;
+}
