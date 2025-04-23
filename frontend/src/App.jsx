@@ -2,6 +2,9 @@ import { ConfigProvider } from "antd";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Test from "./components/Test";
 import "./Style/index.css";
+import ApproveButton from "./pages/view-detail-proposal";
+import ViewProposalStatus from "./pages/view-proposal-status";
+import ViewListSubmission from "./pages/view-list-proposal";
 
 function ThemeProvider({ children }) {
   return (
@@ -33,7 +36,7 @@ function ThemeProvider({ children }) {
     >
       {children}
     </ConfigProvider>
-  );
+  );  
 }
 
 function App() {
@@ -46,6 +49,9 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/test" element={<Test />} />
+              <Route path="/welcome" element={<ApproveButton />} />
+              <Route path="/proposal-status" element={<ViewProposalStatus />} />
+              <Route path="/proposal-list" element={<ViewListSubmission/>} />
               {/* <Route path="*" element={<PageNotFound />} /> */}
             </Routes>
           </BrowserRouter>

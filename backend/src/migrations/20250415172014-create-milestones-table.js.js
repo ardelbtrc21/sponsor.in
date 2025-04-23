@@ -19,6 +19,14 @@ export default {
                 type: Sequelize.TEXT,
                 allowNull: false
             },
+            milestone_description:{
+                type: Sequelize.TEXT,
+                allowNull: false
+            },
+            milestone_attachment: {
+                type: Sequelize.TEXT,
+                allowNull: true
+            },
             milestone_status: {
                 type: Sequelize.TEXT,
                 allowNull: false
@@ -29,7 +37,7 @@ export default {
             },
             completed_date: {
                 type: Sequelize.DATE,
-                allowNull: false
+                allowNull: true
             },
             createdAt: {
               allowNull: false,
