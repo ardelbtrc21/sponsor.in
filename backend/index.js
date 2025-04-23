@@ -61,7 +61,6 @@ app.use(session({
 //     origin: "http://localhost:3000",
 // }));
 
-app.use("/api/sponsors", SponsorRoute);
 app.set("query parser", "extended");
 app.disable("etag");
 app.use(express.json());
