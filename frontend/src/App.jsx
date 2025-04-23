@@ -1,6 +1,8 @@
 import { ConfigProvider } from "antd";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Test from "./components/Test";
+import Login from "./pages/Login";
+import Sidebar from "./components/Sidebar";
+import Register from "./pages/Register";
 import "./Style/index.css";
 import ApproveButton from "./pages/view-detail-proposal";
 import ViewProposalStatus from "./pages/view-proposal-status";
@@ -48,7 +50,9 @@ function App() {
         {/* <AuthContext.Provider value={prov}> */}
           <BrowserRouter>
             <Routes>
-              <Route path="/test" element={<Test />} />
+              <Route path="/" element={<Login />} />
+              <Route path="/dashboard" element={<Sidebar />} />
+              <Route path="/signUp" element={<Register />} />
               <Route path="/welcome" element={<ApproveButton />} />
               <Route path="/proposal-status" element={<ViewProposalStatus />} />
               <Route path="/proposal-list" element={<ViewListSubmission/>} />

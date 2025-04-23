@@ -4,7 +4,7 @@
 export default {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable("sponsors", {
-      sponsoree_id: {
+      sponsor_id: {
         type: Sequelize.UUID,
         defaultValue: () => uuidv4(),
         primaryKey: true,
@@ -15,7 +15,11 @@ export default {
         type: Sequelize.TEXT,
         allowNull: false
       },
-      category: {
+      nib: {
+        type: Sequelize.TEXT,
+        allowNull: false
+      },
+      document: {
         type: Sequelize.TEXT,
         allowNull: false
       },
