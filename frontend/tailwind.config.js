@@ -19,7 +19,12 @@ module.exports = {
     // './node_modules/flowbite//*.{js,jsx,ts,tsx}'
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        blusponsorin: "#031930",
+        blusponsorinHover: "#2563EB"
+      },
+    },
   },
   plugins: [
     // require('flowbite/plugin')

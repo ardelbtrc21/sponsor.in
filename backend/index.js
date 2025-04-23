@@ -7,6 +7,9 @@ import SequelizeStore from "connect-session-sequelize";
 import UserRoute from "./src/routes/UserRoute.js";
 import AuthRoute from "./src/routes/AuthRoute.js";
 // import { createUserAdmin } from "./src/controllers/UserControllers.js";
+import SponsorRoute from './src/routes/SponsorRoute.js'
+import ReportRoute from './src/routes/ReportRoute.js';
+
 dotenv.config();
 
 const app = express();
@@ -38,10 +41,13 @@ app.use(cors({
     origin: "http://localhost:3000",
 }));
 
+app.use("/api/sponsors", SponsorRoute);
 app.set("query parser", "extended");
 app.disable("etag");
 app.use(express.json());
 app.use(express.static("public"));
+app.use("/api/sponsors", SponsorRoute);
+app.use("/api/report", ReportRoute);
 app.use(UserRoute);
 app.use(AuthRoute);
 app.listen(process.env.APP_PORT, () => {

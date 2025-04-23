@@ -1,6 +1,10 @@
 import { ConfigProvider } from "antd";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
+import Test from "./components/Test";
+import SponsorList from "./pages/SponsorList";
+import SponsorDetail from "./pages/SponsorDetail";
+import ReportAccountForm from "./pages/ReportAccountForm";
 import "./Style/index.css";
 
 function ThemeProvider({ children }) {
@@ -47,6 +51,9 @@ function App() {
             <Routes>
               <Route path="/" element={<Login />} />
               {/* <Route path="*" element={<PageNotFound />} /> */}
+              <Route path="/sponsors" element={<SponsorList />} />
+              <Route path="/sponsors/:id" element={<SponsorDetail />} />
+              <Route path="/report/:id" element={<ReportAccountForm/>} />
             </Routes>
           </BrowserRouter>
         {/* </AuthContext.Provider> */}
