@@ -1,5 +1,5 @@
 import Status from '../models/status.js'
-import Submission from '../models/submission.js';
+import Submission from '../models/proposal.js';
 
 export const doApprovalProposal = async(req, res) => {
     const {status_id} = req.params;

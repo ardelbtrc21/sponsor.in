@@ -1,10 +1,10 @@
-import { Sequelize } from "sequelize";
-import db from "../../config/Database.js";
-import { v4 as uuidv4 } from 'uuid';
-import Status from "./status.js";
+'use strict';
 
-const Milestone = db.define("milestone", {
-    milestone_id: {
+/** @type {import('sequelize-cli').Migration} */
+export default {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable("milestones", {
+      milestone_id: {
         type: Sequelize.UUID,
         defaultValue: () => uuidv4(),
         primaryKey: true,
@@ -33,8 +33,7 @@ const Milestone = db.define("milestone", {
       },
       milestone_status: {
         type: Sequelize.TEXT,
-        allowNull: false,
-        defaultValue: "pending"
+        allowNull: false
       },
       created_date: {
         type: Sequelize.DATE,
@@ -52,11 +51,20 @@ const Milestone = db.define("milestone", {
         allowNull: false,
         type: Sequelize.DATE
       },
-}, {});
-
-Milestone.belongsTo(Status, {
-    foreignKey: "status_id",
-    as: "status"
-});
-
-export default Milestone;
+    });
+    await queryInterface.addConstraint("milestones", {
+      fields: ["proposal_id"],
+      type: "foreign key",
+      name: "milestone_proposals",
+      references: {
+        table: "proposals",
+        field: "proposal_id"
+      },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE"
+    });
+  },
+  down: async (queryInterface) => {
+    await queryInterface.dropTable("milestones");
+  },
+};
