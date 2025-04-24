@@ -12,9 +12,6 @@ import listProposalRoutes from '../backend/src/routes/ListProposal.js';
 import milestoneRoutes from '../backend/src/routes/Milestone.js';
 // import { createUserAdmin } from "./src/controllers/UserControllers.js";
 dotenv.config();
-import proposalRoutes from '../backend/src/routes/Proposal.js';
-import listProposalRoutes from '../backend/src/routes/ListProposal.js';
-import milestoneRoutes from '../backend/src/routes/Milestone.js';
 
 const app = express();
 
