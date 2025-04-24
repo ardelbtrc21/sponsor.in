@@ -11,6 +11,10 @@ export default {
         allowNull: false,
         unique: true
       },
+      proposal_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+      },
       status_id: {
         type: Sequelize.UUID,
         allowNull: false
@@ -47,6 +51,17 @@ export default {
         allowNull: false,
         type: Sequelize.DATE
       },
+    });
+    await queryInterface.addConstraint("milestones", {
+      fields: ["proposal_id"],
+      type: "foreign key",
+      name: "milestone_proposals",
+      references: {
+        table: "proposals",
+        field: "proposal_id"
+      },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE"
     });
   },
   down: async (queryInterface) => {
