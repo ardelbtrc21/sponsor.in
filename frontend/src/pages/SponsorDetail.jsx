@@ -73,7 +73,7 @@ const SponsorDetail = () => {
 
         <div className="flex gap-3 mt-4">
         <Link
-            to={`/proposal/create/${sponsor.username}`}
+            to={`/proposal/create/${sponsor.sponsor_id}`}
             className="bg-blue-600 text-white px-5 py-2 rounded-md text-sm hover:bg-blue-700 transition-colors duration-200"
           >
             Submit a Proposal

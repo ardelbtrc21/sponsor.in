@@ -1,7 +1,7 @@
 import { ConfigProvider } from "antd";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
-import Test from "./components/Test";
+// import Test from "./components/Test";
 import SponsorList from "./pages/SponsorList";
 import SponsorDetail from "./pages/SponsorDetail";
 import ReportAccountForm from "./pages/ReportAccountForm";
@@ -11,6 +11,8 @@ import "./Style/index.css";
 import ApproveButton from "./pages/view-detail-proposal";
 import ViewProposalStatus from "./pages/view-proposal-status";
 import ViewListSubmission from "./pages/view-list-proposal";
+import CreateProposalForm from "./pages/CreateProposalForm";
+import AccountSetting from "./pages/AccountSettingForm";
 
 function ThemeProvider({ children }) {
   return (
@@ -64,6 +66,8 @@ function App() {
               <Route path="/sponsors" element={<SponsorList />} />
               <Route path="/sponsors/:id" element={<SponsorDetail />} />
               <Route path="/report/:id" element={<ReportAccountForm/>} />
+              <Route path="/proposal/create/:id" element={<CreateProposalForm/>}/>
+              <Route path="/account-setting/:id" element={<AccountSetting/>}/>
             </Routes>
           </BrowserRouter>
         {/* </AuthContext.Provider> */}
