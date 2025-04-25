@@ -21,6 +21,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        blusponsorinHover: "#2563EB",
         primary: '#031930',
         secondary: '#758AA5',
         white: '#FFFFFF'
