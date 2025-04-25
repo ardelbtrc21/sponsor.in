@@ -15,9 +15,6 @@ import SponsorRoute from './src/routes/SponsorRoute.js'
 import ReportRoute from './src/routes/ReportRoute.js';
 
 dotenv.config();
-import proposalRoutes from '../backend/src/routes/Proposal.js';
-import listProposalRoutes from '../backend/src/routes/ListProposal.js';
-import milestoneRoutes from '../backend/src/routes/Milestone.js';
 
 const app = express();
 

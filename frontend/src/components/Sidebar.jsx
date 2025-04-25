@@ -8,6 +8,7 @@ import { Logout, reset, getMe } from "../features/authSlice";
 const Sidebar = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+     const { user } = useSelector((state) => state.auth);
     const handleLogout = () => {
         try {
             Swal.fire({
