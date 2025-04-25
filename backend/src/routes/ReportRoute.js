@@ -3,6 +3,6 @@ import { newReport } from "../controllers/ReportControllers.js";
 
 const router = express.Router();
 
-router.post("/", newReport);  // hanya "/" karena prefix sudah /api/report
+router.post("/", newReport);
 
 export default router;
