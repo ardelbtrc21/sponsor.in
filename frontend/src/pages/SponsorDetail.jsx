@@ -72,9 +72,12 @@ const SponsorDetail = () => {
         </div>
 
         <div className="flex gap-3 mt-4">
-          <button className="bg-blue-600 text-white px-5 py-2 rounded-md text-sm hover:bg-blue-700 transition-colors duration-200">
+        <Link
+            to={`/proposal/create/${sponsor.username}`}
+            className="bg-blue-600 text-white px-5 py-2 rounded-md text-sm hover:bg-blue-700 transition-colors duration-200"
+          >
             Submit a Proposal
-          </button>
+          </Link>
           <Link
             to={`/report/${sponsor.username}`}
             className="bg-black text-white px-5 py-2 rounded-md text-sm hover:opacity-90 transition-opacity duration-200"

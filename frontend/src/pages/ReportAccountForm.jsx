@@ -4,8 +4,14 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import { Check, ArrowLeft} from "lucide-react";
+import { useEffect } from "react";
+
 
 const ReportAccountForm = () => {
+  useEffect(() => {
+    console.log("User from Redux:", user);
+  }, []);
+  
   const { id: reportedUsername } = useParams();
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
@@ -19,10 +25,10 @@ const ReportAccountForm = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post("http://localhost:5000/api/report", {
+      await axios.post("/api/report", {
         report_id: uuidv4(),
         username: reportedUsername,
-        created_by: user?.username || "",
+        created_by: (user && user.username),
         created_for: reportedUsername,
         reason,
         description,
@@ -86,7 +92,7 @@ const ReportAccountForm = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full bg-blusponsorin text-white py-3 rounded-md text-sm font-medium transition duration-200 ${
+            className={`w-full bg-primary text-white py-3 rounded-md text-sm font-medium transition duration-200 ${
               loading ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"
             }`}
           >

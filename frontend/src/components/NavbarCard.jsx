@@ -12,7 +12,7 @@ const Navbar = () => {
   return (
     <>
       {/* Navbar */}
-      <nav className="bg-blusponsorin text-white fixed top-0 left-0 w-full px-4 py-3 z-50 shadow-md flex items-center justify-between">
+      <nav className="bg-primary text-white fixed top-0 left-0 w-full px-4 py-3 z-50 shadow-md flex items-center justify-between">
         {/* Kiri: Avatar + Dot menu */}
         <div className="flex items-center gap-3">
           <img
