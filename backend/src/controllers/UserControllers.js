@@ -103,10 +103,11 @@ export const createUser = async (req, res) => {
         if (role == "Sponsoree" && !category && category == "") errors.category = "Category must be filled in!"
         if (role == "Sponsor" && !nib && nib == "") {
             errors.nib = "NIB must be filled in!"
-        } else if (!numberOnly.test(nib)) {
-            errors.nib = "NIB only contains number!"
-        } else if (nib.length != 13) {
-            errors.nib = "NIB invalid!"
+            if (!numberOnly.test(nib)) {
+                errors.nib = "NIB only contains number!"
+            } else if (nib.length != 13) {
+                errors.nib = "NIB invalid!"
+            }
         }
         if (role == "Sponsor" && !document) errors.document = "Please submit NIB document!"
 

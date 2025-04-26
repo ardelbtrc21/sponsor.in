@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { LoginUser, reset, getMe } from "../features/authSlice";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import Swal from "sweetalert2";
 
 const Login = () => {
     const [username, setUsername] = useState("");
@@ -35,7 +36,11 @@ const Login = () => {
                 dispatch(getMe());
             })
             .catch((error) => {
-                console.log("Login gagal:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: error,
+                });
             });
     };
 
