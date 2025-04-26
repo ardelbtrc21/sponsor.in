@@ -1,13 +1,17 @@
 // src/components/Sidebar.js
-import React from 'react';
 import Swal from "sweetalert2";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Logout, reset, getMe } from "../features/authSlice";
 
+import { Link } from "react-router-dom";
+
 const Sidebar = () => {
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+     const { user } = useSelector((state) => state.auth);
     const handleLogout = () => {
         try {
             Swal.fire({
@@ -39,23 +43,20 @@ const Sidebar = () => {
                 <h1 className="text-xl font-bold">Sponsor.in</h1>
             </div>
             <nav className="flex-1 p-4">
-                <ul>
-                    <li className="mb-2">
-                        <a href="#" className="block p-2 rounded hover:bg-gray-700">Dummy</a>
-                    </li>
-                    <li className="mb-2">
-                        <a href="#" className="block p-2 rounded hover:bg-gray-700">Dummy</a>
-                    </li>
-                    <li className="mb-2">
-                        <a href="#" className="block p-2 rounded hover:bg-gray-700">Dummy</a>
-                    </li>
-                    <li className="mb-2">
-                        <a href="#" className="block p-2 rounded hover:bg-gray-700">Dummy</a>
-                    </li>
-                    <li className="mb-2">
-                        <a href="#" className="block p-2 rounded hover:bg-gray-700">Dummy</a>
-                    </li>
-                </ul>
+            <ul className="p-4 space-y-3">
+          <li>
+            <Link to="/" onClick={() => setIsSidebarOpen(false)}>Home</Link>
+          </li>
+          <li>
+            <Link to="/sponsors" onClick={() => setIsSidebarOpen(false)}>Sponsors</Link>
+          </li>
+          <li>
+            <Link to="/about" onClick={() => setIsSidebarOpen(false)}>About</Link>
+          </li>
+          <li>
+            <button onClick={() => alert("Logging out...")}>Logout</button>
+          </li>
+        </ul>
             </nav>
             <div className="p-4">
                 <button

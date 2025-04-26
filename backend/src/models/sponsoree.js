@@ -28,4 +28,4 @@ const Sponsoree = db.define("sponsoree", {
     },
 }, {});
 
-export default Sponsoree;
+export default Sponsoree;

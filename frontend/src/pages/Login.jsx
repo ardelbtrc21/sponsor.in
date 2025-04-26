@@ -16,10 +16,6 @@ const Login = () => {
     );
 
     useEffect(() => {
-        dispatch(getMe());
-    }, [dispatch]);
-
-    useEffect(() => {
         let redirectTo = localStorage.getItem("redirectTo");
         if (redirectTo !== null && (user || isSuccess)) {
             navigate(redirectTo);
@@ -33,9 +29,15 @@ const Login = () => {
 
     const Auth = (e) => {
         e.preventDefault();
-        dispatch(LoginUser({ username, password }));
+        dispatch(LoginUser({ username, password }))
+            .unwrap()
+            .then(() => {
+                dispatch(getMe());
+            })
+            .catch((error) => {
+                console.log("Login gagal:", error);
+            });
     };
-
 
     return (
         <div className="w-full h-full flex items-center justify-center bg-white text-black">
