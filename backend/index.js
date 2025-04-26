@@ -11,6 +11,10 @@ import proposalRoutes from '../backend/src/routes/Proposal.js';
 import listProposalRoutes from '../backend/src/routes/ListProposal.js';
 import milestoneRoutes from '../backend/src/routes/Milestone.js';
 // import { createUserAdmin } from "./src/controllers/UserControllers.js";
+import SponsorRoute from './src/routes/SponsorRoute.js'
+import ReportRoute from './src/routes/ReportRoute.js';
+import ProposalRoute from './src/routes/ProposalRoute.js';
+
 dotenv.config();
 
 const app = express();
@@ -60,6 +64,9 @@ app.disable("etag");
 app.use(express.json());
 app.use(fileUpload());
 app.use(express.static("public"));
+app.use("/api/sponsors", SponsorRoute);
+app.use("/api/report", ReportRoute);
+app.use("/api/create-proposal", ProposalRoute);
 app.use(UserRoute);
 app.use(AuthRoute);
 app.listen(process.env.APP_PORT, () => {

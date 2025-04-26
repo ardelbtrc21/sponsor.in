@@ -1,16 +1,25 @@
 import React from "react";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 const ApproveButton = () => {
   const handleStatusChange = async () => {
     try {
-      const response = await axios.put(
-        "http://localhost:5000/api/status/550e8400-e29b-41d4-a716-446655440000/approve"
+      await axios.put(
+        "http://localhost:5000/api/proposals/550e8400-e29b-41d4-a716-446655442222/approve"
       );
-      alert("Status updated!");
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Successfully update status."
+      });
     } catch (error) {
       console.error("Erreresresror: ", error);
-      alert("Failed to update status");
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: error
+      });
     }
   };
 

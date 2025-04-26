@@ -280,6 +280,7 @@ export const getUsers = async (req, res) => {
 
 export const getUserById = async (req, res) => {
     try {
+        console.log("req sini: " + req)
         const username = req.params.username.toLowerCase();
 
         const user = await User.findOne({
@@ -290,19 +291,19 @@ export const getUserById = async (req, res) => {
                     model: Sponsor,
                     as: "user_sponsors",
                     required: true,
-                    attributes: ["username", "nib", "document"],
+                    attributes: ["username", "nib", "document", "sponsor_id"],
                     duplicating: false
                 },
                 {
                     model: Sponsoree,
                     as: "user_sponsorees",
                     required: true,
-                    attributes: ["username", "category"],
+                    attributes: ["username", "category", "sponsoree_id"],
                     duplicating: false
                 }
             ]
         });
-
+        console.log("user disini: " + user)
         if (!user) {
             return res.status(400).json({ msg: "User not found !" });
         }
