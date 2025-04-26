@@ -6,30 +6,32 @@ export const doApprovalProposal = async(req, res) => {
     console.log("Incoming status_id:", status_id);
     try{
         let errors = {};
-        const data = await Status.findOne({
+        const currentStatus = await Status.findOne({
             where: {
                 status_id: status_id,
                 status_name: "SUBMITTED",
             }
         });
 
-        if (!data) {
+        if (!currentStatus) {
             return res.status(404).json({ message: "No 'submitted' status found." });
         }
       
-          data.status_name = "UNDER REVIEW";
-          await data.save();
-      
-          return res.status(200).json({
-            message: "Status updated to UNDER REVIEW",
-            data,
-          });
+        const newStatus = await Status.create({
+          submission_id: currentStatus.submission_id,
+          status_name: "UNDER REVIEW",
+        });
+    
+        return res.status(201).json({
+          message: "New status 'UNDER REVIEW' added.",
+          data: newStatus,
+        });
     } catch(err){
-        console.log(err);
-        return res.status(500).json({
-            message: "Internal Server Error",
-            error: err.message,
-          });
+      console.log(err);
+      return res.status(500).json({
+          message: "Internal Server Error",
+          error: err.message,
+        });
     }
 }
 

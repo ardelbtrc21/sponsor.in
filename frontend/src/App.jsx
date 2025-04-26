@@ -4,9 +4,9 @@ import Login from "./pages/Login";
 import Sidebar from "./components/Sidebar";
 import Register from "./pages/Register";
 import "./Style/index.css";
-import ApproveButton from "./pages/view-detail-proposal";
-import ViewProposalStatus from "./pages/view-proposal-status";
-import ViewListSubmission from "./pages/view-list-proposal";
+import ApproveButton from "./pages/ViewDetailProposal";
+import ViewProposalStatus from "./pages/ViewProposalStatus";
+import ViewListSubmission from "./pages/ViewListProposal";
 
 function ThemeProvider({ children }) {
   return (
