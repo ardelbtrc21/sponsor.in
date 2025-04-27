@@ -1,5 +1,4 @@
 import Submission from "../models/proposal.js";
-import Status from "../models/status.js";
 
 export const getAllSubmissions = async (req, res) => {
   try {

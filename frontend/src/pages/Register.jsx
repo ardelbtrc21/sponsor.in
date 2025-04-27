@@ -327,13 +327,6 @@ export default function RegisterPage() {
                                     </Dragger>
                                     <span className="text-sm text-red-800">{formErrors.document}</span>
                                 </div>
-                                {/* <input
-                                    type="file"
-                                    name="document"
-                                    onChange={handleChange}
-                                    className="w-full text-secondary"
-                                />
-                                <span className="text-sm text-red-800 p-3">{formErrors.files}</span> */}
                             </div>
                         )}
 

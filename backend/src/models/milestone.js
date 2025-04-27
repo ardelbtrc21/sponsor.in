@@ -1,7 +1,7 @@
 import { Sequelize } from "sequelize";
 import db from "../../config/Database.js";
 import { v4 as uuidv4 } from 'uuid';
-import Status from "./status.js";
+import ProposalStatus from "./proposal_status.js";
 
 const Milestone = db.define("milestone", {
     milestone_id: {
@@ -54,7 +54,7 @@ const Milestone = db.define("milestone", {
       },
 }, {});
 
-Milestone.belongsTo(Status, {
+Milestone.belongsTo(ProposalStatus, {
     foreignKey: "status_id",
     as: "status"
 });
