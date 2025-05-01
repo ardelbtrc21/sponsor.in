@@ -54,9 +54,9 @@ const Milestone = db.define("milestone", {
       },
 }, {});
 
-Milestone.belongsTo(Status, {
-    foreignKey: "status_id",
-    as: "status"
-});
+// Milestone.belongsTo(Status, {
+//     foreignKey: "status_id",
+//     as: "status"
+// });
 
 export default Milestone;

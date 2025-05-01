@@ -7,11 +7,14 @@ import { Logout, reset, getMe } from "../features/authSlice";
 
 import { Link } from "react-router-dom";
 
+
+
 const Sidebar = () => {
+    const { user } = useSelector((state) => state.auth);
+    console.log("username di setting account: " + (user && user.username))
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const dispatch = useDispatch();
     const navigate = useNavigate();
-     const { user } = useSelector((state) => state.auth);
     const handleLogout = () => {
         try {
             Swal.fire({
@@ -51,7 +54,7 @@ const Sidebar = () => {
             <Link to="/sponsors" onClick={() => setIsSidebarOpen(false)}>Sponsors</Link>
           </li>
           <li>
-            <Link to="/about" onClick={() => setIsSidebarOpen(false)}>About</Link>
+            <Link to={`/account-setting/${(user && user.username)}`} onClick={() => setIsSidebarOpen(false)}>Setting Account</Link>
           </li>
           <li>
             <button onClick={() => alert("Logging out...")}>Logout</button>

@@ -1,5 +1,5 @@
 import { ConfigProvider } from "antd";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 // import Test from "./components/Test";
 import SponsorList from "./pages/SponsorList";
@@ -8,12 +8,16 @@ import ReportAccountForm from "./pages/ReportAccountForm";
 import Sidebar from "./components/Sidebar";
 import Register from "./pages/Register";
 import "./Style/index.css";
-import ApproveButton from "./pages/view-detail-proposal";
-import ViewProposalStatus from "./pages/view-proposal-status";
-import ViewListSubmission from "./pages/view-list-proposal";
+import ApproveButton from "./pages/ViewDetailProposal";
+import ViewProposalStatus from "./pages/ViewProposalStatus";
+import ViewListSubmission from "./pages/ViewListProposal";
 import CreateProposalForm from "./pages/CreateProposalForm";
-import AccountSetting from "./pages/AccountSettingForm";
-
+import AccountSettingForm from "./pages/AccountSettingForm";
+import { useDispatch, useSelector } from "react-redux";
+import { getMe } from "./features/authSlice";
+import { useEffect, useState } from "react";
+import { Spin } from "antd";
+ 
 function ThemeProvider({ children }) {
   return (
     <ConfigProvider
@@ -44,36 +48,55 @@ function ThemeProvider({ children }) {
     >
       {children}
     </ConfigProvider>
-  );  
-}
-
-function App() {
-  // const prov = useAuthProvider();
-
-  return (
-    <div>
-      <ThemeProvider>
-        {/* <AuthContext.Provider value={prov}> */}
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Login />} />
-              <Route path="/dashboard" element={<Sidebar />} />
-              <Route path="/signUp" element={<Register />} />
-              <Route path="/welcome" element={<ApproveButton />} />
-              <Route path="/proposal-status" element={<ViewProposalStatus />} />
-              <Route path="/proposal-list" element={<ViewListSubmission/>} />
-              {/* <Route path="*" element={<PageNotFound />} /> */}
-              <Route path="/sponsors" element={<SponsorList />} />
-              <Route path="/sponsors/:id" element={<SponsorDetail />} />
-              <Route path="/report/:id" element={<ReportAccountForm/>} />
-              <Route path="/proposal/create/:id" element={<CreateProposalForm/>}/>
-              <Route path="/account-setting/:id" element={<AccountSetting/>}/>
-            </Routes>
-          </BrowserRouter>
-        {/* </AuthContext.Provider> */}
-      </ThemeProvider>
-    </div>
   );
 }
-
+ 
+function App() {
+  const dispatch = useDispatch();
+  const [loadingSession, setLoadingSession] = useState(true);
+  const { user } = useSelector((state) => state.auth);
+ 
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        await dispatch(getMe()).unwrap();
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoadingSession(false);
+      }
+    };
+ 
+    fetchUser();
+  }, [dispatch]);
+ 
+  if (loadingSession) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <Spin size="large" tip="Loading Session..." />
+      </div>
+    );
+  }
+ 
+  return (
+    <ThemeProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Login />} />
+          <Route path="/dashboard" element={user ? <Sidebar /> : <Navigate to="/" />} />
+          <Route path="/signUp" element={<Register />} />
+          <Route path="/welcome" element={user ? <ApproveButton /> : <Navigate to="/" />} />
+          <Route path="/proposal-status" element={user ? <ViewProposalStatus /> : <Navigate to="/" />} />
+          <Route path="/proposal-list" element={user ? <ViewListSubmission /> : <Navigate to="/" />} />
+          <Route path="/sponsors" element={user ? <SponsorList /> : <Navigate to="/" />} />
+          <Route path="/sponsors/:id" element={user ? <SponsorDetail /> : <Navigate to="/" />} />
+          <Route path="/report/:id" element={user ? <ReportAccountForm /> : <Navigate to="/" />} />
+          <Route path="/proposal/create/:id" element={user ? <CreateProposalForm /> : <Navigate to="/" />} />
+          <Route path="/account-setting/:id" element={user ? <AccountSettingForm /> : <Navigate to="/" />} />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
+  );
+}
+ 
 export default App;

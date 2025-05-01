@@ -25,13 +25,13 @@ const ReportAccountForm = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post("http://localhost:5000/api/report", {
+      await axios.post("/api/report", {
         report_id: uuidv4(),
         username: reportedUsername,
         created_by: (user && user.username),
         created_for: reportedUsername,
-        reason,
-        description,
+        reason: reason,
+        description: description,
         status: "submitted",
         createdAt: new Date(),
       });
