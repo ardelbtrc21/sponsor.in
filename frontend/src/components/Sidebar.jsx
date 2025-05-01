@@ -1,9 +1,9 @@
 // src/components/Sidebar.js
 import Swal from "sweetalert2";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Logout, reset, getMe } from "../features/authSlice";
+import { Logout, reset } from "../features/authSlice";
 
 import { Link } from "react-router-dom";
 
@@ -15,6 +15,9 @@ const Sidebar = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    useEffect(() => {
+        console.log("User from Redux:", user);
+    }, []);
     const handleLogout = () => {
         try {
             Swal.fire({
@@ -46,20 +49,20 @@ const Sidebar = () => {
                 <h1 className="text-xl font-bold">Sponsor.in</h1>
             </div>
             <nav className="flex-1 p-4">
-            <ul className="p-4 space-y-3">
-          <li>
-            <Link to="/" onClick={() => setIsSidebarOpen(false)}>Home</Link>
-          </li>
-          <li>
-            <Link to="/sponsors" onClick={() => setIsSidebarOpen(false)}>Sponsors</Link>
-          </li>
-          <li>
-            <Link to={`/account-setting/${(user && user.username)}`} onClick={() => setIsSidebarOpen(false)}>Setting Account</Link>
-          </li>
-          <li>
-            <button onClick={() => alert("Logging out...")}>Logout</button>
-          </li>
-        </ul>
+                <ul className="p-4 space-y-3">
+                    <li>
+                        <Link to="/" onClick={() => setIsSidebarOpen(false)}>Home</Link>
+                    </li>
+                    <li>
+                        <Link to="/sponsors" onClick={() => setIsSidebarOpen(false)}>Sponsors</Link>
+                    </li>
+                    <li>
+                        <Link to="/about" onClick={() => setIsSidebarOpen(false)}>About</Link>
+                    </li>
+                    <li>
+                        <button onClick={() => alert("Logging out...")}>Logout</button>
+                    </li>
+                </ul>
             </nav>
             <div className="p-4">
                 <button

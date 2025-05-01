@@ -4,13 +4,3 @@
 }
 @tailwind components;
 @tailwind utilities;
-
-/* Ensure the body takes full height */
-html, body {
-    @apply h-full;
-}
-
-/* Remove horizontal overflow */
-body {
-    @apply overflow-x-hidden;
-}

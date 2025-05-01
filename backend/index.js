@@ -10,10 +10,11 @@ import fileUpload from "express-fileupload";
 import proposalRoutes from '../backend/src/routes/Proposal.js';
 import listProposalRoutes from '../backend/src/routes/ListProposal.js';
 import milestoneRoutes from '../backend/src/routes/Milestone.js';
-// import { createUserAdmin } from "./src/controllers/UserControllers.js";
 import SponsorRoute from './src/routes/SponsorRoute.js'
 import ReportRoute from './src/routes/ReportRoute.js';
 import ProposalRoute from './src/routes/ProposalRoute.js';
+import TagRoute from "./src/routes/TagRoute.js";
+import TargetRoute from "./src/routes/TargetRoute.js";
 
 dotenv.config();
 
@@ -54,10 +55,6 @@ app.use(session({
         secure: "auto"
     }
 }))
-// app.use(cors({
-//     credentials: true,
-//     origin: "http://localhost:3000",
-// }));
 
 app.set("query parser", "extended");
 app.disable("etag");
@@ -69,7 +66,8 @@ app.use(ReportRoute);
 app.use("/api/create-proposal", ProposalRoute);
 app.use(UserRoute);
 app.use(AuthRoute);
+app.use(TagRoute);
+app.use(TargetRoute);
 app.listen(process.env.APP_PORT, () => {
     console.log("Server up and running...")
-    // createUserAdmin();
 });

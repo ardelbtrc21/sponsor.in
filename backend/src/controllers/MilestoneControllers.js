@@ -1,5 +1,4 @@
 import Milestone from "../models/milestone.js";
-import Status from "../models/status.js";
 
 export const createMilestones = async (req, res) => {
   try {
