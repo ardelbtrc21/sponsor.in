@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, MoreVertical, X } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import Swal from "sweetalert2";
+import { Logout, reset } from "../features/authSlice";
 
 const Navbar = ({ onToggleSidebar }) => {
   return (
@@ -30,13 +33,51 @@ const Navbar = ({ onToggleSidebar }) => {
 };
 
 const Sidebar = ({ isOpen, onClose }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
+
+  const handleLogout = () => {
+    try {
+      Swal.fire({
+        title: "<strong>End Session?</strong>",
+        html: `<p>Are you sure you want to logout?</p>`,
+        icon: "warning",
+        iconColor: "#fbbf24", // Tailwind yellow-400
+        showCancelButton: true,
+        confirmButtonText: "Logout",
+        cancelButtonText: "Cancel",
+        background: "#fff",
+        color: "#1f2937", // Tailwind gray-800
+        buttonsStyling: false,
+        customClass: {
+          popup: 'rounded-2xl shadow-md px-6 py-4',
+          title: 'text-xl font-semibold mb-2',
+          htmlContainer: 'text-sm text-gray-700',
+          confirmButton: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2',
+          cancelButton: 'bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5'
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          dispatch(Logout());
+          dispatch(reset());
+          navigate("/");
+        }
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: error.response.data.msg,
+      });
+    }
+  };
   return (
     <>
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full w-64 bg-white text-black shadow-xl transform transition-transform duration-300 ease-in-out z-40 ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 left-0 h-full w-64 bg-white text-black shadow-xl transform transition-transform duration-300 ease-in-out z-40 ${isOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="flex items-center justify-between p-5 border-b shadow-sm">
           <h2 className="text-2xl font-semibold">Menu</h2>
@@ -45,20 +86,46 @@ const Sidebar = ({ isOpen, onClose }) => {
           </button>
         </div>
 
-        <ul className="flex flex-col gap-5 p-6 text-lg font-medium">
+        <ul className="flex flex-col gap-2 p-6 text-lg font-medium">
           <li>
-            <Link to="/" onClick={onClose}>Home</Link>
+            <Link
+              to="/"
+              onClick={onClose}
+              className="w-full block py-2 rounded-md hover:bg-gray-100 transition"
+            >
+              Home
+            </Link>
+          </li>
+          {user && user.role === "Sponsor" && (
+            <li>
+              <Link
+                to="/list-approval-proposal"
+                onClick={onClose}
+                className="w-full block py-2 rounded-md hover:bg-gray-100 transition"
+              >
+                List Approval Proposal
+              </Link>
+            </li>
+          )}
+          <li>
+            <Link
+              to="/about"
+              onClick={onClose}
+              className="w-full block py-2 rounded-md hover:bg-gray-100 transition"
+            >
+              About
+            </Link>
           </li>
           <li>
-            <Link to="/sponsors" onClick={onClose}>Sponsors</Link>
-          </li>
-          <li>
-            <Link to="/about" onClick={onClose}>About</Link>
-          </li>
-          <li>
-            <button onClick={() => alert("Logging out...")}>Logout</button>
+            <button
+              onClick={handleLogout}
+              className="w-full text-left block py-2 rounded-md hover:bg-gray-100 transition"
+            >
+              Logout
+            </button>
           </li>
         </ul>
+
       </div>
 
       {/* Overlay */}
@@ -95,9 +162,8 @@ const ModernLayout = ({ children }) => {
       {/* Back Button */}
       <button
         onClick={() => navigate(-1)}
-        className={`fixed top-24 flex items-center gap-2 bg-white shadow-lg px-5 py-2 rounded-full text-primary font-semibold text-sm hover:bg-blue-100 hover:text-blue-600 transition-all duration-300 z-40 ${
-          isSidebarOpen ? "left-72" : "left-6"
-        }`}
+        className={`fixed top-24 flex items-center gap-2 bg-white shadow-lg px-5 py-2 rounded-full text-primary font-semibold text-sm hover:bg-blue-100 hover:text-blue-600 transition-all duration-300 z-40 ${isSidebarOpen ? "left-72" : "left-6"
+          }`}
       >
         <ArrowLeft size={20} />
         Back

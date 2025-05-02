@@ -1,6 +1,7 @@
 import { Sequelize } from "sequelize";
 import db from "../../config/Database.js";
 import { v4 as uuidv4 } from "uuid";
+import Proposal from "./proposal.js";
 
 const Sponsoree = db.define("sponsoree", {
     sponsoree_id: {
@@ -27,5 +28,16 @@ const Sponsoree = db.define("sponsoree", {
         type: Sequelize.DATE
     },
 }, {});
+
+Sponsoree.hasMany(Proposal, {
+    foreignKey: "sponsoree_id",
+    as: "sponsoree_proposals",
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE"
+});
+Proposal.belongsTo(Sponsoree, {
+    foreignKey: "sponsoree_id",
+    as: "sponsoree_proposals"
+});
 
 export default Sponsoree;

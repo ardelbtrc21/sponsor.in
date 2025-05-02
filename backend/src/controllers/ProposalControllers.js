@@ -10,6 +10,8 @@ import { unlink } from 'node:fs';
 import { fileURLToPath } from 'url';
 import TargetParticipant from "../models/target_participant.js";
 import Tag from "../models/tag.js";
+import Milestone from "../models/milestone.js";
+import sequelize, { Op } from "sequelize";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -247,8 +249,165 @@ export const createProposal = async (req, res) => {
       }
     });
 
-    res.status(201).json({msg: "Proposal successfully created"});
+    res.status(201).json({ msg: "Proposal successfully created" });
   } catch (error) {
     res.status(500).json({ msg: error.message });
   }
 };
+
+export const getProposals = async (req, res) => {
+  try {
+    // const sortBy = "proposal_name";
+    // const order = "ASC";
+    // const keyword = "";
+    const sortBy = req?.body?.sortBy || "proposal_name";
+    const order = req?.body?.order || "ASC";
+    const keyword = req?.body?.keyword || "";
+
+    // pagination
+    const page = parseInt(req?.body?.page) || 0;
+    const limit = parseInt(req?.body?.limit) || 10;
+
+    //filter
+    const filterEventDate = req?.body?.filter?.eventDate || [];
+    const filterEventLocation = req?.body?.filter?.eventLocation || [];
+    const filterTargetAgeMin = req?.body?.filter?.targetAgeMin || [];
+    const filterTargetAgeMax = req?.body?.filter?.targetAgeMax || [];
+    const filterTargetGender = req?.body?.filter?.targetGender || [];
+    const filterTagRelated = req?.body?.filter?.tagRelated || [];
+    const filterTargetParticipant = req?.body?.filter?.targetParticipant || [];
+    const filterStatus = req?.body?.filter?.status || [];
+    const startDate = req?.body?.filter?.startDate || [];
+    const endDate = req?.body?.filter?.endDate || [];
+
+    if (startDate) {
+      changeQuery.withFilterStartDate(dayjs(startDate));
+    }
+
+    if (endDate) {
+      changeQuery.withFilterEndDate(dayjs(endDate));
+    }
+
+    let where = {
+      [Op.or]: [
+        {
+          proposal_name: {
+            [Op.iLike]: "%" + keyword + "%"
+          }
+        }, {
+          event_name: {
+            [Op.iLike]: "%" + keyword + "%"
+          }
+        }
+      ]
+    };
+
+    let sort = "";
+
+    if (sortBy === "proposal_name") {
+      sort = "[`proposal_name`, `${order}`]";
+    } else if (sortBy === "event_name") {
+      sort = "[`event_name`, `${order}`]";
+    } else if (sortBy === "event_date") {
+      sort = "[`event_date`, `${order}`]";
+    }
+
+    let include = [
+      {
+        model: ProposalStatus,
+        as: "status_proposals",
+        required: true,
+        attributes: ["proposal_id", "status_name"],
+        duplicating: false
+      },
+      {
+        model: Milestone,
+        as: "milestone_proposals",
+        required: false,
+        duplicating: false
+      },
+      {
+        model: Tag,
+        as: "tags_proposals",
+        required: true,
+        attributes: ["tag_name"],
+        duplicating: false
+      },
+      {
+        model: TargetParticipant,
+        as: "target_proposals",
+        required: true,
+        attributes: ["target_participant_category"],
+        duplicating: false
+      },
+      {
+        model: Sponsor,
+        as: "sponsor_proposals",
+        required: true,
+        attributes: ["username", "nib"],
+        duplicating: false
+      },
+      {
+        model: Sponsoree,
+        as: "sponsoree_proposals",
+        required: true,
+        attributes: ["username", "category"],
+        duplicating: false
+      },
+    ];
+
+
+    let result = await Proposal.findAll({
+      where: where,
+      include: include,
+      order: [
+        [`${sortBy}`, `${order}`]
+      ]
+    });
+
+    console.log(result)
+
+    if (String(filterEventDate) !== "") {
+      result = result.filter(item => filterEventDate.includes(item.event_date));
+    }
+    if (String(filterEventLocation) !== "") {
+      result = result.filter(item => filterEventLocation.includes(item.event_location));
+    }
+    if (String(filterTargetAgeMin) !== "") {
+      result = result.filter(item => filterTargetAgeMin.includes(item.target_age_min));
+    }
+    if (String(filterTargetAgeMax) !== "") {
+      result = result.filter(item => filterTargetAgeMax.includes(item.target_age_max));
+    }
+    if (String(filterTargetGender) !== "") {
+      result = result.filter(item => filterTargetGender.includes(item.target_gender));
+    }
+    if (String(filterTagRelated) !== "") {
+      result = result.filter(item => filterTagRelated.includes(item.target_proposals));
+    }
+    if (String(filterTargetParticipant) !== "") {
+      result = result.filter(item => filterTargetParticipant.includes(item.target_proposals));
+    }
+    if (String(filterStatus) !== "") {
+      result = result.filter(item => filterStatus.includes(item.status_proposals));
+    }
+
+    const totalRows = Object.keys(result).length;
+    const totalPage = Math.ceil(totalRows / limit);
+
+    const lastIndex = (page + 1) * limit;
+    const firstIndex = lastIndex - limit;
+    result = result.slice(firstIndex, lastIndex);
+    res.json({
+      result: result,
+      page: page,
+      limit: limit,
+      totalRows: totalRows,
+      totalPage: totalPage
+    });
+
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ msg: error.message });
+  }
+}

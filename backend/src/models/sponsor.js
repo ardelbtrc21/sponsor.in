@@ -5,6 +5,7 @@ import Tag from "./tag.js";
 import SponsorTag from "./sponsor_tag.js";
 import TargetParticipant from "./target_participant.js";
 import SponsorTargetParticipant from "./sponsor_target_participant.js";
+import Proposal from "./proposal.js";
 
 const Sponsor = db.define("sponsor", {
     sponsor_id: {
@@ -77,5 +78,14 @@ TargetParticipant.belongsToMany(Sponsor, {
     onDelete: "CASCADE", 
     onUpdate: "CASCADE" 
 });
-
+Sponsor.hasMany(Proposal, {
+    foreignKey: "sponsor_id",
+    as: "sponsor_proposals",
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE"
+});
+Proposal.belongsTo(Sponsor, {
+    foreignKey: "sponsor_id",
+    as: "sponsor_proposals"
+});
 export default Sponsor;

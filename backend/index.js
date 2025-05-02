@@ -63,7 +63,7 @@ app.use(fileUpload());
 app.use(express.static("public"));
 app.use("/api/sponsors", SponsorRoute);
 app.use("/api/report", ReportRoute);
-app.use("/api/create-proposal", ProposalRoute);
+app.use(ProposalRoute);
 app.use(UserRoute);
 app.use(AuthRoute);
 app.use(TagRoute);

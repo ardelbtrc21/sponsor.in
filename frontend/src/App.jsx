@@ -5,7 +5,6 @@ import Login from "./pages/Login";
 import SponsorList from "./pages/SponsorList";
 import SponsorDetail from "./pages/SponsorDetail";
 import ReportAccountForm from "./pages/ReportAccountForm";
-import Sidebar from "./components/Sidebar";
 import Register from "./pages/Register";
 import "./Style/index.css";
 import ApproveButton from "./pages/ViewDetailProposal";
@@ -17,6 +16,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { getMe } from "./features/authSlice";
 import { useEffect, useState } from "react";
 import { Spin } from "antd";
+import ModernLayout from "./components/Layout";
+import ListApprovalProposal from "./pages/ListApprovalProposal";
 
 function ThemeProvider({ children }) {
   return (
@@ -83,7 +84,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Login />} />
-          <Route path="/dashboard" element={user ? <Sidebar /> : <Navigate to="/" />} />
+          <Route path="/dashboard" element={user ? <ModernLayout /> : <Navigate to="/" />} />
           <Route path="/signUp" element={<Register />} />
           <Route path="/welcome" element={user ? <ApproveButton /> : <Navigate to="/" />} />
           <Route path="/proposal-status" element={user ? <ViewProposalStatus /> : <Navigate to="/" />} />
@@ -93,6 +94,7 @@ function App() {
           <Route path="/report/:id" element={user ? <ReportAccountForm /> : <Navigate to="/" />} />
           <Route path="/proposal/create/:id" element={user ? <CreateProposalForm /> : <Navigate to="/" />} />
           <Route path="/account-setting/:id" element={user ? <AccountSetting /> : <Navigate to="/" />} />
+          <Route path="/list-approval-proposal/" element={user ? <ListApprovalProposal /> : <Navigate to="/" />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
