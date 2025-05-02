@@ -7,7 +7,7 @@ const CreateMilestoneModal = ({ submission, onClose }) => {
   const [generalError, setGeneralError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  const statusId = submission?.status_id;
+  const statusId = submission.proposal_id;
 
   useEffect(() => {
     if (!statusId) {
@@ -34,7 +34,6 @@ const CreateMilestoneModal = ({ submission, onClose }) => {
         milestone_name: "",
         milestone_description: "",
         milestone_attachment: null,
-        milestone_status: "pending",
       },
     ]);
     setErrors([...errors, {}]);
@@ -80,18 +79,17 @@ const CreateMilestoneModal = ({ submission, onClose }) => {
           }
 
           return {
+            proposal_id: statusId,
             milestone_name: m.milestone_name,
             milestone_description: m.milestone_description,
             milestone_attachment: attachmentPath,
-            milestone_status: m.milestone_status,
-            status_id: statusId,
             created_date: new Date(),
             completed_date: null,
           };
         })
       );
 
-      await axios.post("http://localhost:5000/api/milestones", payload);
+      await axios.post("http://localhost:5000/api/milestones/create", payload);
       setSuccess(true);
     } catch (error) {
       console.error("Error submitting milestones:", error.response?.data || error.message);
@@ -113,13 +111,13 @@ const CreateMilestoneModal = ({ submission, onClose }) => {
             </div>
             <h2 className="custom-title text-xl font-semibold text-gray-800 mb-2">Milestone Created Successfully!</h2>
             <p className="text-gray-500 mb-6">Your milestone has been saved and linked to this agreement.</p>
-            <button onClick={onClose} className="btn btn-primary text-white px-6 py-2 rounded-full hover:bg-blue-800">
+            <button onClick={onClose} className="btn btn-primary text-white px-6 py-2 rounded-full hover:opacity-80">
               Close
             </button>
           </div>
         ) : (
           <>
-            <h2 className="custom-title text-xl font-bold mb-4">Create Agreement's Milestones</h2>
+            <h2 className="text-xl font-bold mb-4">Create Agreement's Milestones</h2>
 
             {milestones.length === 0 ? (
               <div className="text-center text-gray-500 mb-6">No milestones added yet.</div>
@@ -167,17 +165,17 @@ const CreateMilestoneModal = ({ submission, onClose }) => {
 
             {milestones.length === 0 ? (
               <div className="flex justify-center mt-4">
-                <button onClick={addMilestone} className="btn btn-secondary">
+                <button onClick={addMilestone} className="btn btn-secondary hover:bg-gray-200">
                   + Add Milestone
                 </button>
               </div>
             ) : (
               <div className="flex justify-between mt-4">
-                <button onClick={addMilestone} className="btn btn-secondary">
+                <button onClick={addMilestone} className="btn btn-secondary hover:bg-gray-200">
                   + Add Milestone
                 </button>
 
-                <button onClick={handleSubmit} className="btn btn-primary text-white">
+                <button onClick={handleSubmit} className="btn btn-primary text-white hover:opacity-80">
                   Submit Milestones
                 </button>
               </div>

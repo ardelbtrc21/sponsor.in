@@ -17,6 +17,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { getMe } from "./features/authSlice";
 import { useEffect, useState } from "react";
 import { Spin } from "antd";
+import LandingScreen from "./pages/LandingScreen";
+import AdminPendingSponsorsPage from "./pages/AdminSponsorApproval";
+import HistoryAgreement from "./pages/HistoryAgreement";
+// import AccountSetting from "./pages/AccountSettingForm";
 
 function ThemeProvider({ children }) {
   return (
@@ -82,17 +86,24 @@ function App() {
     <ThemeProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Login />} />
+          <Route path="/" element={user ? <Navigate to="/dashboard" /> : <LandingScreen />} />
+          {/* <Route path="landing-screen" element={ < LandingScreen/>}/> */}
           <Route path="/dashboard" element={user ? <Sidebar /> : <Navigate to="/" />} />
           <Route path="/signUp" element={<Register />} />
-          <Route path="/welcome" element={user ? <ApproveButton /> : <Navigate to="/" />} />
-          <Route path="/proposal-status" element={user ? <ViewProposalStatus /> : <Navigate to="/" />} />
+          <Route path="/signIn" element={<Login />} />
+          {/* <Route path="/welcome" element={user ? <ApproveButton /> : <Navigate to="/" />} /> */}
+          <Route path="/welcome" element={ <ApproveButton/>} />
+          {/* <Route path="/proposal-status" element={user ? <ViewProposalStatus /> : <Navigate to="/" />} /> */}
+          <Route path="/proposal-status" element={<ViewProposalStatus />} />
           <Route path="/proposal-list" element={user ? <ViewListSubmission /> : <Navigate to="/" />} />
+          {/* <Route path="/proposal-list" element={<ViewListSubmission />} /> */}
           <Route path="/sponsors" element={user ? <SponsorList /> : <Navigate to="/" />} />
           <Route path="/sponsors/:id" element={user ? <SponsorDetail /> : <Navigate to="/" />} />
           <Route path="/report/:id" element={user ? <ReportAccountForm /> : <Navigate to="/" />} />
           <Route path="/proposal/create/:id" element={user ? <CreateProposalForm /> : <Navigate to="/" />} />
           <Route path="/account-setting/:id" element={user ? <AccountSetting /> : <Navigate to="/" />} />
+          <Route path="/admin/pending-sponsors" element={<AdminPendingSponsorsPage />} />
+          <Route path="/my-agreements" element={<HistoryAgreement currentUser={user} />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

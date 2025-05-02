@@ -26,6 +26,11 @@ const Sponsoree = db.define("sponsoree", {
         allowNull: false,
         type: Sequelize.DATE
     },
+    is_banned: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    }
 }, {});
 
 export default Sponsoree;

@@ -6,7 +6,7 @@ const ApproveButton = () => {
   const handleStatusChange = async () => {
     try {
       await axios.put(
-        "http://localhost:5000/api/proposals/550e8400-e29b-41d4-a716-446655442222/approve"
+        "/api/proposals/550e8400-e29b-41d4-a716-446655442222/approve"
       );
       Swal.fire({
         icon: "success",
@@ -14,7 +14,7 @@ const ApproveButton = () => {
         text: "Successfully update status."
       });
     } catch (error) {
-      console.error("Erreresresror: ", error);
+      console.error("Error: ", error);
       Swal.fire({
         icon: "error",
         title: "Oops...",

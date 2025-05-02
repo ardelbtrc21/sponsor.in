@@ -7,14 +7,15 @@ import SequelizeStore from "connect-session-sequelize";
 import UserRoute from "./src/routes/UserRoute.js";
 import AuthRoute from "./src/routes/AuthRoute.js";
 import fileUpload from "express-fileupload";
-import proposalRoutes from '../backend/src/routes/Proposal.js';
-import listProposalRoutes from '../backend/src/routes/ListProposal.js';
-import milestoneRoutes from '../backend/src/routes/Milestone.js';
+import ListProposalRoute from '../backend/src/routes/ListProposal.js';
+import MilestoneRoute from '../backend/src/routes/Milestone.js';
 import SponsorRoute from './src/routes/SponsorRoute.js'
 import ReportRoute from './src/routes/ReportRoute.js';
 import ProposalRoute from './src/routes/ProposalRoute.js';
+import AdminRoute from './src/routes/AdminRoute.js';
 import TagRoute from "./src/routes/TagRoute.js";
 import TargetRoute from "./src/routes/TargetRoute.js";
+import AgreementRoutes from "./src/routes/ProposalRoute.js";
 
 dotenv.config();
 
@@ -27,11 +28,6 @@ app.use(cors({
     origin: "http://localhost:3000",
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
-
-app.use("/api/proposals", proposalRoutes);
-app.use("/api", listProposalRoutes);
-app.use("/api", milestoneRoutes);
-
 
 const sessionStore = SequelizeStore(session.Store)
 const store = new sessionStore({
@@ -64,6 +60,11 @@ app.use(express.static("public"));
 app.use("/api/sponsors", SponsorRoute);
 app.use("/api/report", ReportRoute);
 app.use("/api/create-proposal", ProposalRoute);
+app.use("/api/proposals", ProposalRoute);
+app.use("/api/proposals", ListProposalRoute);
+app.use("/api/milestones", MilestoneRoute);
+app.use("/api/admin", AdminRoute);
+app.use("/api/agreements", AgreementRoutes);
 app.use(UserRoute);
 app.use(AuthRoute);
 app.use(TagRoute);
