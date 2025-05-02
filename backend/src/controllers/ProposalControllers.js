@@ -6,12 +6,12 @@ import Sponsor from "../models/sponsor.js";
 import Sponsoree from "../models/sponsoree.js";
 import { v4 as uuidv4 } from 'uuid';
 import path from "path";
-import { unlink } from 'node:fs';
 import { fileURLToPath } from 'url';
 import TargetParticipant from "../models/target_participant.js";
 import Tag from "../models/tag.js";
 import Milestone from "../models/milestone.js";
 import sequelize, { Op } from "sequelize";
+import User from "../models/user.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,38 +51,51 @@ export const doApprovalProposal = async (req, res) => {
 }
 
 export const getProposalByStatus = async (req, res) => {
-  const { status_name } = req.params;
+  const { username, status_name } = req.params;
 
   try {
-    const proposals = await Status.findAll({
+    const proposals = await ProposalStatus.findAll({
       where: { status_name },
-      include: {
-        model: Submission,
-        as: 'submission_status',
-        attributes: ['event_name', 'event_date', 'proposal_name'],
-      },
+      include: [
+        {
+          model: Proposal,
+          as: 'status_proposals',
+          include: [
+            {
+              model: Sponsoree,
+              as: 'sponsoree',
+              where: { username },
+              attributes: [] 
+            }
+          ],
+        },
+      ],
+      order: [['createdAt', 'DESC']]
     });
 
-    if (!proposals) {
+    if (!proposals || proposals.length === 0) {
       return res.status(404).json({ message: 'No proposals found' });
     }
-    console.log("Fetched Proposals:", JSON.stringify(proposals, null, 2));
+
     return res.json(proposals);
   } catch (error) {
-    console.error('Error fetching proposals by status:', error);
-    res.status(500).json({ message: 'Error fetching proposals' });
+    console.error('Error fetching proposals by status and username:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
-
-export const getProposalStatusBySubmissionId = async (req, res) => {
-  const { submission_id } = req.params;
-  console.log("Received submissionId:", submission_id);
+export const getProposalStatusByProposalId = async (req, res) => {
+  const { proposal_id } = req.params;
+  console.log("Received proposal_id:", proposal_id);
   try {
-    const statuses = await Status.findAll({
-      where: { submission_id: submission_id },
-      order: [["createdAt", "ASC"]]
+    const statuses = await ProposalStatus.findAll({
+      where: { 
+        proposal_id: proposal_id,
+      },
+      order: [["createdAt", "ASC"]],
+      raw: true
     });
+    console.log("response body: ", statuses);
     return res.status(200).json(statuses);
   } catch (error) {
     return res.status(500).json({
@@ -252,6 +265,99 @@ export const createProposal = async (req, res) => {
     res.status(201).json({ msg: "Proposal successfully created" });
   } catch (error) {
     res.status(500).json({ msg: error.message });
+  }
+};
+
+export const getCompletedAgreements = async (req, res) => {
+  const { username, role } = req.query;
+
+  if (!username || !role) {
+    return res.status(400).json({ message: "Username and role are required" });
+  }
+
+  try {
+    const baseIncludes = [
+      {
+        model: ProposalStatus,
+        as: "status_proposals",
+        where: { status_name: "completed" },
+        required: true
+      }
+    ];
+
+    if (role.toLowerCase() === "sponsor") {
+      baseIncludes.push({
+        model: Sponsor,
+        as: "sponsor",
+        required: true,
+        include: [
+          {
+            model: User,
+            as: "user_sponsor",
+            where: { username },
+            attributes: ["username"]
+          }
+        ]
+      });
+
+      baseIncludes.push({
+        model: Sponsoree,
+        as: "sponsoree",
+        include: [
+          {
+            model: User,
+            as: "user_sponsoree",
+            attributes: ["username"]
+          }
+        ]
+      });
+
+    } else if (role.toLowerCase() === "sponsoree") {
+      baseIncludes.push({
+        model: Sponsoree,
+        as: "sponsoree",
+        required: true,
+        include: [
+          {
+            model: User,
+            as: "user_sponsoree",
+            where: { username },
+            attributes: ["username"]
+          }
+        ]
+      });
+
+      baseIncludes.push({
+        model: Sponsor,
+        as: "sponsor",
+        include: [
+          {
+            model: User,
+            as: "user_sponsor",
+            attributes: ["username"]
+          }
+        ]
+      });
+    } else {
+      return res.status(400).json({ message: "Invalid role" });
+    }
+
+    const proposals = await Proposal.findAll({
+      include: baseIncludes,
+      order: [["createdAt", "DESC"]]
+    });
+
+    const formatted = proposals.map((proposal) => ({
+      event_name: proposal.event_name,
+      event_date: proposal.event_date,
+      sponsor_username: proposal.sponsor?.user_sponsor?.username || null,
+      sponsoree_username: proposal.sponsoree?.user_sponsoree?.username || null
+    }));
+
+    res.status(200).json(formatted);
+  } catch (err) {
+    console.error("Error fetching completed agreements:", err);
+    res.status(500).json({ message: "Error retrieving completed agreements." });
   }
 };
 

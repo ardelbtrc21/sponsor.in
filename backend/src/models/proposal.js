@@ -7,6 +7,9 @@ import Tag from "./tag.js";
 import ProposalTargetParticipant from "./proposal_target_participant.js";
 import TargetParticipant from "./target_participant.js";
 import Milestone from "./milestone.js";
+import Sponsor from "./sponsor.js";
+import Sponsoree from "./sponsoree.js";
+import User from "./user.js";
 
 const Proposal = db.define("proposal", {
     proposal_id: {
@@ -113,6 +116,25 @@ TargetParticipant.belongsToMany(Proposal, {
     as: "id_target_proposals", 
     onDelete: "CASCADE", 
     onUpdate: "CASCADE" 
+});
+
+Proposal.belongsTo(Sponsor, { 
+    foreignKey: "sponsor_id", as: "sponsor" 
+});
+
+Proposal.belongsTo(Sponsoree, { 
+    foreignKey: "sponsoree_id", 
+    as: "sponsoree" 
+});
+
+Sponsor.belongsTo(User, { 
+    foreignKey: "username",
+    as: "user_sponsor" 
+});
+
+Sponsoree.belongsTo(User, { 
+    foreignKey: "username", 
+    as: "user_sponsoree" 
 });
 
 export default Proposal;

@@ -10,8 +10,9 @@ const ViewListSubmission = () => {
   useEffect(() => {
     const fetchSubmissions = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/submissions");
+        const response = await axios.get("http://localhost:5000/api/proposals/list");
         setSubmissions(response.data);
+        console.log("response data: ", response.data);
       } catch (error) {
         console.error("Error fetching submissions:", error.response?.data || error.message);
       }
@@ -22,10 +23,8 @@ const ViewListSubmission = () => {
 
   const handleOpenModal = async (submission) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/status/${submission.submission_id}`);
-      const statusId = response.data.status_id;
-
-      setSelectedSubmission({ ...submission, status_id: statusId });
+      const response = await axios.get(`http://localhost:5000/api/milestones/status/${submission["status_proposals.proposal_status_id"]}`);
+      setSelectedSubmission({ ...submission, status_id: response.data.proposal_status_id });
       setIsModalOpen(true);
     } catch (error) {
       console.error("Error fetching status ID:", error.message);
@@ -52,13 +51,10 @@ const ViewListSubmission = () => {
           </thead>
           <tbody>
             {submissions.map((submission) => {
-              const latestStatus =
-                submission.statuses && submission.statuses.length > 0
-                  ? submission.statuses[submission.statuses.length - 1].status_name
-                  : "No status";
+              const latestStatus = submission["status_proposals.status_name"] || "No status";
 
               return (
-                <tr key={submission.submission_id} className="border-b">
+                <tr key={submission["status_proposals.proposal_status_id"]} className="border-b">
                   <td className="px-4 py-2">{submission.proposal_name}</td>
                   <td className="px-4 py-2">{latestStatus}</td>
                   <td className="px-4 py-2">

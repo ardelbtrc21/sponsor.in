@@ -47,6 +47,15 @@ const Sponsor = db.define("sponsor", {
     description: {
         type: Sequelize.TEXT,
         allowNull: false
+    },
+    is_banned: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
+    status: {
+        type: Sequelize.TEXT,
+        allowNull: false
     }
 }, {});
 
