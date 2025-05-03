@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { FaPen } from 'react-icons/fa';
 import defaultProfile from '../assets/profile_default.png';
-import NavbarCard from '../components/NavbarCard.jsx';
+import ModernLayout from '../components/Layout.jsx';
 
 const AccountSettingForm = () => {
   const user = useSelector((state) => state.auth.user);
@@ -18,11 +19,15 @@ const AccountSettingForm = () => {
     formData.append("username", user?.username);
     if (email) formData.append("email", email);
     if (photo) formData.append("photo", photo);
-
+  
     try {
       const res = await axios.patch('/api/updateUserAccount', formData);
       setMessage(res.data.msg);
       setErrors({});
+  
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (err) {
       if (err.response?.status === 404) {
         setErrors(err.response.data);
@@ -31,26 +36,27 @@ const AccountSettingForm = () => {
       }
     }
   };
+  
 
-  const photoPreview = photo instanceof File
-    ? URL.createObjectURL(photo)
-    : user?.photo
-      ? `/backend/data/profile_photo/${user.photo}`
-      : defaultProfile;
+  const photoPreview = photo
+  ? URL.createObjectURL(photo)
+  : user?.profile_photo
+    ? `/profile_photo/${user.profile_photo}`
+    : defaultProfile;
 
   return (
-    <>
-      <NavbarCard></NavbarCard>
+    <ModernLayout>
+      <>
       <form 
         onSubmit={handleSubmit}
         encType="multipart/form-data"
-        className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow rounded-lg"
+        className="max-w-4xl mx-auto mt-10 p-6"
       >
         <h2 className="text-2xl font-bold text-center mb-8 text-[#0A2239]">Set Up Your Account</h2>
 
-        <div className="flex flex-col md:flex-row items-center gap-8">
-          {/* Profile Image */}
-          <div className="flex flex-col items-center">
+        {/* Profile Image */}
+        <div className="flex justify-center mb-8">
+          <div className="relative flex flex-col items-center">
             <img
               src={photoPreview}
               alt="Profile"
@@ -60,11 +66,21 @@ const AccountSettingForm = () => {
               type="file"
               accept="image/*"
               onChange={(e) => setPhoto(e.target.files[0])}
-              className="mt-4"
+              className="mt-4 hidden"
+              id="file-input"
             />
+            {/* Icon Pencil */}
+            <label 
+              htmlFor="file-input"
+              className="absolute bottom-0 right-0 bg-white p-2 rounded-full cursor-pointer"
+            >
+              <FaPen className="text-primary" size={20} />
+            </label>
             {errors.photo && <p className="text-red-500 text-sm mt-1">{errors.photo}</p>}
           </div>
+        </div>
 
+        <div className="flex flex-col md:flex-row items-center gap-8">
           {/* Form Fields */}
           <div className="flex-1 space-y-5 w-full">
             {/* Username (read-only) */}
@@ -100,21 +116,24 @@ const AccountSettingForm = () => {
                 Change your password
               </Link>
             </div>
+            <div>
+              <button
+                type="submit"
+                className="bg-primary text-white px-6 py-2 rounded hover:bg-secondary w-full"
+              >
+                Save Changes
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Submit Button */}
         <div className="mt-8 text-center">
-          <button
-            type="submit"
-            className="bg-primary text-white px-6 py-2 rounded hover:bg-blusponsorinHover"
-          >
-            Save Changes
-          </button>
           {message && <p className="text-green-600 mt-4">{message}</p>}
         </div>
       </form>
     </>
+    </ModernLayout>
   );
 };
 

@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { MoreVertical, X } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom"; // ⬅️ tambahkan useNavigate
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import defaultProfile from '../assets/profile_default.png';
 
 const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const user = useSelector((state) => state.auth.user);
-  const navigate = useNavigate(); // ⬅️ inisialisasi navigator
+  const navigate = useNavigate();
 
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
@@ -26,7 +26,7 @@ const Navbar = () => {
         {/* Kiri: Avatar + Dot menu */}
         <div className="flex items-center gap-3">
           <img
-            src={user.profile_photo ? URL.createObjectURL(user.profile_photo) : defaultProfile}
+            src={user.profile_photo ? `/profile_photo/${user.profile_photo}` : defaultProfile}
             alt="User"
             onClick={handleProfileClick}
             className="w-8 h-8 rounded-full border-2 border-white cursor-pointer"

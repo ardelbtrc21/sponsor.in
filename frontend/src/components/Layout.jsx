@@ -14,7 +14,7 @@ const user = useSelector((state) => state.auth.user);
       {/* Left Side */}
       <div className="flex items-center gap-4">
         <img
-          src={user.profile_photo ? URL.createObjectURL(user.profile_photo) : defaultProfile}
+          src={user.profile_photo ? `/profile_photo/${user.profile_photo}` : defaultProfile}
           alt="User Avatar"
           className="w-10 h-10 rounded-full border-2 border-white"
         />
@@ -122,7 +122,11 @@ const Sidebar = ({ isOpen, onClose }) => {
                 List Approval Proposal
               </Link>
             </li>
+            
           )}
+          <li>
+            <Link to={`/account-setting/${(user && user.username)}`}>Setting Account</Link>
+          </li>
           <li>
             <Link
               to="/about"
