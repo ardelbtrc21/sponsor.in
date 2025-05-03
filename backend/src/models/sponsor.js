@@ -42,11 +42,11 @@ const Sponsor = db.define("sponsor", {
     },
     category_provides: {
         type: Sequelize.TEXT,
-        allowNull: false
+        allowNull: true
     },
     description: {
         type: Sequelize.TEXT,
-        allowNull: false
+        allowNull: true
     }
 }, {});
 

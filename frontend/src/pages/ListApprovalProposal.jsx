@@ -4,11 +4,15 @@ import { useSelector } from "react-redux"; // untuk ambil dari auth state
 import axios from "axios";
 import { DatePicker, Modal, Select, Space } from "antd";
 import { useParams } from "react-router-dom";
-import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { NavLink, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import ModernLayout from "../components/Layout";
-import { Menu, Transition } from "@headlessui/react";
+import { Dialog, Transition } from '@headlessui/react';
+import { ChevronUpIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import dayjs from "dayjs";
+
 
 const ListApprovalProposal = () => {
   const navigate = useNavigate();
@@ -18,7 +22,7 @@ const ListApprovalProposal = () => {
   const [proposalName, setProposalName] = useState("");
   const [file_proposal, setFileProposal] = useState(null);
   const [eventName, setEventName] = useState("");
-  const [eventDate, setEventDate] = useState("");
+  const [eventDate, setEventDate] = useState([]);
   const [eventLocation, setEventLocation] = useState("");
   const [targetAgeMin, setTargetAgeMin] = useState("");
   const [targetAgeMax, setTargetAgeMax] = useState("");
@@ -30,6 +34,9 @@ const ListApprovalProposal = () => {
   const [targetParticipant, setTargetParticipant] = useState([]);
   const [status, setStatus] = useState([]);
   const [openFilterModal, setOpenFilterModal] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [tagsDB, SetTagsDB] = useState([]);
+  const filteredTags = tagsDB.filter(o => !tagRelated.includes(o));
   //pagination
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(0);
@@ -49,7 +56,7 @@ const ListApprovalProposal = () => {
   // const [filterStatus, setFilterStatus] = useState("");
 
   //urutan tabel
-  const [sortBy, setSortBy] = useState("status");
+  const [sortBy, setSortBy] = useState("");
   const [flagOrder, setFlagOrder] = useState(1);
   const [order, setOrder] = useState("DESC");
 
@@ -62,6 +69,21 @@ const ListApprovalProposal = () => {
     username = user.username
   }
 
+  const applyFilter = () => {
+    setIsFilterOpen(false);
+    getProposals()
+  };
+
+  const getTags = async () => {
+    try {
+      const response = await axios.get("/api/tags");
+      const tagNames = response.data.map(item => item.tag_name);
+      SetTagsDB(tagNames);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const getProposals = async () => {
     try {
       // const response = await axios.get(`/api/changes?sortBy=${sortBy}&order=${order}&keyword=${keyword}&page=${page}&limit=${limit}&startDate=${startDate}&endDate=${endDate}&filter=${filterCategory}`);
@@ -72,7 +94,8 @@ const ListApprovalProposal = () => {
         page: page,
         limit: limit,
         filter: {
-          eventDate: eventDate,
+          startDate: eventDate[0],
+          endDate: eventDate[1],
           eventLocation: eventLocation,
           targetAgeMin: targetAgeMin,
           targetAgeMax: targetAgeMax,
@@ -83,6 +106,7 @@ const ListApprovalProposal = () => {
         }
 
       });
+      console.log(response.data.result)
       setProposals(response.data.result);
       setPages(response.data.totalPage);
       setRows(response.data.totalRows);
@@ -93,6 +117,16 @@ const ListApprovalProposal = () => {
         title: "Oops...",
         text: error.response.data.msg,
       });
+    }
+  };
+
+  const handleSort = (field) => {
+    if (sortBy === field) {
+      // toggle order
+      setOrder(order === "ASC" ? "DESC" : "ASC");
+    } else {
+      setSortBy(field);
+      setOrder("ASC"); // default saat ganti kolom sort
     }
   };
 
@@ -115,326 +149,221 @@ const ListApprovalProposal = () => {
     }, 0);
   };
 
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      getProposals();
+    }, 500);
+
+    return () => clearTimeout(delayDebounce);
+  }, [keyword, sortBy, order]);
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      getTags();
+    }, 1000);
+    return () => clearTimeout(delayDebounce);
+  })
+
   const handleCancelModal = () => {
     setOpenFilterModal(false);
   };
 
   return (
     <ModernLayout>
-      <div>
-        <Modal
-          okButtonProps={{ style: { backgroundColor: "#0369a1" } }}
-          cancelButtonProps={{ style: { display: "none" } }}
-          okText="OK"
-          cancelText="Cancel"
-          title="Filter"
-          open={openFilterModal}
-          onOk={handleOkFilterModal}
-          confirmLoading={confirmLoading}
-          onCancel={handleCancelModal}
-          style={{ top: 50 }}
-        >
-          <div >
-            <div>
-              <label className="block mb-2 text-base text-gray-900">Event Date</label>
-              <Space direction="vertical" size={12} class="width-[100%] mb-5">
-                <RangePicker
-                  style={{
-                    width: "100%",
-                  }}
-                  onChange={(values) => {
-                    if (values) {
-                      setStartDate(dayjs(values[0].hour(0).minute(0).second(0).millisecond(0)) ?? "");
-                      setEndDate(dayjs(values[1].hour(23).minute(59).second(0).millisecond(0)) ?? "");
-                    } else {
-                      setStartDate("");
-                      setEndDate("");
-                    }
-                  }}
-                  format="DD MMMM YYYY"
-                  value={[startDate, endDate]}
-                  disabledDate={(current) => {
-                    return current >= dayjs(new Date());
-                  }}
-                />
-              </Space>
-            </div>
-            <div className="mt-6">
-              <label className="block mb-2 text-base text-gray-900">Change Requirement</label>
-              <Space direction="vertical" size={12} class="width-[100%] mb-5" >
-                <Select
-                  mode="multiple"
-                  allowClear
-                  style={{
-                    width: "100%",
-                  }}
-                  placeholder="Please select category"
-                  onChange={setFilterRequirement}
-                  options={[{ "label": "Apps/Systems Requirement", "value": "Apps/Systems Requirement" }, { "label": "Exception", "value": "Exception" }, { "label": "Uncategorized", "value": "Uncategorized" }]}
-                />
-              </Space>
-            </div>
-            <div>
-              <label className="block mb-2 text-base text-gray-900">Change Category</label>
-              <Space direction="vertical" size={12} class="width-[100%] mb-5" >
-                <Select
-                  mode="multiple"
-                  allowClear
-                  style={{
-                    width: "100%",
-                  }}
-                  placeholder="Please select category"
-                  onChange={setFilterCategory}
-                  options={changeCategory && changeCategory.map(x => ({ label: x.value, value: x.id_category }))}
-                />
-              </Space>
-            </div>
-            <div>
-              <label className="block mb-2 text-base text-gray-900">Status</label>
-              <Space direction="vertical" size={12} class="width-[100%] mb-10" >
-                <Select
-                  mode="multiple"
-                  allowClear
-                  style={{
-                    width: "100%",
-                  }}
-                  placeholder="Please select Status"
-                  onChange={(e) => setFilterStatus(e)}
-                  options={[{
-                    label: "Requested",
-                    value: "Requested"
-                  }, {
-                    label: "Reschedule",
-                    value: "Reschedule"
-                  }, {
-                    label: "Waiting for resolution",
-                    value: "Waiting for resolution"
-                  }, {
-                    label: "Completed",
-                    value: "Completed"
-                  }]}
-                />
-              </Space>
-            </div>
-          </div>
-        </Modal>
-        <div className="font-bold mb-4 mt-2 flex justify-between items-center ">
-          <div className="text-sm font-normal">
-            <Menu as="div" className="relative inline-block text-left mr-4">
-              <div>
-                <Menu.Button className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-2 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                  Limit : {limit}
-                  <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
-                </Menu.Button>
-              </div>
-              <Transition
-                as={Fragment}
-                enter="transition ease-out duration-100"
-                enterFrom="transform opacity-0 scale-95"
-                enterTo="transform opacity-100 scale-100"
-                leave="transition ease-in duration-75"
-                leaveFrom="transform opacity-100 scale-100"
-                leaveTo="transform opacity-0 scale-95"
-              >
+      <div className="p-6 bg-white min-h-screen w-full mx-auto">
+        <h2 className="text-xl font-bold text-center text-gray-800 mb-8 pt-2">SPONSORSHIP REQUESTS</h2>
 
-                <Menu.Items className="absolute left-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                  <div className="py-1">
-                    <Menu.Item>
-                      {({ active }) => (
-                        <a onClick={() => { setLimit(10); setPage(0); }} className={classNames(active ? "bg-gray-100 text-gray-900" : "text-gray-700", "cursor-pointer block px-4 py-2 text-sm")}>10</a>
-                      )}
-                    </Menu.Item>
-                    <Menu.Item>
-                      {({ active }) => (
-                        <a onClick={() => { setLimit(50); setPage(0); }} className={classNames(active ? "bg-gray-100 text-gray-900" : "text-gray-700", "cursor-pointer block px-4 py-2 text-sm")}>50</a>
-                      )}
-                    </Menu.Item>
-                    <Menu.Item>
-                      {({ active }) => (
-                        <a onClick={() => { setLimit(100); setPage(0); }} className={classNames(active ? "bg-gray-100 text-gray-900" : "text-gray-700", "cursor-pointer block px-4 py-2 text-sm")}>100</a>
-                      )}
-                    </Menu.Item>
-                    <Menu.Item>
-                      {({ active }) => (
-                        <a onClick={() => { setLimit(250); setPage(0); }} className={classNames(active ? "bg-gray-100 text-gray-900" : "text-gray-700", "cursor-pointer block px-4 py-2 text-sm")}>250</a>
-                      )}
-                    </Menu.Item>
-                    <Menu.Item>
-                      {({ active }) => (
-                        <a onClick={() => { setLimit(1000); setPage(0); }} className={classNames(active ? "bg-gray-100 text-gray-900" : "text-gray-700", "cursor-pointer block px-4 py-2 text-sm")}>1000</a>
-                      )}
-                    </Menu.Item>
-
-                  </div>
-                </Menu.Items>
-              </Transition>
-            </Menu>
-
-            {sortBy === "" ? "" : "Sort by = " + sortBy + " (" + order + ")"}
-          </div>
-          <div className="flex w-[32rem] justify-end items-center">
-            <Link to="/change/add">
-              <button className="flex bg-sky-600 text-white rounded px-2 py-1 hover:bg-sky-700 ">
-                <svg fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-5 mr-1 m-auto">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div className="font-normal text-sm">
-                  Add Change
-                </div>
-              </button>
-            </Link>
-
-            {/* searching */}
-            <div className="relative ml-5 w-3/5">
-              <input type="search" value={keyword} onChange={(e) => { setKeyword(e.target.value); setPage(0); }} className="font-normal w-full h-[40px] focus:outline-none p-3 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300" placeholder="Search" />
-              <div className="absolute top-0 right-0 p-2.5 text-sm text-white bg-sky-700 rounded-r-lg">
-                <svg className="w-4 h-5" aria-hidden="true" fill="none" viewBox="0 0 20 20">
-                  <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                </svg>
-                <span className="sr-only">Search</span>
-              </div>
-            </div>
-
-            <div>
-              <button onClick={() => setOpenFilterModal(true)} className="ml-1 max-h-10 text-white rounded px-1 py-1">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6 text-sky-600 hover:text-sky-700">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
-                </svg>
-              </button>
-            </div>
-
-          </div>
-        </div>
-
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-          <div className="table w-full text-sm text-left text-gray-500 table-auto">
-            <div className="table-row text-center text-xs text-gray-700 bg-gray-50 font-bold">
-              <div scope="col" className="table-cell px-6 py-3">
-                <button onClick={() => { setSortBy("title"); handleFlagOrder(); }} className="flex hover:text-blue-700 items-center">
-                  Title
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="ml-1 w-4 h-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                  </svg>
-                </button>
-              </div>
-              <div scope="col" className="table-cell px-6 py-3 m-auto">
-                <button onClick={() => { setSortBy("change_reference"); handleFlagOrder(); }} className="flex hover:text-blue-700 items-center m-auto text-center">
-                  Change Reference
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="ml-1 w-4 h-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                  </svg>
-                </button>
-              </div>
-              <div scope="col" className="table-cell px-6 py-3">
-                <span className="m-auto">
-                  Server
-                </span>
-              </div>
-              <div scope="col" className="table-cell px-6 py-3">
-                <span className="m-auto">
-                  PIC Team Unix
-                </span>
-              </div>
-              <div scope="col" className="table-cell px-6 py-3">
-                <button onClick={() => { setSortBy("status"); handleFlagOrder(); }} className="flex hover:text-blue-700 items-center m-auto">
-                  Status
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="ml-1 w-4 h-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                  </svg>
-                </button>
-              </div>
-              <div scope="col" className="table-cell px-6 py-3">
-                <button onClick={() => { setSortBy("scheduled_date"); handleFlagOrder(); }} className="flex hover:text-blue-700 items-center m-auto">
-                  Scheduled Date
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="ml-1 w-4 h-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                  </svg>
-                </button>
-              </div>
-              <div scope="col" className="table-cell px-6 py-3">
-                <button onClick={() => { setSortBy("completed_date"); handleFlagOrder(); }} className="flex hover:text-blue-700 items-center m-auto">
-                  Completed Date
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="ml-1 w-4 h-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            {changes && changes.map((change, index) => (
-              <Link key={index} target={"_blank"} to={`/change/detail/${change.id_change}`} className="table-row hover:cursor-pointer hover:text-sky-700 bg-white border-b">
-                <div className="table-cell px-4 py-4 w-[300px] break-words">
-                  {change.title}
-                </div>
-                <div className="table-cell px-4 py-4 break-words">
-                  [{change.change_type}] {change.change_reference}
-                </div>
-                <div className="table-cell">
-                  <ul className="ml-3 list-disc p-2">
-                    {change.servers.map((server, index) => (
-                      <li key={index} className="break-normal">
-                        {server.hostname}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="table-cell px-4 py-4 break-normal">
-                  {change.pic && change?.pic?.map((pic, index) => (
-                    <div key={index}>
-                      <ul className="ml-7 list-disc">
-                        <li>
-                          <div className="flex items-center">
-                            <div className="break-words text-left">
-                              <div className="text-sm">
-                                {pic.name}
-                              </div>
-                            </div>
-                          </div>
-                        </li>
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-                <div className="table-cell px-4 py-4">
-                  <div className={`${change.status === "Requested" ? "bg-red-50 text-red-700 ring-red-600/10" : change.status === "Completed" ? "bg-green-50 text-green-700 ring-green-600/10" : change.status === "Reschedule" ? "bg-orange-50 text-orange-700 ring-orange-600/10" : "bg-yellow-50 text-yellow-700 ring-yellow-600/10"} inline-flex items-center rounded-md px-2 py-1 text-sm font-medium ring-1 ring-inset`}>
-                    {change.status}
-                  </div>
-                </div>
-                <div className="table-cell px-4 py-4 break-normal">
-                  {change?.scheduled_date ? dayjs(change?.scheduled_date).format("DD MMMM YYYY HH:mm") : ""}
-                </div>
-                <div className="table-cell px-4 py-4 break-normal">
-                  {change?.completed_date ? dayjs(change?.completed_date).format("DD MMMM YYYY HH:mm") : "N/A"}
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* pagination */}
-        <div className="mt-7 flex flex-col items-center mb-10">
-          <p className="mb-3">
-            Total Rows: {rows} Page: {rows ? page + 1 : 0} of {pages}
-          </p>
-          <nav
-            className="pagination is-centered"
-            key={rows}
-            role="navigation"
-            aria-label="pagination"
-          >
-            <ReactPaginate
-              previousLabel={"< Prev"}
-              nextLabel={"Next >"}
-              pageCount={pages}
-              onPageChange={changePage}
-              containerClassName={"isolate inline-flex -space-x-px rounded-md shadow-sm"}
-              pageLinkClassName={"relative inline-flex items-center px-4 py-2 mx-1 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-200 hover:text-black focus:z-20 focus:outline-offset-0"}
-              previousLinkClassName={"relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"}
-              nextLinkClassName={"relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"}
-              activeLinkClassName={"relative z-10 inline-flex items-center bg-sky-700 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"}
-              disabledLinkClassName={"pagination-link is-disabled"}
+        <div className="flex justify-between items-center mb-4">
+          <div className="relative w-1/4">
+            <MagnifyingGlassIcon className="absolute left-3 top-2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search by proposal or event name..."
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              className="pl-10 pr-3 py-1.5 border rounded-md w-full text-sm focus:outline-none"
             />
-          </nav>
+          </div>
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="bg-primary text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-700"
+          >
+            Filter
+          </button>
         </div>
+
+        <Transition appear show={isFilterOpen} as={Fragment}>
+          <Dialog as="div" className="relative z-10" onClose={() => setIsFilterOpen(false)}>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <div className="fixed inset-0 bg-black bg-opacity-25" />
+            </Transition.Child>
+
+            <div className="fixed inset-0 overflow-y-auto">
+              <div className="flex items-center justify-center min-h-full p-4 text-center">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
+                >
+                  <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                    <Dialog.Title as="h3" className="flex justify-center text-base font-medium text-gray-900 mb-4">
+                      FILTER PROPOSAL
+                    </Dialog.Title>
+
+                    {/* Dropdown Tag */}
+                    <div className="mb-4 w-full">
+                      <label className="block mb-2 text-sm font-medium text-gray-900">
+                        Tags Related Event
+                      </label>
+                      <div className="w-full">
+                        <Select
+                          mode="multiple"
+                          name="tags"
+                          placeholder="Search here"
+                          value={tagRelated}
+                          onChange={(e) => setTagRelated(e)}
+                          options={filteredTags.map(item => ({ value: item, label: item }))}
+                          style={{ width: '100%' }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Date Range Filter */}
+                    <div className="mb-4 w-full">
+                      <label className="block mb-2 text-sm font-medium text-gray-900">
+                        Event Date Range
+                      </label>
+                      <RangePicker
+                        style={{ width: '100%' }}
+                        value={
+                          eventDate && eventDate.length === 2
+                            ? [dayjs(eventDate[0]), dayjs(eventDate[1])]
+                            : null
+                        }
+                        onChange={(dates, dateStrings) => {
+                          if (dates) {
+                            setEventDate(dateStrings);
+                          } else {
+                            setEventDate([]);
+                          }
+                        }}
+                      />
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="mt-6 flex justify-end gap-2">
+                      <button
+                        className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
+                        onClick={() => setIsFilterOpen(false)}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        className="bg-primary text-white px-4 py-2 text-sm rounded hover:bg-gray-700"
+                        onClick={applyFilter}
+                      >
+                        Apply Filter
+                      </button>
+                    </div>
+                  </Dialog.Panel>
+                </Transition.Child>
+              </div>
+            </div>
+          </Dialog>
+        </Transition>
+
+        <table className="min-w-full divide-y divide-gray-200 text-sm">
+          <thead>
+            <tr className="font-semibold text-xs text-primary uppercase">
+              {[
+                { label: "Proposal Title", key: "proposal_name" },
+                { label: "Event Name", key: "event_name" },
+              ].map(({ label, key }) => {
+                const isActive = sortBy === key;
+                const isAsc = order === "ASC";
+
+                return (
+                  <th
+                    key={key}
+                    className="px-4 py-2 text-center cursor-pointer"
+                    onClick={() => handleSort(key)}
+                  >
+                    <div className="flex items-center justify-center gap-1">
+                      {label}
+                      <span className="flex flex-col">
+                        <ChevronUpIcon
+                          className={`w-3 h-3 ${isActive && isAsc ? "text-gray-800" : "text-gray-400"}`}
+                        />
+                        <ChevronDownIcon
+                          className={`w-3 h-3 ${isActive && !isAsc ? "text-gray-800" : "text-gray-400"}`}
+                        />
+                      </span>
+                    </div>
+                  </th>
+                );
+              })}
+              <th className="px-4 py-2 text-center">Event Date</th>
+              <th className="px-4 py-2 text-center">Action</th>
+            </tr>
+          </thead>
+
+          <tbody className="bg-white divide-y divide-gray-200">
+            {proposals.map((proposal, index) => (
+              <tr key={index} className="hover:bg-gray-50">
+                <td className="px-4 py-2 text-gray-800 text-left max-w-xs break-words">
+                  <div className="mb-2 break-words">
+                    {proposal.proposal_name}
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {proposal.tags_proposals?.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full"
+                      >
+                        {tag.tag_name}
+                      </span>
+                    ))}
+                  </div>
+                </td>
+                <td className="px-4 py-2 text-gray-600 text-center">
+                  {proposal.event_name}
+                </td>
+                <td className="px-4 py-2 text-gray-600 text-center">
+                  {new Date(proposal.event_date).toLocaleDateString(undefined, {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </td>
+                <td className="px-4 py-2 text-center">
+                  <div className="flex justify-center items-center gap-2">
+                    <button
+                      className="bg-primary text-white text-xs px-3 py-1.5 rounded-lg hover:bg-gray-700"
+                      onClick={() => navigate(`/proposal/${proposal.id}`)}
+                    >
+                      VIEW PROPOSAL DETAIL
+                    </button>
+                    <button className="text-gray-700 hover:text-gray-900">
+                      <ArrowDownTrayIcon className="h-4 w-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </ModernLayout>
   );

@@ -30,7 +30,7 @@ app.use(cors({
 
 app.use("/api/proposals", proposalRoutes);
 app.use("/api", listProposalRoutes);
-app.use("/api", milestoneRoutes);
+app.use(milestoneRoutes);
 
 
 const sessionStore = SequelizeStore(session.Store)

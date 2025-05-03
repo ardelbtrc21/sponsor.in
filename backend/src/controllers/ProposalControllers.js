@@ -280,13 +280,7 @@ export const getProposals = async (req, res) => {
     const startDate = req?.body?.filter?.startDate || [];
     const endDate = req?.body?.filter?.endDate || [];
 
-    if (startDate) {
-      changeQuery.withFilterStartDate(dayjs(startDate));
-    }
-
-    if (endDate) {
-      changeQuery.withFilterEndDate(dayjs(endDate));
-    }
+    console.log(filterTagRelated)
 
     let where = {
       [Op.or]: [
@@ -301,6 +295,14 @@ export const getProposals = async (req, res) => {
         }
       ]
     };
+
+    if (startDate.length > 0 && endDate.length > 0) {
+      where.event_date = {
+        [Op.between]: [startDate, endDate]
+      };
+    }
+    console.log(startDate)
+    console.log(endDate)
 
     let sort = "";
 
@@ -367,9 +369,6 @@ export const getProposals = async (req, res) => {
 
     console.log(result)
 
-    if (String(filterEventDate) !== "") {
-      result = result.filter(item => filterEventDate.includes(item.event_date));
-    }
     if (String(filterEventLocation) !== "") {
       result = result.filter(item => filterEventLocation.includes(item.event_location));
     }
@@ -382,8 +381,11 @@ export const getProposals = async (req, res) => {
     if (String(filterTargetGender) !== "") {
       result = result.filter(item => filterTargetGender.includes(item.target_gender));
     }
-    if (String(filterTagRelated) !== "") {
-      result = result.filter(item => filterTagRelated.includes(item.target_proposals));
+    if (filterTagRelated.length > 0) {
+      result = result.filter(item => {
+        const tagNames = item.tags_proposals.map(tag => tag.tag_name);
+        return tagNames.some(tag => filterTagRelated.includes(tag));
+      });
     }
     if (String(filterTargetParticipant) !== "") {
       result = result.filter(item => filterTargetParticipant.includes(item.target_proposals));
