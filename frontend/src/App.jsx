@@ -87,9 +87,10 @@ function App() {
     <ThemeProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Login />} />
-          <Route path="/dashboard" element={user ? <ModernLayout /> : <Navigate to="/" />} />
+          <Route path="/" element={user ? <Navigate to="/home" /> : <LandingScreen />} />
+          <Route path="/home" element={user ? <ModernLayout /> : <Navigate to="/" />} />
           <Route path="/signUp" element={<Register />} />
+          <Route path="/signIn" element={<Login />} />
           {/* <Route path="/welcome" element={user ? <ApproveButton /> : <Navigate to="/" />} /> */}
           <Route path="/proposal-status" element={user ? <ViewProposalStatus /> : <Navigate to="/" />} />
           <Route path="/proposal-list" element={user ? <ViewListSubmission /> : <Navigate to="/" />} />
