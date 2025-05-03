@@ -63,7 +63,7 @@ export const getProposalByStatus = async (req, res) => {
           include: [
             {
               model: Sponsoree,
-              as: 'sponsoree',
+              as: 'sponsoree_proposals',
               where: { username },
               attributes: [] 
             }
@@ -288,12 +288,12 @@ export const getCompletedAgreements = async (req, res) => {
     if (role.toLowerCase() === "sponsor") {
       baseIncludes.push({
         model: Sponsor,
-        as: "sponsor",
+        as: "sponsor_proposals",
         required: true,
         include: [
           {
             model: User,
-            as: "user_sponsor",
+            as: "user_sponsors",
             where: { username },
             attributes: ["username"]
           }
@@ -302,11 +302,11 @@ export const getCompletedAgreements = async (req, res) => {
 
       baseIncludes.push({
         model: Sponsoree,
-        as: "sponsoree",
+        as: "sponsoree_proposals",
         include: [
           {
             model: User,
-            as: "user_sponsoree",
+            as: "user_sponsorees",
             attributes: ["username"]
           }
         ]
@@ -315,7 +315,7 @@ export const getCompletedAgreements = async (req, res) => {
     } else if (role.toLowerCase() === "sponsoree") {
       baseIncludes.push({
         model: Sponsoree,
-        as: "sponsoree",
+        as: "sponsoree_proposals",
         required: true,
         include: [
           {
