@@ -7,7 +7,7 @@ import { Logout, reset } from "../features/authSlice";
 
 const Navbar = ({ onToggleSidebar }) => {
   return (
-    <nav className="fixed top-0 left-0 w-full bg-primary text-white px-6 py-4 shadow-md flex items-center justify-between z-50 backdrop-blur-md bg-opacity-100">
+    <nav className="fixed top-0 left-0 w-full bg-primary text-white px-6 py-2 shadow-md flex items-center justify-between z-50 backdrop-blur-md bg-opacity-100">
       {/* Left Side */}
       <div className="flex items-center gap-4">
         <img
@@ -72,21 +72,23 @@ const Sidebar = ({ isOpen, onClose }) => {
       });
     }
   };
+  const NAVBAR_HEIGHT = "56px";
   return (
     <>
       {/* Sidebar */}
       <div
+        style={{ top: NAVBAR_HEIGHT, height: `calc(100% - ${NAVBAR_HEIGHT})` }}
         className={`fixed top-0 left-0 h-full w-64 bg-white text-black shadow-xl transform transition-transform duration-300 ease-in-out z-40 ${isOpen ? "translate-x-0" : "-translate-x-full"
           }`}
       >
-        <div className="flex items-center justify-between p-5 border-b shadow-sm">
-          <h2 className="text-2xl font-semibold">Menu</h2>
+        <div className="flex items-center justify-between px-6 py-4 border-b shadow-sm">
+          <h2 className="text-lg font-semibold">Menu</h2>
           <button onClick={onClose}>
             <X size={28} />
           </button>
         </div>
 
-        <ul className="flex flex-col gap-2 p-6 text-lg font-medium">
+        <ul className="flex flex-col gap-2 p-6 text-base font-medium">
           <li>
             <Link
               to="/"
@@ -96,6 +98,17 @@ const Sidebar = ({ isOpen, onClose }) => {
               Home
             </Link>
           </li>
+          {user && user.role === "Sponsoree" && (
+            <li>
+              <Link
+                to="/sponsors"
+                onClick={onClose}
+                className="w-full block py-2 rounded-md hover:bg-gray-100 transition"
+              >
+                List Sponsor
+              </Link>
+            </li>
+          )}
           {user && user.role === "Sponsor" && (
             <li>
               <Link
@@ -152,7 +165,7 @@ const ModernLayout = ({ children }) => {
   };
 
   return (
-    <div className="relative flex flex-col min-h-screen bg-gray-100 pt-20">
+    <div className="relative flex flex-col min-h-screen bg-gray-100 pt-14">
       {/* Navbar */}
       <Navbar onToggleSidebar={toggleSidebar} />
 
@@ -170,7 +183,7 @@ const ModernLayout = ({ children }) => {
       </button>
 
       {/* Page Content */}
-      <main className="flex-1 px-6 py-8">
+      <main className="flex-1">
         {children}
       </main>
     </div>

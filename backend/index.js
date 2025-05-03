@@ -29,6 +29,11 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
 
+app.use("/api/proposals", ProposalRoute);
+app.use("/api", ListProposalRoute);
+app.use(MilestoneRoute);
+
+
 const sessionStore = SequelizeStore(session.Store)
 const store = new sessionStore({
     db: db,

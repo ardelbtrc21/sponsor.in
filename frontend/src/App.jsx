@@ -7,7 +7,7 @@ import SponsorDetail from "./pages/SponsorDetail";
 import ReportAccountForm from "./pages/ReportAccountForm";
 import Register from "./pages/Register";
 import "./Style/index.css";
-import ApproveButton from "./pages/ViewDetailProposal";
+import ViewDetailProposal from "./pages/ViewDetailProposal";
 import ViewProposalStatus from "./pages/ViewProposalStatus";
 import ViewListSubmission from "./pages/ViewListProposal";
 import CreateProposalForm from "./pages/CreateProposalForm";
@@ -87,15 +87,12 @@ function App() {
     <ThemeProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={user ? <Navigate to="/dashboard" /> : <LandingScreen />} />
+          <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Login />} />
           {/* <Route path="landing-screen" element={ < LandingScreen/>}/> */}
-          <Route path="/dashboard" element={user ? <ModernLayout /> : <Navigate to="/" />} />
+          <Route path="/dashboard" element={user ? <LandingScreen /> : <Navigate to="/" />} />
           <Route path="/signUp" element={<Register />} />
-          <Route path="/signIn" element={<Login />} />
-          {/* <Route path="/welcome" element={user ? <ApproveButton /> : <Navigate to="/" />} /> */}
-          <Route path="/welcome" element={ <ApproveButton/>} />
-          {/* <Route path="/proposal-status" element={user ? <ViewProposalStatus /> : <Navigate to="/" />} /> */}
-          <Route path="/proposal-status" element={<ViewProposalStatus />} />
+          <Route path="/detailproposal" element={user ? <ViewDetailProposal /> : <Navigate to="/" />} />
+          <Route path="/proposal-status" element={user ? <ViewProposalStatus /> : <Navigate to="/" />} />
           <Route path="/proposal-list" element={user ? <ViewListSubmission /> : <Navigate to="/" />} />
           {/* <Route path="/proposal-list" element={<ViewListSubmission />} /> */}
           <Route path="/sponsors" element={user ? <SponsorList /> : <Navigate to="/" />} />
