@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import defaultProfile from '../assets/profile_default.png';
 
 const SponsorDetail = () => {
   const { id } = useParams();
@@ -43,7 +44,7 @@ const SponsorDetail = () => {
       {/* Banner */}
       <div className="relative w-full">
         <img
-          src={sponsor.profile_photo}
+          src={sponsor.profile_photo ? URL.createObjectURL(sponsor.profile_photo) : defaultProfile}
           className="w-screen h-72 object-cover"
           style={{ imageRendering: "auto" }}
           alt="banner"
@@ -55,7 +56,7 @@ const SponsorDetail = () => {
         {/* Foto Profil */}
         <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 z-10">
           <img
-            src={sponsor.profile_photo}
+              src={sponsor.profile_photo ? URL.createObjectURL(sponsor.profile_photo) : defaultProfile}
             alt="profile_photo"
             className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover bg-white"
           />

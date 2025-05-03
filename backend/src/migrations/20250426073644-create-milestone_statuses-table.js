@@ -11,7 +11,7 @@ export default {
         allowNull: false,
         unique: true
       },
-      proposal_id: {
+      milestone_id: {
         type: Sequelize.UUID,
         allowNull: false,
       },

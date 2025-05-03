@@ -30,8 +30,8 @@ const ReportAccountForm = () => {
         username: reportedUsername,
         created_by: (user && user.username),
         created_for: reportedUsername,
-        reason,
-        description,
+        reason: reason,
+        description: description,
         status: "submitted",
         createdAt: new Date(),
       });

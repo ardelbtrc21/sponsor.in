@@ -10,11 +10,11 @@ export default {
     });
     await queryInterface.addColumn("sponsors", "category_provides", {
       type: Sequelize.TEXT,
-      allowNull: false
+      allowNull: true
     });
     await queryInterface.addColumn("sponsors", "description", {
       type: Sequelize.TEXT,
-      allowNull: false
+      allowNull: true
     });
   },
   down: async (queryInterface) => {

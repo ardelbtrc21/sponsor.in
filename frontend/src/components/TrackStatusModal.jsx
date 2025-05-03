@@ -1,7 +1,7 @@
 import React from "react";
 import "../Style/styles.css";
 
-const TrackStatusModal = ({ isOpen, onClose, statusList }) => {
+const TrackStatusModal = ({ isOpen, onClose, selectedStatusList }) => {
   if (!isOpen) return null;
 
   return (
@@ -10,26 +10,26 @@ const TrackStatusModal = ({ isOpen, onClose, statusList }) => {
         <h2 className="custom-title text-xl font-bold mb-4">Track Status</h2>
 
         <div className="space-y-3">
-          {statusList && statusList.length > 0 ? (
-            statusList.map((status, index) => (
+          {selectedStatusList && selectedStatusList.length > 0 ? (
+            selectedStatusList.map((status, index) => (
               <div
                 key={index}
                 className="flex items-center justify-between border-b pb-2"
               >
                 <span className="font-medium">{status.status_name}</span>
                 <span className="text-sm text-gray-500">
-                    {status.updatedAt
-                        ? (() => {
-                            const date = new Date(status.updatedAt);
-                            const day = date.getDate().toString().padStart(2, "0"); 
-                            const shortMonth = date.toLocaleString("en-GB", { month: "short" }); 
-                            const year = date.getFullYear(); 
-                            const hours = date.getHours().toString().padStart(2, "0"); 
-                            const minutes = date.getMinutes().toString().padStart(2, "0"); 
-                            return `${shortMonth} ${day}, ${year} ${hours}:${minutes}`;
-                        })()
-                        : "On Process"}
-                    </span>
+                  {status.endAt
+                    ? (() => {
+                        const date = new Date(status.endAt);
+                        const day = date.getDate().toString().padStart(2, "0"); // 19
+                        const shortMonth = date.toLocaleString("en-GB", { month: "short" }); // Apr
+                        const year = date.getFullYear(); // 2025
+                        const hours = date.getHours().toString().padStart(2, "0"); // 19
+                        const minutes = date.getMinutes().toString().padStart(2, "0"); // 09
+                        return `${shortMonth} ${day}, ${year} ${hours}:${minutes}`;
+                      })()
+                    : "On Process"}
+                </span>
               </div>
             ))
           ) : (

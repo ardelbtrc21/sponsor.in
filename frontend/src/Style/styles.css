@@ -48,14 +48,6 @@ root{
     border-radius: 15px;
 }
 
-.custom-header{
-    font-size: 32px;
-    color: #031930;
-    display: flex;
-    justify-content: center;
-    letter-spacing: 3px;
-}
-
 .custom-menu{
     display: flex;
     padding-top: 15px;
@@ -101,4 +93,24 @@ root{
     display: flex;
     justify-content: center;
     letter-spacing: 1px;
+}
+
+.carousel-container {
+    width: 100%;
+    margin-top: 2rem;
+    margin-left: 2rem;
+}
+
+.carousel-slide {
+    width: 300px;
+    height: 160px;
+    overflow: hidden;
+    border-radius: 0.75rem;
+}
+
+.carousel-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
 }
