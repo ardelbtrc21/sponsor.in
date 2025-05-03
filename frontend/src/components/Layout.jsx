@@ -1,14 +1,18 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, MoreVertical, X } from "lucide-react";
+import { useSelector } from "react-redux";
+import defaultProfile from '../assets/profile_default.png';
+
 
 const Navbar = ({ onToggleSidebar }) => {
+const user = useSelector((state) => state.auth.user);
   return (
     <nav className="fixed top-0 left-0 w-full bg-primary text-white px-6 py-4 shadow-md flex items-center justify-between z-50 backdrop-blur-md bg-opacity-100">
       {/* Left Side */}
       <div className="flex items-center gap-4">
         <img
-          src="https://i.pravatar.cc/300"
+          src={user.profile_photo ? URL.createObjectURL(user.profile_photo) : defaultProfile}
           alt="User Avatar"
           className="w-10 h-10 rounded-full border-2 border-white"
         />

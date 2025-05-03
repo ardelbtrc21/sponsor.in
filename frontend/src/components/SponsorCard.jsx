@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import defaultProfile from '../assets/profile_default.png';
 
 const SponsorCard = ({ sponsor }) => {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ const SponsorCard = ({ sponsor }) => {
       {/* Profile Image */}
       <div className="h-48 bg-gray-200 flex items-center justify-center">
         <img
-          src={sponsor.profile_photo || '/default-profile.png'}
+            src={sponsor.profile_photo ? URL.createObjectURL(sponsor.profile_photo) : defaultProfile}
           alt={sponsor.name}
           className="h-full w-full object-cover"
         />

@@ -1,12 +1,22 @@
 import React, { useState } from "react";
 import { MoreVertical, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // ⬅️ tambahkan useNavigate
+import { useSelector } from "react-redux";
+import defaultProfile from '../assets/profile_default.png';
 
 const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const user = useSelector((state) => state.auth.user);
+  const navigate = useNavigate(); // ⬅️ inisialisasi navigator
 
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
+  };
+
+  const handleProfileClick = () => {
+    if (user?.username) {
+      navigate(`/edit-profile/${user.username}`);
+    }
   };
 
   return (
@@ -16,9 +26,10 @@ const Navbar = () => {
         {/* Kiri: Avatar + Dot menu */}
         <div className="flex items-center gap-3">
           <img
-            src="https://i.pravatar.cc/300"
+            src={user.profile_photo ? URL.createObjectURL(user.profile_photo) : defaultProfile}
             alt="User"
-            className="w-8 h-8 rounded-full border-2 border-white"
+            onClick={handleProfileClick}
+            className="w-8 h-8 rounded-full border-2 border-white cursor-pointer"
           />
           <button onClick={toggleSidebar} className="focus:outline-none z-50">
             <MoreVertical size={24} />
@@ -54,6 +65,9 @@ const Navbar = () => {
           </li>
           <li>
             <Link to="/about" onClick={() => setIsSidebarOpen(false)}>About</Link>
+          </li>
+          <li>
+            <Link to={`/account-setting/${(user && user.username)}`} onClick={() => setIsSidebarOpen(false)}>Setting Account</Link>
           </li>
           <li>
             <button onClick={() => alert("Logging out...")}>Logout</button>
