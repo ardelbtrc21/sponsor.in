@@ -20,6 +20,7 @@ import ListApprovalProposal from "./pages/ListApprovalProposal";
 import LandingScreen from "./pages/LandingScreen";
 import AdminPendingSponsorsPage from "./pages/AdminSponsorApproval";
 import HistoryAgreement from "./pages/HistoryAgreement";
+import Home from "./pages/Home";
 // import AccountSetting from "./pages/AccountSettingForm";
 
 function ThemeProvider({ children }) {
@@ -54,12 +55,12 @@ function ThemeProvider({ children }) {
     </ConfigProvider>
   );
 }
- 
+
 function App() {
   const dispatch = useDispatch();
   const [loadingSession, setLoadingSession] = useState(true);
   const { user } = useSelector((state) => state.auth);
- 
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -70,10 +71,10 @@ function App() {
         setLoadingSession(false);
       }
     };
- 
+
     fetchUser();
   }, [dispatch]);
- 
+
   if (loadingSession) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
@@ -81,30 +82,27 @@ function App() {
       </div>
     );
   }
- 
+
   return (
     <ThemeProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Login />} />
-          {/* <Route path="landing-screen" element={ < LandingScreen/>}/> */}
-          <Route path="/dashboard" element={user ? <LandingScreen /> : <Navigate to="/" />} />
+          <Route path="/dashboard" element={user ? <ModernLayout /> : <Navigate to="/" />} />
           <Route path="/signUp" element={<Register />} />
-          <Route path="/detailproposal" element={user ? <ViewDetailProposal /> : <Navigate to="/" />} />
+          {/* <Route path="/welcome" element={user ? <ApproveButton /> : <Navigate to="/" />} /> */}
           <Route path="/proposal-status" element={user ? <ViewProposalStatus /> : <Navigate to="/" />} />
           <Route path="/proposal-list" element={user ? <ViewListSubmission /> : <Navigate to="/" />} />
-          {/* <Route path="/proposal-list" element={<ViewListSubmission />} /> */}
           <Route path="/sponsors" element={user ? <SponsorList /> : <Navigate to="/" />} />
           <Route path="/sponsors/:id" element={user ? <SponsorDetail /> : <Navigate to="/" />} />
           <Route path="/report/:id" element={user ? <ReportAccountForm /> : <Navigate to="/" />} />
           <Route path="/proposal/create/:id" element={user ? <CreateProposalForm /> : <Navigate to="/" />} />
+          {/* <Route path="/account-setting/:id" element={user ? <AccountSetting /> : <Navigate to="/" />} /> */}
           <Route path="/list-approval-proposal/" element={user ? <ListApprovalProposal /> : <Navigate to="/" />} />
-          <Route path="/admin/pending-sponsors" element={<AdminPendingSponsorsPage />} />
-          <Route path="/my-agreements" element={<HistoryAgreement currentUser={user} />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
   );
 }
- 
+
 export default App;

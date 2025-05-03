@@ -22,7 +22,7 @@ const Login = () => {
             navigate(redirectTo);
             localStorage.removeItem("redirectTo");
         } else if (user || isSuccess) {
-            navigate("/dashboard");
+            navigate("/home");
         }
         dispatch(reset());
     }, [user, isSuccess, dispatch, navigate]);

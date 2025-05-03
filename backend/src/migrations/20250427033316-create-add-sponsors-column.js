@@ -10,7 +10,8 @@ export default {
     });
     await queryInterface.addColumn("sponsors", "status", {
       type: Sequelize.TEXT,
-      allowNull: false
+      allowNull: false,
+      defaultValue: "approved"
     });
   },
   down: async (queryInterface) => {
