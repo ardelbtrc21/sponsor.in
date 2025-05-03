@@ -1,127 +1,89 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useSelector } from "react-redux";
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
 
-const AccountSetting = () => {
-  const { user } = useSelector((state) => state.auth);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-  });
+const AccountSettingForm = () => {
+  const user = useSelector((state) => state.auth.user); // Ambil user dari redux
+  const [email, setEmail] = useState(user?.email || '');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [availability, setAvailability] = useState(user?.availability || false);
+  const [photo, setPhoto] = useState(null);
+  const [message, setMessage] = useState('');
+  const [errors, setErrors] = useState({});
 
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confPassword: "",
-  });
+  const isSponsor = user?.role === 'Sponsor';
 
-  const [message, setMessage] = useState("");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get(`/api/user/${user.username}`);
-        setFormData({
-          name: res.data.name,
-          email: res.data.email,
-        });
-      } catch (err) {
-        console.error(err);
+    const formData = new FormData();
+    formData.append("username", user && user.username);
+    console.log("username disini isinya apa? " + user && user.username)
+    if (email) formData.append("email", email);
+    if (password) formData.append("password", password);
+    if (confirmPassword) formData.append("confirmPassword", confirmPassword);
+    if (photo) formData.append("photo", photo);
+    if (isSponsor) formData.append("availability", availability);
+
+    try {
+      const res = await axios.patch('/api/updateAccount', formData);
+      setMessage(res.data.msg);
+      setErrors({});
+    } catch (err) {
+      if (err.response && err.response.status === 404) {
+        setErrors(err.response.data);
+      } else {
+        setMessage("Server Error: " + err.message);
       }
-    };
-    fetchUser();
-  }, [user.username]);
-
-  const handleAccountUpdate = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.patch("/api/updateUserAccount", {
-        ...formData,
-        username: user.username,
-      });
-      setMessage("Account updated successfully.");
-    } catch (err) {
-      setMessage(err.response?.data?.msg || "Update failed.");
-    }
-  };
-
-  const handlePasswordChange = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post("/api/changePassword", passwordData);
-      setMessage("Password changed successfully.");
-      setPasswordData({ currentPassword: "", newPassword: "", confPassword: "" });
-    } catch (err) {
-      setMessage(err.response?.data?.msg || "Password update failed.");
     }
   };
 
   return (
-    <div className="max-w-xl mx-auto p-4">
-      <h2 className="text-xl font-bold mb-4">Account Settings</h2>
+    <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-4 max-w-md mx-auto mt-10">
+      <h2 className="text-xl font-bold mb-4">Update Account</h2>
 
-      <form onSubmit={handleAccountUpdate} className="space-y-4">
-        <div>
-          <label className="block mb-1">Name</label>
-          <input
-            type="text"
-            value={formData.name}
-            className="w-full border px-3 py-2 rounded"
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          />
-        </div>
-        <div>
-          <label className="block mb-1">Email</label>
-          <input
-            type="email"
-            value={formData.email}
-            className="w-full border px-3 py-2 rounded"
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          />
-        </div>
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-          Update Account
-        </button>
-      </form>
+      <div>
+        <label>Email:</label>
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+          className="border p-2 w-full" />
+        {errors.email && <p className="text-red-500">{errors.email}</p>}
+      </div>
 
-      <hr className="my-6" />
+      <div>
+        <label>Password:</label>
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+          className="border p-2 w-full" />
+        {errors.password && <p className="text-red-500">{errors.password}</p>}
+      </div>
 
-      <form onSubmit={handlePasswordChange} className="space-y-4">
-        <div>
-          <label className="block mb-1">Current Password</label>
-          <input
-            type="password"
-            value={passwordData.currentPassword}
-            className="w-full border px-3 py-2 rounded"
-            onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-          />
-        </div>
-        <div>
-          <label className="block mb-1">New Password</label>
-          <input
-            type="password"
-            value={passwordData.newPassword}
-            className="w-full border px-3 py-2 rounded"
-            onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-          />
-        </div>
-        <div>
-          <label className="block mb-1">Confirm New Password</label>
-          <input
-            type="password"
-            value={passwordData.confPassword}
-            className="w-full border px-3 py-2 rounded"
-            onChange={(e) => setPasswordData({ ...passwordData, confPassword: e.target.value })}
-          />
-        </div>
-        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
-          Change Password
-        </button>
-      </form>
+      <div>
+        <label>Confirm Password:</label>
+        <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
+          className="border p-2 w-full" />
+        {errors.confirmPassword && <p className="text-red-500">{errors.confirmPassword}</p>}
+      </div>
 
-      {message && <p className="mt-4 text-sm text-red-500">{message}</p>}
-    </div>
+      {isSponsor && (
+        <div className="flex items-center">
+          <input type="checkbox" id="availability" checked={availability} onChange={() => setAvailability(!availability)} />
+          <label htmlFor="availability" className="ml-2">Available for Sponsoring</label>
+        </div>
+      )}
+
+      <div>
+        <label>Profile Photo:</label>
+        <input type="file" accept="image/*" onChange={(e) => setPhoto(e.target.files[0])} />
+        {errors.photo && <p className="text-red-500">{errors.photo}</p>}
+      </div>
+
+      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
+        Update Account
+      </button>
+
+      {message && <p className="text-green-600 mt-4">{message}</p>}
+    </form>
   );
 };
 
-export default AccountSetting;
+export default AccountSettingForm;

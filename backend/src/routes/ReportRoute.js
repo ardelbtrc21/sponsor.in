@@ -3,6 +3,6 @@ import { newReport } from "../controllers/ReportControllers.js";
 
 const router = express.Router();
 
-router.post("/", newReport);
+router.post("/api/report", newReport);
 
 export default router;

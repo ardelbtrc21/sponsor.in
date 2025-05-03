@@ -11,7 +11,6 @@ import ViewDetailProposal from "./pages/ViewDetailProposal";
 import ViewProposalStatus from "./pages/ViewProposalStatus";
 import ViewListSubmission from "./pages/ViewListProposal";
 import CreateProposalForm from "./pages/CreateProposalForm";
-import AccountSetting from "./pages/AccountSettingForm";
 import { useDispatch, useSelector } from "react-redux";
 import { getMe } from "./features/authSlice";
 import { useEffect, useState } from "react";
@@ -55,12 +54,12 @@ function ThemeProvider({ children }) {
     </ConfigProvider>
   );
 }
-
+ 
 function App() {
   const dispatch = useDispatch();
   const [loadingSession, setLoadingSession] = useState(true);
   const { user } = useSelector((state) => state.auth);
-
+ 
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -71,10 +70,10 @@ function App() {
         setLoadingSession(false);
       }
     };
-
+ 
     fetchUser();
   }, [dispatch]);
-
+ 
   if (loadingSession) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
@@ -82,7 +81,7 @@ function App() {
       </div>
     );
   }
-
+ 
   return (
     <ThemeProvider>
       <BrowserRouter>
@@ -99,7 +98,6 @@ function App() {
           <Route path="/sponsors/:id" element={user ? <SponsorDetail /> : <Navigate to="/" />} />
           <Route path="/report/:id" element={user ? <ReportAccountForm /> : <Navigate to="/" />} />
           <Route path="/proposal/create/:id" element={user ? <CreateProposalForm /> : <Navigate to="/" />} />
-          <Route path="/account-setting/:id" element={user ? <AccountSetting /> : <Navigate to="/" />} />
           <Route path="/list-approval-proposal/" element={user ? <ListApprovalProposal /> : <Navigate to="/" />} />
           <Route path="/admin/pending-sponsors" element={<AdminPendingSponsorsPage />} />
           <Route path="/my-agreements" element={<HistoryAgreement currentUser={user} />} />
@@ -108,5 +106,5 @@ function App() {
     </ThemeProvider>
   );
 }
-
+ 
 export default App;
