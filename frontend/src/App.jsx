@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getMe } from "./features/authSlice";
 import { useEffect, useState } from "react";
 import { Spin } from "antd";
+import ChangePassword from "./pages/ChangePassword";
  
 function ThemeProvider({ children }) {
   return (
@@ -93,6 +94,7 @@ function App() {
           <Route path="/report/:id" element={user ? <ReportAccountForm /> : <Navigate to="/" />} />
           <Route path="/proposal/create/:id" element={user ? <CreateProposalForm /> : <Navigate to="/" />} />
           <Route path="/account-setting/:id" element={user ? <AccountSettingForm /> : <Navigate to="/" />} />
+          <Route path="/change-password/:id" element={user ? <ChangePassword /> : <Navigate to="/" />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
