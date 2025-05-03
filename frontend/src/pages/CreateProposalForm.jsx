@@ -8,9 +8,7 @@ import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { InboxOutlined } from "@ant-design/icons";
 import { NavLink, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import Navbar from "../components/NavbarCard";
 import ModernLayout from "../components/Layout";
-import { ArrowLeft } from "lucide-react";
 const { Dragger } = Upload;
 
 const CreateProposalForm = () => {
@@ -185,98 +183,100 @@ const CreateProposalForm = () => {
 
   return (
     <ModernLayout>
-      <div className="min-h-screen p-6 bg-white text-black">
-        <div className="max-w-5xl mx-auto bg-white p-10 rounded-2xl shadow-md">
-          <h2 className="text-2xl font-bold mb-6 text-center">Submit Proposal</h2>
+      {user && user.role === "Sponsoree" && (
+        <div className="min-h-screen p-6 bg-white text-black">
+          <div className="max-w-5xl mx-auto bg-white p-10 rounded-2xl shadow-md">
+            <h2 className="text-2xl font-bold mb-6 text-center">Submit Proposal</h2>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block mb-2 text-base font-medium text-gray-900">Proposal Title<span className="text-sm text-red-500 ml-1">*</span></label>
-              <input type="text" name="proposalName" placeholder="Proposal Title" value={proposalName} onChange={(e) => setProposalName(e.target.value)} className="w-full p-3 border rounded-xl" />
-              <div className="flex flex-col mt-2">
-                <span className="text-sm text-gray-500">{proposalName.length} characters</span>
-                <span className="text-sm text-red-800">{formErrors.proposal_name}</span>
-              </div>
-            </div>
-
-            <div>
-              <label className="block mb-2 text-base font-medium text-gray-900">Event Name<span className="text-sm text-red-500 ml-1">*</span></label>
-              <input type="text" name="eventName" placeholder="Event Name" value={eventName} onChange={(e) => setEventName(e.target.value)} className="w-full p-3 border rounded-xl" />
-              <span className="text-sm text-red-800 mt-2 block">{formErrors.event_name}</span>
-            </div>
-
-            <div>
-              <label className="block mb-2 text-base font-medium text-gray-900">Event Date<span className="text-sm text-red-500 ml-1">*</span></label>
-              <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} className="w-full p-3 border rounded-xl bg-gray-50" />
-              <span className="text-sm text-red-800 mt-2 block">{formErrors.event_date}</span>
-            </div>
-
-            <div>
-              <label className="block mb-2 text-base font-medium text-gray-900">Event Location<span className="text-sm text-red-500 ml-1">*</span></label>
-              <input type="text" name="eventLocation" placeholder="Event Location" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} className="w-full p-3 border rounded-xl" />
-              <span className="text-sm text-red-800 mt-2 block">{formErrors.event_location}</span>
-            </div>
-
-            <div>
-              <label className="block mb-2 text-base font-medium text-gray-900">Scope Age Participant<span className="text-sm text-red-500 ml-1">*</span></label>
-              <Slider range min={0} max={100} value={sliderValue} onChange={(value) => { setTargetAgeMin(value[0]); setTargetAgeMax(value[1]); }} />
-              <div className="flex items-center gap-2 mt-3">
-                <InputNumber min={0} max={100} value={targetAgeMin} onChange={(value) => setTargetAgeMin(value)} placeholder="Min Age" />
-                <span>-</span>
-                <InputNumber min={0} max={100} value={targetAgeMax} onChange={(value) => setTargetAgeMax(value)} placeholder="Max Age" />
-              </div>
-              <div className="mt-2 text-sm">Usia: {targetAgeMin || 0} - {targetAgeMax || 100} tahun</div>
-              <span className="text-sm text-red-800 mt-2 block">{formErrors.target_age}</span>
-            </div>
-
-            <div>
-              <label className="block mb-2 text-base font-medium text-gray-900">Target Gender<span className="text-sm text-red-500 ml-1">*</span></label>
-              <div className="relative">
-                <select name="targetGender" value={targetGender} onChange={(e) => setTargetGender(e.target.value)} className="w-full appearance-none p-3 pr-10 border rounded-xl bg-white text-base">
-                  <option value="">Select Gender</option>
-                  <option value="Female">Female</option>
-                  <option value="Male">Male</option>
-                  <option value="All">All</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
-                  <ChevronDownIcon className="w-5 h-5 text-gray-600" />
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label className="block mb-2 text-base font-medium text-gray-900">Proposal Title<span className="text-sm text-red-500 ml-1">*</span></label>
+                <input type="text" name="proposalName" placeholder="Proposal Title" value={proposalName} onChange={(e) => setProposalName(e.target.value)} className="w-full p-3 border rounded-xl" />
+                <div className="flex flex-col mt-2">
+                  <span className="text-sm text-gray-500">{proposalName.length} characters</span>
+                  <span className="text-sm text-red-800">{formErrors.proposal_name}</span>
                 </div>
               </div>
-              <span className="text-sm text-red-800 mt-2 block">{formErrors.target_gender}</span>
-            </div>
 
-            <div>
-              <label className="block mb-2 text-base font-medium text-gray-900">Target Participant<span className="text-sm text-red-500 ml-1">*</span></label>
-              <Select mode="multiple" name="targets" placeholder="Search here" value={targets} className="w-full p-3 pr-10 border rounded-xl bg-white text-base" onChange={(e) => setTargets(e)} options={filteredTargets.map(item => ({ value: item, label: item }))} />
-              <span className="text-sm text-red-800 mt-2 block">{formErrors.target_participants}</span>
-            </div>
+              <div>
+                <label className="block mb-2 text-base font-medium text-gray-900">Event Name<span className="text-sm text-red-500 ml-1">*</span></label>
+                <input type="text" name="eventName" placeholder="Event Name" value={eventName} onChange={(e) => setEventName(e.target.value)} className="w-full p-3 border rounded-xl" />
+                <span className="text-sm text-red-800 mt-2 block">{formErrors.event_name}</span>
+              </div>
 
-            <div>
-              <label className="block mb-2 text-base font-medium text-gray-900">Tags Related Event<span className="text-sm text-red-500 ml-1">*</span></label>
-              <Select mode="multiple" name="tags" placeholder="Search here" value={tags} className="w-full p-3 pr-10 border rounded-xl bg-white text-base" onChange={(e) => setTags(e)} options={filteredTags.map(item => ({ value: item, label: item }))} />
-              <span className="text-sm text-red-800 mt-2 block">{formErrors.tags}</span>
-            </div>
+              <div>
+                <label className="block mb-2 text-base font-medium text-gray-900">Event Date<span className="text-sm text-red-500 ml-1">*</span></label>
+                <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} className="w-full p-3 border rounded-xl bg-gray-50" />
+                <span className="text-sm text-red-800 mt-2 block">{formErrors.event_date}</span>
+              </div>
 
-            <div>
-              <label className="block mb-2 text-base font-medium text-gray-900">Proposal File</label>
-              <Dragger {...props}>
-                <p className="ant-upload-drag-icon">
-                  <InboxOutlined />
-                </p>
-                <p className="ant-upload-text">Click or drag file to this area to upload</p>
-                <p className="ant-upload-hint">Only Accept PDF File and Accept Size Max (20 Mb)</p>
-              </Dragger>
-              <span className="text-sm text-red-800 mt-2 block">{formErrors.file_proposal}</span>
-            </div>
+              <div>
+                <label className="block mb-2 text-base font-medium text-gray-900">Event Location<span className="text-sm text-red-500 ml-1">*</span></label>
+                <input type="text" name="eventLocation" placeholder="Event Location" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} className="w-full p-3 border rounded-xl" />
+                <span className="text-sm text-red-800 mt-2 block">{formErrors.event_location}</span>
+              </div>
 
-            <div className="flex justify-center pt-8">
-              <button type="submit" className="w-1/2 bg-primary text-white py-3 rounded-xl hover:opacity-90">
-                Submit
-              </button>
-            </div>
-          </form>
+              <div>
+                <label className="block mb-2 text-base font-medium text-gray-900">Scope Age Participant<span className="text-sm text-red-500 ml-1">*</span></label>
+                <Slider range min={0} max={100} value={sliderValue} onChange={(value) => { setTargetAgeMin(value[0]); setTargetAgeMax(value[1]); }} />
+                <div className="flex items-center gap-2 mt-3">
+                  <InputNumber min={0} max={100} value={targetAgeMin} onChange={(value) => setTargetAgeMin(value)} placeholder="Min Age" />
+                  <span>-</span>
+                  <InputNumber min={0} max={100} value={targetAgeMax} onChange={(value) => setTargetAgeMax(value)} placeholder="Max Age" />
+                </div>
+                <div className="mt-2 text-sm">Usia: {targetAgeMin || 0} - {targetAgeMax || 100} tahun</div>
+                <span className="text-sm text-red-800 mt-2 block">{formErrors.target_age}</span>
+              </div>
+
+              <div>
+                <label className="block mb-2 text-base font-medium text-gray-900">Target Gender<span className="text-sm text-red-500 ml-1">*</span></label>
+                <div className="relative">
+                  <select name="targetGender" value={targetGender} onChange={(e) => setTargetGender(e.target.value)} className="w-full appearance-none p-3 pr-10 border rounded-xl bg-white text-base">
+                    <option value="">Select Gender</option>
+                    <option value="Female">Female</option>
+                    <option value="Male">Male</option>
+                    <option value="All">All</option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
+                    <ChevronDownIcon className="w-5 h-5 text-gray-600" />
+                  </div>
+                </div>
+                <span className="text-sm text-red-800 mt-2 block">{formErrors.target_gender}</span>
+              </div>
+
+              <div>
+                <label className="block mb-2 text-base font-medium text-gray-900">Target Participant<span className="text-sm text-red-500 ml-1">*</span></label>
+                <Select mode="multiple" name="targets" placeholder="Search here" value={targets} className="w-full p-3 pr-10 border rounded-xl bg-white text-base" onChange={(e) => setTargets(e)} options={filteredTargets.map(item => ({ value: item, label: item }))} />
+                <span className="text-sm text-red-800 mt-2 block">{formErrors.target_participants}</span>
+              </div>
+
+              <div>
+                <label className="block mb-2 text-base font-medium text-gray-900">Tags Related Event<span className="text-sm text-red-500 ml-1">*</span></label>
+                <Select mode="multiple" name="tags" placeholder="Search here" value={tags} className="w-full p-3 pr-10 border rounded-xl bg-white text-base" onChange={(e) => setTags(e)} options={filteredTags.map(item => ({ value: item, label: item }))} />
+                <span className="text-sm text-red-800 mt-2 block">{formErrors.tags}</span>
+              </div>
+
+              <div>
+                <label className="block mb-2 text-base font-medium text-gray-900">Proposal File<span className="text-sm text-red-500 ml-1">*</span></label>
+                <Dragger {...props}>
+                  <p className="ant-upload-drag-icon">
+                    <InboxOutlined />
+                  </p>
+                  <p className="ant-upload-text">Click or drag file to this area to upload</p>
+                  <p className="ant-upload-hint">Only Accept PDF File and Accept Size Max (20 Mb)</p>
+                </Dragger>
+                <span className="text-sm text-red-800 mt-2 block">{formErrors.file_proposal}</span>
+              </div>
+
+              <div className="flex justify-center pt-8">
+                <button type="submit" className="w-1/2 bg-primary text-white py-3 rounded-xl hover:opacity-90">
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
+      )}
     </ModernLayout>
   );
 };

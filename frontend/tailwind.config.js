@@ -24,7 +24,12 @@ module.exports = {
         blusponsorinHover: "#2563EB",
         primary: '#031930',
         secondary: '#758AA5',
+        lightblue: '#D1DDED',
+        darkblue: '#213A59',        
         white: '#FFFFFF'
+      },
+      backgroundImage: {
+        'custom-gradient': 'linear-gradient(to bottom, #D1DDED 17%, #758AA5 36%, #213A59 59%, #031930 90%)',
       },
     },
   },

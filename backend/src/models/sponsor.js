@@ -5,6 +5,7 @@ import Tag from "./tag.js";
 import SponsorTag from "./sponsor_tag.js";
 import TargetParticipant from "./target_participant.js";
 import SponsorTargetParticipant from "./sponsor_target_participant.js";
+import Proposal from "./proposal.js";
 
 const Sponsor = db.define("sponsor", {
     sponsor_id: {
@@ -41,9 +42,18 @@ const Sponsor = db.define("sponsor", {
     },
     category_provides: {
         type: Sequelize.TEXT,
-        allowNull: false
+        allowNull: true
     },
     description: {
+        type: Sequelize.TEXT,
+        allowNull: true
+    },
+    is_banned: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
+    status: {
         type: Sequelize.TEXT,
         allowNull: false
     }
@@ -77,5 +87,14 @@ TargetParticipant.belongsToMany(Sponsor, {
     onDelete: "CASCADE", 
     onUpdate: "CASCADE" 
 });
-
+Sponsor.hasMany(Proposal, {
+    foreignKey: "sponsor_id",
+    as: "sponsor_proposals",
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE"
+});
+Proposal.belongsTo(Sponsor, {
+    foreignKey: "sponsor_id",
+    as: "sponsor_proposals"
+});
 export default Sponsor;

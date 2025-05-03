@@ -15,10 +15,6 @@ export default {
         type: Sequelize.UUID,
         allowNull: false,
       },
-      status_id: {
-        type: Sequelize.UUID,
-        allowNull: false
-      },
       milestone_name: {
         type: Sequelize.TEXT,
         allowNull: false
@@ -30,10 +26,6 @@ export default {
       milestone_attachment: {
         type: Sequelize.TEXT,
         allowNull: true
-      },
-      milestone_status: {
-        type: Sequelize.TEXT,
-        allowNull: false
       },
       created_date: {
         type: Sequelize.DATE,

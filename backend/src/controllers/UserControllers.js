@@ -142,7 +142,7 @@ export const createUser = async (req, res) => {
             document.mv(uploadPath, async (err) => {
                 if (err) {
                     return res.status(500).json({ msg: "File upload failed", error: err });
-                }
+                } 
         
                 try {
                     await Sponsor.create({
@@ -155,18 +155,18 @@ export const createUser = async (req, res) => {
                     return res.status(400).json({ msg: error.message });
                 }
             });
-        }
+        }        
         if (role === "Sponsoree") {
             try {
                 await Sponsoree.create({
                     username: username,
                     category: category
                 })
+                return res.status(201).json({ msg: "Account created successfully" });
             } catch (error) {
                 res.status(400).json({ msg: error.message });
             }
         }
-        res.status(201).json({ msg: "Register User Berhasil" });
     } catch (error) {
         res.status(500).json({ msg: error.message });
     }

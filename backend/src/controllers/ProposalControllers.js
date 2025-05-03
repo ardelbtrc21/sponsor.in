@@ -6,10 +6,12 @@ import Sponsor from "../models/sponsor.js";
 import Sponsoree from "../models/sponsoree.js";
 import { v4 as uuidv4 } from 'uuid';
 import path from "path";
-import { unlink } from 'node:fs';
 import { fileURLToPath } from 'url';
 import TargetParticipant from "../models/target_participant.js";
 import Tag from "../models/tag.js";
+import Milestone from "../models/milestone.js";
+import sequelize, { Op } from "sequelize";
+import User from "../models/user.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -49,38 +51,51 @@ export const doApprovalProposal = async (req, res) => {
 }
 
 export const getProposalByStatus = async (req, res) => {
-  const { status_name } = req.params;
+  const { username, status_name } = req.params;
 
   try {
-    const proposals = await Status.findAll({
+    const proposals = await ProposalStatus.findAll({
       where: { status_name },
-      include: {
-        model: Submission,
-        as: 'submission_status',
-        attributes: ['event_name', 'event_date', 'proposal_name'],
-      },
+      include: [
+        {
+          model: Proposal,
+          as: 'status_proposals',
+          include: [
+            {
+              model: Sponsoree,
+              as: 'sponsoree_proposals',
+              where: { username },
+              attributes: [] 
+            }
+          ],
+        },
+      ],
+      order: [['createdAt', 'DESC']]
     });
 
-    if (!proposals) {
+    if (!proposals || proposals.length === 0) {
       return res.status(404).json({ message: 'No proposals found' });
     }
-    console.log("Fetched Proposals:", JSON.stringify(proposals, null, 2));
+
     return res.json(proposals);
   } catch (error) {
-    console.error('Error fetching proposals by status:', error);
-    res.status(500).json({ message: 'Error fetching proposals' });
+    console.error('Error fetching proposals by status and username:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
-
-export const getProposalStatusBySubmissionId = async (req, res) => {
-  const { submission_id } = req.params;
-  console.log("Received submissionId:", submission_id);
+export const getProposalStatusByProposalId = async (req, res) => {
+  const { proposal_id } = req.params;
+  console.log("Received proposal_id:", proposal_id);
   try {
-    const statuses = await Status.findAll({
-      where: { submission_id: submission_id },
-      order: [["createdAt", "ASC"]]
+    const statuses = await ProposalStatus.findAll({
+      where: { 
+        proposal_id: proposal_id,
+      },
+      order: [["createdAt", "ASC"]],
+      raw: true
     });
+    console.log("response body: ", statuses);
     return res.status(200).json(statuses);
   } catch (error) {
     return res.status(500).json({
@@ -247,8 +262,260 @@ export const createProposal = async (req, res) => {
       }
     });
 
-    res.status(201).json({msg: "Proposal successfully created"});
+    res.status(201).json({ msg: "Proposal successfully created" });
   } catch (error) {
     res.status(500).json({ msg: error.message });
   }
 };
+
+export const getCompletedAgreements = async (req, res) => {
+  const { username, role } = req.query;
+
+  if (!username || !role) {
+    return res.status(400).json({ message: "Username and role are required" });
+  }
+
+  try {
+    const baseIncludes = [
+      {
+        model: ProposalStatus,
+        as: "status_proposals",
+        where: { status_name: "completed" },
+        required: true
+      }
+    ];
+
+    if (role.toLowerCase() === "sponsor") {
+      baseIncludes.push({
+        model: Sponsor,
+        as: "sponsor_proposals",
+        required: true,
+        include: [
+          {
+            model: User,
+            as: "user_sponsors",
+            where: { username },
+            attributes: ["username"]
+          }
+        ]
+      });
+
+      baseIncludes.push({
+        model: Sponsoree,
+        as: "sponsoree_proposals",
+        include: [
+          {
+            model: User,
+            as: "user_sponsorees",
+            attributes: ["username"]
+          }
+        ]
+      });
+
+    } else if (role.toLowerCase() === "sponsoree") {
+      baseIncludes.push({
+        model: Sponsoree,
+        as: "sponsoree_proposals",
+        required: true,
+        include: [
+          {
+            model: User,
+            as: "user_sponsoree",
+            where: { username },
+            attributes: ["username"]
+          }
+        ]
+      });
+
+      baseIncludes.push({
+        model: Sponsor,
+        as: "sponsor",
+        include: [
+          {
+            model: User,
+            as: "user_sponsor",
+            attributes: ["username"]
+          }
+        ]
+      });
+    } else {
+      return res.status(400).json({ message: "Invalid role" });
+    }
+
+    const proposals = await Proposal.findAll({
+      include: baseIncludes,
+      order: [["createdAt", "DESC"]]
+    });
+
+    const formatted = proposals.map((proposal) => ({
+      event_name: proposal.event_name,
+      event_date: proposal.event_date,
+      sponsor_username: proposal.sponsor?.user_sponsor?.username || null,
+      sponsoree_username: proposal.sponsoree?.user_sponsoree?.username || null
+    }));
+
+    res.status(200).json(formatted);
+  } catch (err) {
+    console.error("Error fetching completed agreements:", err);
+    res.status(500).json({ message: "Error retrieving completed agreements." });
+  }
+};
+
+export const getProposals = async (req, res) => {
+  try {
+    // const sortBy = "proposal_name";
+    // const order = "ASC";
+    // const keyword = "";
+    const sortBy = req?.body?.sortBy || "proposal_name";
+    const order = req?.body?.order || "ASC";
+    const keyword = req?.body?.keyword || "";
+
+    // pagination
+    const page = parseInt(req?.body?.page) || 0;
+    const limit = parseInt(req?.body?.limit) || 10;
+
+    //filter
+    const filterEventDate = req?.body?.filter?.eventDate || [];
+    const filterEventLocation = req?.body?.filter?.eventLocation || [];
+    const filterTargetAgeMin = req?.body?.filter?.targetAgeMin || [];
+    const filterTargetAgeMax = req?.body?.filter?.targetAgeMax || [];
+    const filterTargetGender = req?.body?.filter?.targetGender || [];
+    const filterTagRelated = req?.body?.filter?.tagRelated || [];
+    const filterTargetParticipant = req?.body?.filter?.targetParticipant || [];
+    const filterStatus = req?.body?.filter?.status || [];
+    const startDate = req?.body?.filter?.startDate || [];
+    const endDate = req?.body?.filter?.endDate || [];
+
+    console.log(filterTagRelated)
+
+    let where = {
+      [Op.or]: [
+        {
+          proposal_name: {
+            [Op.iLike]: "%" + keyword + "%"
+          }
+        }, {
+          event_name: {
+            [Op.iLike]: "%" + keyword + "%"
+          }
+        }
+      ]
+    };
+
+    if (startDate.length > 0 && endDate.length > 0) {
+      where.event_date = {
+        [Op.between]: [startDate, endDate]
+      };
+    }
+    console.log(startDate)
+    console.log(endDate)
+
+    let sort = "";
+
+    if (sortBy === "proposal_name") {
+      sort = "[`proposal_name`, `${order}`]";
+    } else if (sortBy === "event_name") {
+      sort = "[`event_name`, `${order}`]";
+    } else if (sortBy === "event_date") {
+      sort = "[`event_date`, `${order}`]";
+    }
+
+    let include = [
+      {
+        model: ProposalStatus,
+        as: "status_proposals",
+        required: true,
+        attributes: ["proposal_id", "status_name"],
+        duplicating: false
+      },
+      {
+        model: Milestone,
+        as: "milestone_proposals",
+        required: false,
+        duplicating: false
+      },
+      {
+        model: Tag,
+        as: "tags_proposals",
+        required: true,
+        attributes: ["tag_name"],
+        duplicating: false
+      },
+      {
+        model: TargetParticipant,
+        as: "target_proposals",
+        required: true,
+        attributes: ["target_participant_category"],
+        duplicating: false
+      },
+      {
+        model: Sponsor,
+        as: "sponsor_proposals",
+        required: true,
+        attributes: ["username", "nib"],
+        duplicating: false
+      },
+      {
+        model: Sponsoree,
+        as: "sponsoree_proposals",
+        required: true,
+        attributes: ["username", "category"],
+        duplicating: false
+      },
+    ];
+
+
+    let result = await Proposal.findAll({
+      where: where,
+      include: include,
+      order: [
+        [`${sortBy}`, `${order}`]
+      ]
+    });
+
+    console.log(result)
+
+    if (String(filterEventLocation) !== "") {
+      result = result.filter(item => filterEventLocation.includes(item.event_location));
+    }
+    if (String(filterTargetAgeMin) !== "") {
+      result = result.filter(item => filterTargetAgeMin.includes(item.target_age_min));
+    }
+    if (String(filterTargetAgeMax) !== "") {
+      result = result.filter(item => filterTargetAgeMax.includes(item.target_age_max));
+    }
+    if (String(filterTargetGender) !== "") {
+      result = result.filter(item => filterTargetGender.includes(item.target_gender));
+    }
+    if (filterTagRelated.length > 0) {
+      result = result.filter(item => {
+        const tagNames = item.tags_proposals.map(tag => tag.tag_name);
+        return tagNames.some(tag => filterTagRelated.includes(tag));
+      });
+    }
+    if (String(filterTargetParticipant) !== "") {
+      result = result.filter(item => filterTargetParticipant.includes(item.target_proposals));
+    }
+    if (String(filterStatus) !== "") {
+      result = result.filter(item => filterStatus.includes(item.status_proposals));
+    }
+
+    const totalRows = Object.keys(result).length;
+    const totalPage = Math.ceil(totalRows / limit);
+
+    const lastIndex = (page + 1) * limit;
+    const firstIndex = lastIndex - limit;
+    result = result.slice(firstIndex, lastIndex);
+    res.json({
+      result: result,
+      page: page,
+      limit: limit,
+      totalRows: totalRows,
+      totalPage: totalPage
+    });
+
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ msg: error.message });
+  }
+}

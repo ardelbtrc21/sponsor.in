@@ -1,7 +1,6 @@
 import { Sequelize } from "sequelize";
 import db from "../../config/Database.js";
 import { v4 as uuidv4 } from 'uuid';
-import ProposalStatus from "./proposal_status.js";
 
 const Milestone = db.define("milestone", {
     milestone_id: {
@@ -15,10 +14,6 @@ const Milestone = db.define("milestone", {
         type: Sequelize.UUID,
         allowNull: false,
       },
-      status_id: {
-        type: Sequelize.UUID,
-        allowNull: false
-      },
       milestone_name: {
         type: Sequelize.TEXT,
         allowNull: false
@@ -30,11 +25,6 @@ const Milestone = db.define("milestone", {
       milestone_attachment: {
         type: Sequelize.TEXT,
         allowNull: true
-      },
-      milestone_status: {
-        type: Sequelize.TEXT,
-        allowNull: false,
-        defaultValue: "pending"
       },
       created_date: {
         type: Sequelize.DATE,
@@ -53,10 +43,5 @@ const Milestone = db.define("milestone", {
         type: Sequelize.DATE
       },
 }, {});
-
-Milestone.belongsTo(ProposalStatus, {
-    foreignKey: "status_id",
-    as: "status"
-});
 
 export default Milestone;

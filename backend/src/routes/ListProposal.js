@@ -1,7 +1,7 @@
 import express from "express";
-import { getAllSubmissions } from "../controllers/ListProposalController.js";
+import { getAllProposals } from "../controllers/ListProposalController.js";
 
 const router = express.Router();
-router.get("/submissions", getAllSubmissions);
+router.get("/list", getAllProposals);
 
 export default router;

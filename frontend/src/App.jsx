@@ -5,20 +5,25 @@ import Login from "./pages/Login";
 import SponsorList from "./pages/SponsorList";
 import SponsorDetail from "./pages/SponsorDetail";
 import ReportAccountForm from "./pages/ReportAccountForm";
-import Sidebar from "./components/Sidebar";
 import Register from "./pages/Register";
 import "./Style/index.css";
-import ApproveButton from "./pages/ViewDetailProposal";
+import ViewDetailProposal from "./pages/ViewDetailProposal";
 import ViewProposalStatus from "./pages/ViewProposalStatus";
 import ViewListSubmission from "./pages/ViewListProposal";
 import CreateProposalForm from "./pages/CreateProposalForm";
-import AccountSettingForm from "./pages/AccountSettingForm";
 import { useDispatch, useSelector } from "react-redux";
 import { getMe } from "./features/authSlice";
 import { useEffect, useState } from "react";
 import { Spin } from "antd";
 import ChangePassword from "./pages/ChangePassword";
- 
+import ModernLayout from "./components/Layout";
+import ListApprovalProposal from "./pages/ListApprovalProposal";
+import LandingScreen from "./pages/LandingScreen";
+import AdminPendingSponsorsPage from "./pages/AdminSponsorApproval";
+import HistoryAgreement from "./pages/HistoryAgreement";
+import Home from "./pages/Home";
+import AccountSetting from "./pages/AccountSettingForm";
+
 function ThemeProvider({ children }) {
   return (
     <ConfigProvider
@@ -51,12 +56,12 @@ function ThemeProvider({ children }) {
     </ConfigProvider>
   );
 }
- 
+
 function App() {
   const dispatch = useDispatch();
   const [loadingSession, setLoadingSession] = useState(true);
   const { user } = useSelector((state) => state.auth);
- 
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -67,10 +72,10 @@ function App() {
         setLoadingSession(false);
       }
     };
- 
+
     fetchUser();
   }, [dispatch]);
- 
+
   if (loadingSession) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
@@ -78,27 +83,30 @@ function App() {
       </div>
     );
   }
- 
+
   return (
     <ThemeProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Login />} />
-          <Route path="/dashboard" element={user ? <Sidebar /> : <Navigate to="/" />} />
+          <Route path="/" element={user ? <Navigate to="/home" /> : <LandingScreen />} />
+          <Route path="/home" element={user ? <ModernLayout /> : <Navigate to="/" />} />
           <Route path="/signUp" element={<Register />} />
-          <Route path="/welcome" element={user ? <ApproveButton /> : <Navigate to="/" />} />
+          <Route path="/signIn" element={<Login />} />
+          {/* <Route path="/welcome" element={user ? <ApproveButton /> : <Navigate to="/" />} /> */}
           <Route path="/proposal-status" element={user ? <ViewProposalStatus /> : <Navigate to="/" />} />
           <Route path="/proposal-list" element={user ? <ViewListSubmission /> : <Navigate to="/" />} />
           <Route path="/sponsors" element={user ? <SponsorList /> : <Navigate to="/" />} />
           <Route path="/sponsors/:id" element={user ? <SponsorDetail /> : <Navigate to="/" />} />
           <Route path="/report/:id" element={user ? <ReportAccountForm /> : <Navigate to="/" />} />
           <Route path="/proposal/create/:id" element={user ? <CreateProposalForm /> : <Navigate to="/" />} />
-          <Route path="/account-setting/:id" element={user ? <AccountSettingForm /> : <Navigate to="/" />} />
+          {/* <Route path="/account-setting/:id" element={user ? <AccountSettingForm /> : <Navigate to="/" />} /> */}
           <Route path="/change-password/:id" element={user ? <ChangePassword /> : <Navigate to="/" />} />
+          <Route path="/account-setting/:id" element={user ? <AccountSetting /> : <Navigate to="/" />} />
+          <Route path="/list-approval-proposal/" element={user ? <ListApprovalProposal /> : <Navigate to="/" />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
   );
 }
- 
+
 export default App;
