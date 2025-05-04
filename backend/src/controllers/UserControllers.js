@@ -138,7 +138,6 @@ export const createUser = async (req, res) => {
             password: hashPassword,
             role: role
         });
-
         if (role === "Sponsor") {
             document.mv(uploadPath, async (err) => {
                 if (err) {
@@ -314,94 +313,115 @@ export const getUserById = async (req, res) => {
 };
 
 export const updateUserAccount = async (req, res) => {
-    let { username, name, email, profile_photo } = req.body;
-
     try {
+        const { username, email, password, confirmPassword, availability } = req.body;
+        const photo = req.files?.photo || null;
+
         let errors = {};
-        const user = await getUserDetail(username);
 
-        //cek user yang akses, admin atau bukan
-        //mau edit akun user lain
-        if (username !== req.session.username) {
-            return res.status(403).json({ msg: "Access Forbidden !" });
+        if (!username) {
+            return res.status(403).json({ msg: "Access Forbidden!" });
         }
 
+        const user = await User.findOne({ where: { username } });
         if (!user) {
-            errors.username = "Username not found !";
+            return res.status(404).json({ msg: "User not found!" });
         }
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!name || name == "") errors.name = "Name must be filled in!";
-        if (name && name != "" && name.length < 3) errors.name = "Name at least minimum 3 characters!";
-        if (emailRegex.test(email) == false) errors.email = "Email is invalid!";
-        const ext_photo = ["jpg", "jpeg", "png"]
-        // if (role == "sponsor"){
-        //     for (let i = 1; i <= Object.keys(document).length; i++) {
-        const file = eval("profile_photo.photo");
-        const ext = path.extname(String(file.name)).toLowerCase();
-        if (!ext_photo.includes(ext)) {
-            errors.files = `File of ${file.name} file must be in .jpg/.jpeg/.png extension.`;
-        }
-        const fileSize = file.data.length;
-        if (fileSize > 10000000) {
-            errors.files = `File of ${file.name} must be less than 10 MB.`;
-        }
-        const fileName = username + "_" + String(file.name);
-        const url = `../../data/photo_profile/${fileName}`;
-        //     }
-        // }
 
-        if (Object.keys(errors).length != 0) {
+        if (email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                errors.email = "Email is invalid!";
+            }
+        }
+
+        if (password) {
+            const passwordRegexUpperCase = /^(?=.*?[A-Z])/;
+            const passwordRegexLowerCase = /(?=.*?[a-z])/;
+            const passwordRegexDigit = /(?=.*?[0-9])/;
+            const passwordRegexSpecialChar = /(?=.*?[^A-Za-z0-9])/;
+
+            if (!confirmPassword) errors.confirmPassword = "Confirmation Password must be filled in!";
+            if (!passwordRegexUpperCase.test(password)) errors.password = "Password must contain at least one uppercase letter!";
+            if (!passwordRegexLowerCase.test(password)) errors.password = "Password must contain at least one lowercase letter!";
+            if (!passwordRegexDigit.test(password)) errors.password = "Password must contain at least one number!";
+            if (!passwordRegexSpecialChar.test(password)) errors.password = "Password must contain at least one special character!";
+            if (password.length < 8) errors.password = "Password at least minimum 8 characters!";
+            if (password !== confirmPassword) errors.confirmPassword = "Passwords do not match";
+        }
+
+        if (Object.keys(errors).length !== 0) {
             return res.status(404).json(errors);
         }
-        unlink(`${user.profile_photo}`, file.mv(`${url}`, async () => {
-            try {
-                await User.update({
-                    name: name,
-                    email: email,
-                    profile_photo: profile_photo
-                });
-            } catch (error) {
-                res.status(500).json({ msg: error.message });
+
+        if (email) user.email = email;
+        if (password) user.password = await bcrypt.hash(password, 10);
+        if (photo) {
+            const ext = path.extname(String(photo.name)).toLowerCase();
+            const allowedExt = [".jpg", ".jpeg", ".png"];
+            if (!allowedExt.includes(ext)) {
+                return res.status(404).json({ photo: "Invalid photo extension. Only jpg, jpeg, png allowed." });
             }
-        }));
-        res.status(201).json({ msg: "Update User Berhasil" });
+            const photoSize = photo.data.length;
+            if (photoSize > 5 * 1024 * 1024) {
+                return res.status(404).json({ photo: "Photo must be less than 5 MB." });
+            }
+            const photoName = `${username}_profile${ext}`;
+            const photoPath = path.join(__dirname, "..", "..", "data", "profile_photo", photoName);
+            photo.mv(photoPath, async (err) => {
+                if (err) {
+                    return res.status(500).json({ msg: "Photo upload failed", error: err });
+                }
+                user.profile_photo = photoName;
+                await user.save();
+            });
+        } else {
+            await user.save();
+        }
+
+        if (user.role === "Sponsor" && availability !== undefined) {
+            await Sponsor.update({ availability }, { where: { username } });
+        }
+
+        res.status(200).json({ msg: "Account updated successfully" });
+
     } catch (error) {
-        res.status(400).json({ msg: error.message });
+        res.status(500).json({ msg: error.message });
     }
 };
 
 export const changePassword = async (req, res) => {
-    const { currentPassword, newPassword, confPassword } = req.body;
+    const { currentPassword, newPassword,  } = req.body; 
     if (!currentPassword) return res.status(404).json({ msg: "Current Password must be filled in !" });
     if (!newPassword) return res.status(404).json({ msg: "New Password must be filled in !" });
     if (!confPassword) return res.status(404).json({ msg: "Confirm Password must be filled in !" });
     if (newPassword.length < 6) return res.status(404).json({ msg: "New Password at least minimum 6 characters !" });
-
+  
     if (newPassword !== confPassword) return res.status(404).json({ msg: "New Password doesn't match !" });
-
+  
     const user = await User.findOne({
-        where: {
-            username: req.session.username
-        }
+      where: {
+        username: req.session.username
+      }
     });
-
+  
     const match = await bcrypt.compare(currentPassword, user.password);
     if (!match) return res.status(400).json({ msg: "Current password is incorrect !" });
-
+  
     try {
-        const hashPassword = await bcrypt.hash(newPassword, 10);
-        await User.update({
-            password: hashPassword
-        }, {
-            where: {
-                username: req.session.username
-            }
-        });
-        res.status(200).json({ msg: "Change Password Successfully" });
+      const hashPassword = await bcrypt.hash(newPassword, 10);
+      await User.update({
+        password: hashPassword
+      }, {
+        where: {
+          username: req.session.username
+        }
+      });
+      res.status(200).json({ msg: "Change Password Successfully" });
     } catch (error) {
-        res.status(400).json({ msg: error.message });
+      res.status(400).json({ msg: error.message });
     }
-};
+};  
 
 export const deleteUser = async (req, res) => {
     const user = await User.findOne({

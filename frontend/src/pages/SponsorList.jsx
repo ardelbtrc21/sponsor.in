@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import SponsorCard from '../components/SponsorCard';
 import NavbarCard from '../components/NavbarCard';
 import emptyImage from '../assets/empty_folder.png';
+import ModernLayout from '../components/Layout';
 
 const SponsorList = () => {
   const [sponsors, setSponsors] = useState([]);
@@ -43,8 +44,7 @@ const SponsorList = () => {
   if (error) return <div className="text-center mt-10 text-red-500">Error: {error}</div>;
 
   return (
-    <div className="min-h-screen bg-gray-100 pt-20 px-4">
-      <NavbarCard />
+    <ModernLayout>
       <div className="max-w-6xl mx-auto px-4 py-6">
         <h2 className="text-2xl font-semibold text-[#031930] mb-8 text-center">
           MEET YOUR PERFECT SPONSOR!
@@ -83,7 +83,7 @@ const SponsorList = () => {
           </div>
         )}
       </div>
-    </div>
+    </ModernLayout>
   );
 };
 
