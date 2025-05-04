@@ -5,7 +5,8 @@ export default defineConfig({
     plugins: [react()],
     server: {
         proxy: {
-            "/api": "http://localhost:5000"
+            "/api": "http://localhost:5000",
+            "/profile_photo": "http://localhost:5000"
         },
     },
     build: {

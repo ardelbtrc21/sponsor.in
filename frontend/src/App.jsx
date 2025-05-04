@@ -15,13 +15,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { getMe } from "./features/authSlice";
 import { useEffect, useState } from "react";
 import { Spin } from "antd";
+import ChangePassword from "./pages/ChangePassword";
 import ModernLayout from "./components/Layout";
 import ListApprovalProposal from "./pages/ListApprovalProposal";
 import LandingScreen from "./pages/LandingScreen";
 import AdminPendingSponsorsPage from "./pages/AdminSponsorApproval";
 import HistoryAgreement from "./pages/HistoryAgreement";
 import Home from "./pages/Home";
-// import AccountSetting from "./pages/AccountSettingForm";
+import AccountSetting from "./pages/AccountSettingForm";
 
 function ThemeProvider({ children }) {
   return (
@@ -98,7 +99,9 @@ function App() {
           <Route path="/sponsors/:id" element={user ? <SponsorDetail /> : <Navigate to="/" />} />
           <Route path="/report/:id" element={user ? <ReportAccountForm /> : <Navigate to="/" />} />
           <Route path="/proposal/create/:id" element={user ? <CreateProposalForm /> : <Navigate to="/" />} />
-          {/* <Route path="/account-setting/:id" element={user ? <AccountSetting /> : <Navigate to="/" />} /> */}
+          {/* <Route path="/account-setting/:id" element={user ? <AccountSettingForm /> : <Navigate to="/" />} /> */}
+          <Route path="/change-password/:id" element={user ? <ChangePassword /> : <Navigate to="/" />} />
+          <Route path="/account-setting/:id" element={user ? <AccountSetting /> : <Navigate to="/" />} />
           <Route path="/list-approval-proposal/" element={user ? <ListApprovalProposal /> : <Navigate to="/" />} />
         </Routes>
       </BrowserRouter>
