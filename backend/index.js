@@ -70,7 +70,7 @@ app.use(fileUpload());
 app.use(express.static("public"));
 app.use('/backend/data/proposal', express.static(proposalFolder));
 app.use("/api/sponsors", SponsorRoute);
-app.use("/api/report", ReportRoute);
+app.use(ReportRoute);
 app.use(ProposalRoute);
 app.use("/api/proposals", ProposalRoute);
 app.use("/api/proposals", ListProposalRoute);

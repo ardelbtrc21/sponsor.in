@@ -8,6 +8,7 @@ import dayjs from "dayjs";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import defaultProfile from '../assets/profile_default.png';
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const ViewDetailProposal = () => {
@@ -87,39 +88,64 @@ const ViewDetailProposal = () => {
         <div className="bg-white rounded-xl shadow p-6 space-y-6">
           {/* Title */}
           <div className="space-y-1">
-            <h2 className="text-2xl font-semibold text-gray-900">{proposals.proposal_name}</h2>
-            <p className="text-gray-500 text-sm">{proposals.event_name}</p>
+            <div className="flex flex-row items-center">
+              <img
+                src={proposals.user?.profile_photo ? `/profile_photo/${proposals.user.profile_photo}` : defaultProfile}
+                alt="User Avatar"
+                className="w-10 h-10 rounded-full border-2 border-white"
+              />
+              <div className="pl-2">
+                <p className="text-gray-900 font-semibold text-base">{proposals.user?.name}</p>
+                <p className="text-gray-500 text-sm">{proposals.user?.username}</p>
+              </div>
+            </div>
+            <div className="flex flex-col items-center pt-5">
+              <h2 className="text-xl font-semibold text-gray-900 break-words max-w-2xl text-center">
+                {proposals.proposal_name}
+              </h2>
+              <p className="text-gray-500 text-sm">{proposals.event_name}</p>
+            </div>
           </div>
 
           {/* Meta Info Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm text-gray-700">
-            <Meta label="Event Date" value={proposals.event_date} icon={CalendarDaysIcon} />
-            <Meta label="Location" value={proposals.event_location} icon={MapPinIcon} />
-            <Meta label="Target Age" value={proposals.target_age_min} icon={UserGroupIcon} />
-            <Meta label="Target Gender" value={proposals.target_gender} icon={UserGroupIcon} />
+          <div className="bg-white rounded-xl shadow p-4">
+            <div className="flex justify-between text-sm text-gray-700 pt-4">
+              <Meta label="Event Date" value={new Date(proposals.event_date).toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })} icon={CalendarDaysIcon} />
+              <Meta label="Location" value={proposals.event_location} icon={MapPinIcon} />
+              <Meta label="Target Age" value={proposals.target_age_min} icon={UserGroupIcon} />
+              <Meta label="Target Gender" value={proposals.target_gender} icon={UserGroupIcon} />
+            </div>
+            {/* </div> */}
+
+            {/* Tags */}
+            {/* <div className="bg-white rounded-xl shadow p-4"> */}
+            <div className="py-5">
+              <Section title="Tags Related">
+                <div className="flex flex-wrap gap-2">
+                  {proposals.tags_proposals?.map((tag, i) => (
+                    <span key={i} className="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full">
+                      {tag.tag_name}
+                    </span>
+                  ))}
+                </div>
+              </Section>
+            </div>
+
+            {/* Target Participants */}
+            <Section title="Target Participants">
+              <div className="flex flex-wrap gap-2">
+                {proposals.target_proposals?.map((target, i) => (
+                  <span key={i} className="bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full">
+                    {target.target_participant_category}
+                  </span>
+                ))}
+              </div>
+            </Section>
           </div>
-
-          {/* Tags */}
-          <Section title="Tags Related">
-            <div className="flex flex-wrap gap-2">
-              {proposals.tags_proposals?.map((tag, i) => (
-                <span key={i} className="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full">
-                  {tag.tag_name}
-                </span>
-              ))}
-            </div>
-          </Section>
-
-          {/* Target Participants */}
-          <Section title="Target Participants">
-            <div className="flex flex-wrap gap-2">
-              {proposals.target_proposals?.map((target, i) => (
-                <span key={i} className="bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full">
-                  {target.target_participant_category}
-                </span>
-              ))}
-            </div>
-          </Section>
 
           {/* PDF Preview */}
           <Section title="Proposal File Preview">

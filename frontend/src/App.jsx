@@ -23,6 +23,7 @@ import AdminPendingSponsorsPage from "./pages/AdminSponsorApproval";
 import HistoryAgreement from "./pages/HistoryAgreement";
 import Home from "./pages/Home";
 import AccountSetting from "./pages/AccountSettingForm";
+import ListReportedAccount from "./pages/ListReportedAccounts";
 
 function ThemeProvider({ children }) {
   return (
@@ -102,7 +103,9 @@ function App() {
           {/* <Route path="/account-setting/:id" element={user ? <AccountSettingForm /> : <Navigate to="/" />} /> */}
           <Route path="/change-password/:id" element={user ? <ChangePassword /> : <Navigate to="/" />} />
           <Route path="/account-setting/:id" element={user ? <AccountSetting /> : <Navigate to="/" />} />
+          <Route path="/proposal/detail/:id" element={user ? <ViewDetailProposal /> : <Navigate to="/" />} />
           <Route path="/list-approval-proposal/" element={user ? <ListApprovalProposal /> : <Navigate to="/" />} />
+          <Route path="/list-reported-account/" element={user ? <ListReportedAccount /> : <Navigate to="/" />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
