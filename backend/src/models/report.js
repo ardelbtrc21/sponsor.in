@@ -9,19 +9,19 @@ const Report = db.define("report", {
     allowNull: false,
   },
   username: {
-    type: Sequelize.STRING,
+    type: Sequelize.TEXT,
     allowNull: false,
   },
   created_by: {
-    type: Sequelize.STRING,
+    type: Sequelize.TEXT,
     allowNull: false,
   },
   created_for: {
-    type: Sequelize.STRING,
+    type: Sequelize.TEXT,
     allowNull: false,
   },
   reason: {
-    type: Sequelize.STRING,
+    type: Sequelize.TEXT,
     allowNull: false,
   },
   description: {
@@ -29,7 +29,7 @@ const Report = db.define("report", {
     allowNull: true,
   },
   status: {
-    type: Sequelize.STRING,
+    type: Sequelize.TEXT,
     allowNull: false,
     defaultValue: "submitted"
   },
