@@ -16,12 +16,18 @@ import AdminRoute from './src/routes/AdminRoute.js';
 import TagRoute from "./src/routes/TagRoute.js";
 import TargetRoute from "./src/routes/TargetRoute.js";
 import AgreementRoutes from "./src/routes/ProposalRoute.js";
+import path from "path";
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
 const app = express();
 
 app.use(express.json()); 
+const proposalFolder = path.join(__dirname, 'data/proposal');
 
 app.use(cors({
     credentials: true,
@@ -62,8 +68,9 @@ app.disable("etag");
 app.use(express.json());
 app.use(fileUpload());
 app.use(express.static("public"));
+app.use('/backend/data/proposal', express.static(proposalFolder));
 app.use("/api/sponsors", SponsorRoute);
-app.use("/api/report", ReportRoute);
+app.use(ReportRoute);
 app.use(ProposalRoute);
 app.use("/api/proposals", ProposalRoute);
 app.use("/api/proposals", ListProposalRoute);

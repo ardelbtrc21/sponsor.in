@@ -8,7 +8,7 @@ import defaultProfile from '../assets/profile_default.png';
 
 
 const Navbar = ({ onToggleSidebar }) => {
-const user = useSelector((state) => state.auth.user);
+  const user = useSelector((state) => state.auth.user);
   return (
     <nav className="fixed top-0 left-0 w-full bg-primary text-white px-6 py-2 shadow-md flex items-center justify-between z-50 backdrop-blur-md bg-opacity-100">
       {/* Left Side */}
@@ -112,6 +112,18 @@ const Sidebar = ({ isOpen, onClose }) => {
               </Link>
             </li>
           )}
+          {user && user.role === "Admin" && (
+            <li>
+              <Link
+                to="/list-reported-account"
+                onClick={onClose}
+                className="w-full block py-2 rounded-md hover:bg-gray-100 transition"
+              >
+                List Reported Accounts
+              </Link>
+            </li>
+
+          )}
           {user && user.role === "Sponsor" && (
             <li>
               <Link
@@ -122,10 +134,16 @@ const Sidebar = ({ isOpen, onClose }) => {
                 List Approval Proposal
               </Link>
             </li>
-            
+
           )}
           <li>
-            <Link to={`/account-setting/${(user && user.username)}`}>Setting Account</Link>
+            <Link
+              to={`/account-setting/${(user && user.username)}`}
+              onClick={onClose}
+              className="w-full block py-2 rounded-md hover:bg-gray-100 transition"
+            >
+              Setting Account
+            </Link>
           </li>
           <li>
             <Link
