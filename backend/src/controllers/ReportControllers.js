@@ -62,3 +62,20 @@ export const getListReports = async (req, res) => {
     res.status(500).json({ msg: error.message });
   }
 }
+
+export const rejectReport = async (req, res) => {
+  try {
+    const report_id = req.params.id;
+
+    await Report.update({
+      status: "rejected"
+    }, {
+      where: {
+        report_id: report_id
+      }
+    })
+    res.status(200).json({ msg: "Report Successfully Rejected!" });
+  } catch (error) {
+    res.status(400).json({ msg: error.message });
+  }
+}

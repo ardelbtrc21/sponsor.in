@@ -2,8 +2,9 @@
 import Sponsor from "../models/sponsor.js";
 import Sponsoree from "../models/sponsoree.js";
 import User from "../models/user.js";
+import Report from "../models/report.js";
 import bcrypt from "bcryptjs";
-import sequelize, { Op } from "sequelize";
+import sequelize, { Op, where } from "sequelize";
 import path from "path";
 import { unlink } from 'node:fs';
 import { fileURLToPath } from 'url';
@@ -291,17 +292,16 @@ export const getUserById = async (req, res) => {
                     model: Sponsor,
                     as: "user_sponsors",
                     required: false,
-                    attributes: ["username", "nib", "document", "sponsor_id"],
                     duplicating: false
                 },
                 {
                     model: Sponsoree,
                     as: "user_sponsorees",
                     required: false,
-                    attributes: ["username", "category", "sponsoree_id"],
                     duplicating: false
                 }
-            ]
+            ],
+            attributes: { exclude: ['password'] }
         });
         if (!user) {
             return res.status(400).json({ msg: "User not found !" });
@@ -445,6 +445,7 @@ export const deleteUser = async (req, res) => {
 export const banAccount = async (req, res) => {
     try {
         const username = req.body.username;
+        const report_id = req.body.report_id;
         const user = await User.findOne({
             where: {
                 username: username
@@ -452,6 +453,13 @@ export const banAccount = async (req, res) => {
         });
         if (!user) return res.status(404).json({ msg: "User Not Found" });
         if(user){
+            await Report.update({
+                status: "approved"
+            }, {
+                where: {
+                    report_id: report_id
+                }
+            })
             await User.update({
                 is_banned: true
             }, {

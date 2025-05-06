@@ -24,6 +24,7 @@ import HistoryAgreement from "./pages/HistoryAgreement";
 import Home from "./pages/Home";
 import AccountSetting from "./pages/AccountSettingForm";
 import ListReportedAccount from "./pages/ListReportedAccounts";
+import MyProfile from "./pages/MyProfile";
 
 function ThemeProvider({ children }) {
   return (
@@ -106,6 +107,7 @@ function App() {
           <Route path="/proposal/detail/:id" element={user ? <ViewDetailProposal /> : <Navigate to="/" />} />
           <Route path="/list-approval-proposal/" element={user ? <ListApprovalProposal /> : <Navigate to="/" />} />
           <Route path="/list-reported-account/" element={user ? <ListReportedAccount /> : <Navigate to="/" />} />
+          <Route path="/my-profile/" element={user ? <MyProfile /> : <Navigate to="/" />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
