@@ -3,12 +3,12 @@
 /** @type {import('sequelize-cli').Migration} */
 export default {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.addColumn("sponsorees", "background_photo", {
+    await queryInterface.addColumn("users", "background_photo", {
       type: Sequelize.TEXT,
-      allowNull: true,
+      allowNull: true
     });
   },
   down: async (queryInterface) => {
-    await queryInterface.removeColumn("sponsorees", "background_photo");
+    await queryInterface.removeColumn("users", "background_photo");
   },
 };

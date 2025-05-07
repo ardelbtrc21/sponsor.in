@@ -8,6 +8,9 @@ import sequelize, { Op, where } from "sequelize";
 import path from "path";
 import { unlink } from 'node:fs';
 import { fileURLToPath } from 'url';
+import SponsorshipPhotos from "../models/sponsorship_photos.js";
+import Tag from "../models/tag.js";
+import TargetParticipant from "../models/target_participant.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -284,7 +287,7 @@ export const getUserById = async (req, res) => {
     try {
         console.log("req sini: " + req.params.username)
         const username = req.params.username.toLowerCase();
-        const user = await User.findOne({
+        let user = await User.findOne({
             where: {
                 username: username
             }, include: [
@@ -292,11 +295,33 @@ export const getUserById = async (req, res) => {
                     model: Sponsor,
                     as: "user_sponsors",
                     required: false,
-                    duplicating: false
+                    duplicating: false,
+                    include: [
+                        {
+                            model: Tag,
+                            as: "tags_sponsors",
+                            required: false,
+                            attributes: ["tag_name"],
+                            duplicating: false
+                        },
+                        {
+                            model: TargetParticipant,
+                            as: "target_sponsors",
+                            required: false,
+                            attributes: ["target_participant_category"],
+                            duplicating: false
+                        },
+                    ]
                 },
                 {
                     model: Sponsoree,
                     as: "user_sponsorees",
+                    required: false,
+                    duplicating: false
+                },
+                {
+                    model: SponsorshipPhotos,
+                    as: "photo_sponsorship_users",
                     required: false,
                     duplicating: false
                 }
@@ -452,7 +477,7 @@ export const banAccount = async (req, res) => {
             }
         });
         if (!user) return res.status(404).json({ msg: "User Not Found" });
-        if(user){
+        if (user) {
             await Report.update({
                 status: "approved"
             }, {

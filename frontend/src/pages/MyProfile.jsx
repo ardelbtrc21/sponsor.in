@@ -16,7 +16,7 @@ const MyProfile = () => {
     useEffect(() => {
         fetch(`/api/user/${username}`)
             .then((res) => {
-                if (!res.ok) throw new Error("Gagal memuat data sponsor");
+                if (!res.ok) throw new Error("Gagal memuat data profile");
                 return res.json();
             })
             .then((data) => {
@@ -54,7 +54,7 @@ const MyProfile = () => {
                     alt="banner"
                 />
                 <span className="absolute top-4 right-4 bg-green-500 text-white text-sm px-3 py-1 rounded-full shadow-md">
-                    {sponsor.status || "Available"}
+                    {sponsor.user_sponsors.is_available ? "Available" : "Not Available"}
                 </span>
 
                 {/* Foto Profil */}
@@ -70,6 +70,7 @@ const MyProfile = () => {
             {/* Info Sponsor */}
             <div className="flex flex-col items-center mt-20 text-center px-4">
                 <h1 className="text-2xl font-bold text-[#031930]">{sponsor.name}</h1>
+                <p className="text-sm text-gray-500 mt-2">@{sponsor.username}</p>
                 <div className="flex items-center gap-2 text-sm text-gray-600 mt-2">
                     <span>⭐ {sponsor.rating || 4.5}</span>
                     <span>• {sponsor.deals || "1K"} Deals</span>
@@ -78,11 +79,57 @@ const MyProfile = () => {
 
                 <div className="flex gap-3 mt-4">
                     <Link
-                        to={`/proposal/create/${sponsor.sponsor_id}`}
+                        to="/edit-profile"
+                        state={{ sponsor }}
                         className="border text-primary font-semibold text-xs px-3 py-1.5 rounded-lg transition border-primary bg-transparent hover:bg-primary hover:text-white"
                     >
                         Edit Profile
                     </Link>
+
+                </div>
+            </div>
+
+            <div className="max-w-xl mx-auto bg-white rounded-2xl shadow p-6 mt-6">
+                <h2 className="text-lg font-semibold text-gray-800 mb-4">Sponsor Info</h2>
+
+                {/* Category Provides */}
+                <p className="text-sm text-gray-700 mb-2">
+                    <span className="font-semibold">Category Provides:</span>{" "}
+                    {sponsor.user_sponsors.category_provides || "-"}
+                </p>
+
+                {/* Tags Sponsor */}
+                <div className="text-sm text-gray-700 mb-2">
+                    <span className="font-semibold">Tag Related:</span>{" "}
+                    {sponsor.user_sponsors.tags_sponsors?.length > 0 ? (
+                        sponsor.user_sponsors.tags_sponsors.map((tag, idx) => (
+                            <span
+                                key={idx}
+                                className="inline-block mx-1 mt-1 px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-xs"
+                            >
+                                {tag.tag_name}
+                            </span>
+                        ))
+                    ) : (
+                        <span className="ml-1">-</span>
+                    )}
+                </div>
+
+                {/* Target Market */}
+                <div className="text-sm text-gray-700">
+                    <span className="font-semibold">Target Market:</span>{" "}
+                    {sponsor.user_sponsors.target_sponsors?.length > 0 ? (
+                        sponsor.user_sponsors.target_sponsors.map((target, idx) => (
+                            <span
+                                key={idx}
+                                className="inline-block mx-1 mt-1 px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs"
+                            >
+                                {target.target_participant_category}
+                            </span>
+                        ))
+                    ) : (
+                        <span className="ml-1">-</span>
+                    )}
                 </div>
             </div>
 
@@ -90,7 +137,7 @@ const MyProfile = () => {
             <div className="mt-20 text-center px-6">
                 <h2 className="text-2xl font-semibold text-[#031930]">About Us</h2>
                 <p className="mt-3 text-gray-700 max-w-4xl mx-auto leading-relaxed">
-                    {sponsor.description || "Lorem ipsum dolor sit amet, consectetur adipiscing elit..."}
+                    {sponsor.user_sponsors.description || "Lorem ipsum dolor sit amet, consectetur adipiscing elit..."}
                 </p>
             </div>
 
@@ -98,7 +145,7 @@ const MyProfile = () => {
             <div className="mt-16 px-6">
                 <h2 className="text-2xl font-semibold text-center text-[#031930]">Our Sponsorships</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 max-w-6xl mx-auto">
-                    {(sponsor.sponsorships || [
+                    {(sponsor.photo_sponsorship_users.length > 0 || [
                         "https://i.pinimg.com/736x/75/bb/c1/75bbc141800fa53fb59c6a06bc2c27c3.jpg",
                         "https://i.pinimg.com/474x/eb/fb/02/ebfb0275b4e79fcfb02928300e71bcf2.jpg",
                         "https://i.pinimg.com/474x/c3/15/4e/c3154e3047a094b517dead55017adee0.jpg",

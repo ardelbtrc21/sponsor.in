@@ -25,6 +25,7 @@ import Home from "./pages/Home";
 import AccountSetting from "./pages/AccountSettingForm";
 import ListReportedAccount from "./pages/ListReportedAccounts";
 import MyProfile from "./pages/MyProfile";
+import EditProfile from "./pages/EditProfile";
 
 function ThemeProvider({ children }) {
   return (
@@ -108,6 +109,7 @@ function App() {
           <Route path="/list-approval-proposal/" element={user ? <ListApprovalProposal /> : <Navigate to="/" />} />
           <Route path="/list-reported-account/" element={user ? <ListReportedAccount /> : <Navigate to="/" />} />
           <Route path="/my-profile/" element={user ? <MyProfile /> : <Navigate to="/" />} />
+          <Route path="/edit-profile/" element={user ? <EditProfile /> : <Navigate to="/" />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
