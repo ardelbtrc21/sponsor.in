@@ -23,6 +23,9 @@ import AdminPendingSponsorsPage from "./pages/AdminSponsorApproval";
 import HistoryAgreement from "./pages/HistoryAgreement";
 import Home from "./pages/Home";
 import AccountSetting from "./pages/AccountSettingForm";
+import MilestoneListPage from "./pages/ViewListMilestone";
+import MilestoneDetailPage from "./pages/MilestoneDetail";
+import HistoryAgreementWrapper from "./components/HistoryAgreementWrapper";
 
 function ThemeProvider({ children }) {
   return (
@@ -103,6 +106,12 @@ function App() {
           <Route path="/change-password/:id" element={user ? <ChangePassword /> : <Navigate to="/" />} />
           <Route path="/account-setting/:id" element={user ? <AccountSetting /> : <Navigate to="/" />} />
           <Route path="/list-approval-proposal/" element={user ? <ListApprovalProposal /> : <Navigate to="/" />} />
+          <Route path="/admin/pending-sponsors" element={user ? <AdminPendingSponsorsPage /> : <Navigate to="/" />} />
+          <Route path="/milestones" element={user ? <MilestoneListPage /> : <Navigate to="/" />} />
+          <Route path="/milestones/:milestone_id" element={<MilestoneDetailPage />} />
+          <Route path="/agreements" element={user ? <HistoryAgreement /> : <Navigate to="/" />} />
+          <Route path="/profile/:username/agreements" element={<HistoryAgreementWrapper />}
+/>
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

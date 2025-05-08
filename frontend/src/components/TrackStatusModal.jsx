@@ -16,7 +16,7 @@ const TrackStatusModal = ({ isOpen, onClose, selectedStatusList }) => {
                 key={index}
                 className="flex items-center justify-between border-b pb-2"
               >
-                <span className="font-medium">{status.status_name}</span>
+                <span className="font-medium">{status.status_name.toUpperCase()}</span>
                 <span className="text-sm text-gray-500">
                   {status.endAt
                     ? (() => {

@@ -7,8 +7,7 @@ import SequelizeStore from "connect-session-sequelize";
 import UserRoute from "./src/routes/UserRoute.js";
 import AuthRoute from "./src/routes/AuthRoute.js";
 import fileUpload from "express-fileupload";
-import ListProposalRoute from '../backend/src/routes/ListProposal.js';
-import MilestoneRoute from '../backend/src/routes/Milestone.js';
+import MilestoneRoute from './src/routes/MilestoneRoute.js';
 import SponsorRoute from './src/routes/SponsorRoute.js'
 import ReportRoute from './src/routes/ReportRoute.js';
 import ProposalRoute from './src/routes/ProposalRoute.js';
@@ -28,11 +27,6 @@ app.use(cors({
     origin: "http://localhost:3000",
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
-
-app.use("/api/proposals", ProposalRoute);
-app.use("/api", ListProposalRoute);
-app.use(MilestoneRoute);
-
 
 const sessionStore = SequelizeStore(session.Store)
 const store = new sessionStore({
@@ -65,11 +59,9 @@ app.use(express.static("public"));
 app.use("/api/sponsors", SponsorRoute);
 app.use("/api/report", ReportRoute);
 app.use(ProposalRoute);
-app.use("/api/proposals", ProposalRoute);
-app.use("/api/proposals", ListProposalRoute);
-app.use("/api/milestones", MilestoneRoute);
-app.use("/api/admin", AdminRoute);
-app.use("/api/agreements", AgreementRoutes);
+app.use(MilestoneRoute);
+app.use(AdminRoute);
+app.use(AgreementRoutes);
 app.use(UserRoute);
 app.use(AuthRoute);
 app.use(TagRoute);

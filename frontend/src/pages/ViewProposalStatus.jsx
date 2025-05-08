@@ -29,17 +29,20 @@ const ViewProposalStatus = () => {
     const fetchProposals = async () => {
       try {
         console.log("Sponsoree id: ", user.username);
+        const status = selectedStatus.toLowerCase();
         const response = await axios.get(
-          `http://localhost:5000/api/proposals/status/${user.username}/${selectedStatus}`
+          `/api/proposals/status/${user.username}/${status}`
         );
         console.log("Response: ", response.data);
         setProposals(response.data);
       } catch (error) {
+        setProposals([]);
         console.error("Error fetching proposals by status:", error);
       }
     };
     fetchProposals();
   }, [selectedStatus, user.id]);
+
   const handleTrackClick = async (proposal_id) => {
     try {
       const response = await axios.get(`/api/proposals/${proposal_id}/status`);
@@ -56,7 +59,7 @@ const ViewProposalStatus = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen max-w">
       <Header />
 
       <div className="flex-1 space-y-6">
@@ -97,7 +100,7 @@ const ViewProposalStatus = () => {
                   d="M9 12h6m-6 4h6m2 4H7a2 2 0 01-2-2V6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v12a2 2 0 01-2 2z"
                 />
               </svg>
-              <h2 className="text-lg text-blue-800 font-bold">
+              <h2 className="text-lg text-primary font-bold">
                 You haven't received any proposals yet
               </h2>
               <h4 className="text-sm text-gray-400 mt-1">
@@ -106,24 +109,32 @@ const ViewProposalStatus = () => {
             </div>
           ) : (
             <div>
-              {proposals.map((proposal) => (
+             <div className="w-full px-4 sm:px-6 lg:px-8 max-w-screen-xl mx-auto">
+             {proposals.map((proposal) => (
                 <div
                   key={proposal.proposal_status_id}
-                  className="flex items-center p-4 rounded-xl shadow-sm bg-white"
+                  className="w-full border-b border-gray-300 px-4 md:px-8 py-4 bg-white"
                 >
-                  <div className="event-group flex-1 flex flex-row gap-1">
-                    <h2 className="event-name text-lg font-bold">
-                      {proposal.status_proposals?.event_name || "Event Name Unavailable"}
-                    </h2>
-                    <p className="event-desc text-gray-700">
-                      {proposal.status_proposals?.proposal_name || "Proposal Name Unavailable"}
-                    </p>
-                    <p className="event-date text-gray-700">
-                      {proposal.status_proposals?.event_date
-                        ? new Date(proposal.status_proposals?.event_date).toUTCString().substring(0, 16)
-                        : "Unknown Date"}
-                    </p>
-                    <div className="flex items-center gap-3">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full">
+                    
+                    <div className="flex flex-col md:flex-row md:items-center gap-2 flex-wrap">
+                      <h2 className="text-lg font-bold text-gray-900">
+                        {proposal.status_proposals?.proposal_name || "Proposal Name Unavailable"}
+                      </h2>
+                      <span className="hidden md:inline text-gray-400">|</span>
+                      <p className="text-gray-700">
+                        {proposal.status_proposals?.event_name || "Event Name Unavailable"}
+                      </p>
+                      <span className="hidden md:inline text-gray-400">|</span>
+                      <p className="text-gray-500">
+                        {proposal.status_proposals?.event_date
+                          ? new Date(proposal.status_proposals?.event_date).toUTCString().substring(0, 16)
+                          : "Unknown Date"}
+                      </p>
+                    </div>
+
+                    {/* Button Group */}
+                    <div className="flex gap-3 flex-wrap">
                       <button
                         onClick={() =>
                           navigate(`/view-proposal-detail/${proposal.proposal_id}`)
@@ -142,6 +153,7 @@ const ViewProposalStatus = () => {
                   </div>
                 </div>
               ))}
+              </div>
             </div>
           )}
         </div>

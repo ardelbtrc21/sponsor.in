@@ -45,3 +45,23 @@ export const approveSponsor = async (req, res) => {
     res.status(500).json({ message: "Error approving sponsor" });
   }
 };
+
+export const rejectSponsor = async (req, res) => {
+  const { username } = req.params;
+  
+  try {
+    const sponsor = await Sponsor.findOne({ where: { username } });
+
+    if (!sponsor) {
+      return res.status(404).json({ message: "Sponsor not found" });
+    }
+
+    sponsor.status = "rejected";
+    await sponsor.save();
+
+    res.status(200).json({ message: "Sponsor rejected successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error rejecting sponsor" });
+  }
+};
