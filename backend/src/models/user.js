@@ -48,6 +48,11 @@ const User = db.define("user", {
         allowNull: false,
         type: Sequelize.DATE
     },
+    is_banned: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    }
 }, {});
 
 User.hasOne(Sponsor, {

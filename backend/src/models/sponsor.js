@@ -48,11 +48,6 @@ const Sponsor = db.define("sponsor", {
         type: Sequelize.TEXT,
         allowNull: true
     },
-    is_banned: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-    },
     status: {
         type: Sequelize.TEXT,
         allowNull: false

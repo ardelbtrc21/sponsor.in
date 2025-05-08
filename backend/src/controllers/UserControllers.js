@@ -142,8 +142,8 @@ export const createUser = async (req, res) => {
             document.mv(uploadPath, async (err) => {
                 if (err) {
                     return res.status(500).json({ msg: "File upload failed", error: err });
-                } 
-        
+                }
+
                 try {
                     await Sponsor.create({
                         username: username,
@@ -155,7 +155,7 @@ export const createUser = async (req, res) => {
                     return res.status(400).json({ msg: error.message });
                 }
             });
-        }        
+        }
         if (role === "Sponsoree") {
             try {
                 await Sponsoree.create({
@@ -391,37 +391,37 @@ export const updateUserAccount = async (req, res) => {
 };
 
 export const changePassword = async (req, res) => {
-    const { currentPassword, newPassword,  } = req.body; 
+    const { currentPassword, newPassword, } = req.body;
     if (!currentPassword) return res.status(404).json({ msg: "Current Password must be filled in !" });
     if (!newPassword) return res.status(404).json({ msg: "New Password must be filled in !" });
     if (!confPassword) return res.status(404).json({ msg: "Confirm Password must be filled in !" });
     if (newPassword.length < 6) return res.status(404).json({ msg: "New Password at least minimum 6 characters !" });
-  
+
     if (newPassword !== confPassword) return res.status(404).json({ msg: "New Password doesn't match !" });
-  
+
     const user = await User.findOne({
-      where: {
-        username: req.session.username
-      }
+        where: {
+            username: req.session.username
+        }
     });
-  
+
     const match = await bcrypt.compare(currentPassword, user.password);
     if (!match) return res.status(400).json({ msg: "Current password is incorrect !" });
-  
+
     try {
-      const hashPassword = await bcrypt.hash(newPassword, 10);
-      await User.update({
-        password: hashPassword
-      }, {
-        where: {
-          username: req.session.username
-        }
-      });
-      res.status(200).json({ msg: "Change Password Successfully" });
+        const hashPassword = await bcrypt.hash(newPassword, 10);
+        await User.update({
+            password: hashPassword
+        }, {
+            where: {
+                username: req.session.username
+            }
+        });
+        res.status(200).json({ msg: "Change Password Successfully" });
     } catch (error) {
-      res.status(400).json({ msg: error.message });
+        res.status(400).json({ msg: error.message });
     }
-};  
+};
 
 export const deleteUser = async (req, res) => {
     const user = await User.findOne({
@@ -441,3 +441,27 @@ export const deleteUser = async (req, res) => {
         res.status(400).json({ msg: error.message });
     }
 };
+
+export const banAccount = async (req, res) => {
+    try {
+        const username = req.body.username;
+        const user = await User.findOne({
+            where: {
+                username: username
+            }
+        });
+        if (!user) return res.status(404).json({ msg: "User Not Found" });
+        if(user){
+            await User.update({
+                is_banned: true
+            }, {
+                where: {
+                    username: username
+                }
+            });
+            res.status(200).json({ msg: "User Successfully Banned!" });
+        }
+    } catch (error) {
+        res.status(400).json({ msg: error.message });
+    }
+}

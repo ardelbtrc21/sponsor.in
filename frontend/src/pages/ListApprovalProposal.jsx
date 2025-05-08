@@ -74,6 +74,7 @@ const ListApprovalProposal = () => {
     getProposals()
   };
 
+  
   const getTags = async () => {
     try {
       const response = await axios.get("/api/tags");
@@ -83,6 +84,11 @@ const ListApprovalProposal = () => {
       console.log(error);
     }
   };
+
+  const handleFilterOpen = () =>{
+    getTags()
+    setIsFilterOpen(true)
+  }
 
   const getProposals = async () => {
     try {
@@ -106,7 +112,6 @@ const ListApprovalProposal = () => {
         }
 
       });
-      console.log(response.data.result)
       setProposals(response.data.result);
       setPages(response.data.totalPage);
       setRows(response.data.totalRows);
@@ -157,12 +162,12 @@ const ListApprovalProposal = () => {
     return () => clearTimeout(delayDebounce);
   }, [keyword, sortBy, order]);
 
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      getTags();
-    }, 1000);
-    return () => clearTimeout(delayDebounce);
-  })
+  // useEffect(() => {
+  //   const delayDebounce = setTimeout(() => {
+  //     getTags();
+  //   }, 1000);
+  //   return () => clearTimeout(delayDebounce);
+  // })
 
   const handleCancelModal = () => {
     setOpenFilterModal(false);
@@ -185,7 +190,7 @@ const ListApprovalProposal = () => {
             />
           </div>
           <button
-            onClick={() => setIsFilterOpen(true)}
+            onClick={() => handleFilterOpen()}
             className="bg-primary text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-700"
           >
             Filter
@@ -351,7 +356,7 @@ const ListApprovalProposal = () => {
                   <div className="flex justify-center items-center gap-2">
                     <button
                       className="bg-primary text-white text-xs px-3 py-1.5 rounded-lg hover:bg-gray-700"
-                      onClick={() => navigate(`/proposal/${proposal.id}`)}
+                      onClick={() => navigate(`/proposal/detail/${proposal.proposal_id}`)}
                     >
                       VIEW PROPOSAL DETAIL
                     </button>

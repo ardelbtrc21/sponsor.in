@@ -89,7 +89,7 @@ export const getProposalByStatus = async (req, res) => {
               model: Sponsoree,
               as: 'sponsoree_proposals',
               where: { username },
-              attributes: [] 
+              attributes: []
             }
           ]
         }
@@ -112,13 +112,84 @@ export const getProposalStatusByProposalId = async (req, res) => {
   const { proposal_id } = req.params;
   try {
     const statuses = await ProposalStatus.findAll({
-      where: { 
+      where: {
         proposal_id: proposal_id,
       },
       order: [["createdAt", "ASC"]],
       raw: true
     });
     return res.status(200).json(statuses);
+  } catch (error) {
+    return res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+};
+
+export const getProposalByProposalId = async (req, res) => {
+  let include = [
+    {
+      model: ProposalStatus,
+      as: "status_proposals",
+      required: true,
+      attributes: ["proposal_id", "status_name"],
+      duplicating: false
+    },
+    {
+      model: Milestone,
+      as: "milestone_proposals",
+      required: false,
+      duplicating: false
+    },
+    {
+      model: Tag,
+      as: "tags_proposals",
+      required: true,
+      attributes: ["tag_name"],
+      duplicating: false
+    },
+    {
+      model: TargetParticipant,
+      as: "target_proposals",
+      required: true,
+      attributes: ["target_participant_category"],
+      duplicating: false
+    },
+    {
+      model: Sponsor,
+      as: "sponsor_proposals",
+      required: true,
+      attributes: ["username", "nib"],
+      duplicating: false
+    },
+    {
+      model: Sponsoree,
+      as: "sponsoree_proposals",
+      required: true,
+      attributes: ["username", "category"],
+      duplicating: false
+    },
+  ];
+  try {
+    let result = await Proposal.findOne({
+      where: {
+        proposal_id: req.params.id
+      },
+      include: include
+    });
+    if (result) {
+      const sponsoreeUsername = result?.dataValues?.sponsoree_proposals?.dataValues?.username;
+
+      if (sponsoreeUsername) {
+        const user = await User.findOne({
+          where: { username: sponsoreeUsername },
+          attributes: { exclude: ['password'] }
+        });
+        result.dataValues.user = user;
+      }
+    }
+    return res.status(200).json(result);
   } catch (error) {
     return res.status(500).json({
       message: "Internal Server Error",
