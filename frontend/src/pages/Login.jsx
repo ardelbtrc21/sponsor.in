@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { LoginUser, reset, getMe } from "../features/authSlice";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import Swal from "sweetalert2";
+import axios from "axios";
 
 const Login = () => {
     const [username, setUsername] = useState("");
@@ -28,20 +29,32 @@ const Login = () => {
     }, [user, isSuccess, dispatch, navigate]);
 
 
-    const Auth = (e) => {
+    const Auth = async (e) => {
         e.preventDefault();
-        dispatch(LoginUser({ username, password }))
-            .unwrap()
-            .then(() => {
-                dispatch(getMe());
-            })
-            .catch((error) => {
-                Swal.fire({
-                    icon: "error",
-                    title: "Oops...",
-                    text: error,
-                });
+        try {
+            await dispatch(LoginUser({ username, password })).unwrap();
+            const res = await dispatch(getMe()).unwrap();
+    
+            if (res.role === "sponsor") {
+                const sponsorRes = await axios.get(`/api/sponsors/${res.username}`);
+                const sponsorStatus = sponsorRes.data.status;
+                if (sponsorStatus !== "approved") {
+                    dispatch(reset());
+                    Swal.fire({
+                        icon: "error",
+                        title: "Account Not Approved",
+                        text: "Your sponsor account is not approved yet",
+                    });
+                    return;
+                }
+            }    
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Login Failed",
+                text: error.message || "Invalid username or password",
             });
+        }
     };
 
     return (

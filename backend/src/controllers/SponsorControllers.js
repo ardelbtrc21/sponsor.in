@@ -58,6 +58,7 @@ export const getSponsorById = async (req, res) => {
       name: sponsor.user_sponsors?.name || null,
       profile_photo: sponsor.user_sponsors?.profile_photo,
       nib: sponsor.nib,
+      status: sponsor.status
     };
 
     res.json(result);

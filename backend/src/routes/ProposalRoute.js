@@ -1,5 +1,5 @@
 import express from "express";
-import { createProposal, doApprovalProposal, getProposalByProposalId, getCompletedAgreements, getProposalByStatus, getProposalStatusByProposalId, getProposals } from "../controllers/ProposalControllers.js";
+import { createProposal, doApprovalProposal, getProposalByProposalId, getCompletedAgreements, getProposalByStatus, getProposalStatusByProposalId, getProposals, getAllProposals, getUserByUsername } from "../controllers/ProposalControllers.js";
 import { verifyUser, checkUserRole } from "../middleware/AuthUser.js";
 import path from "path";
 import { fileURLToPath } from "url";
