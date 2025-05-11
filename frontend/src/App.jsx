@@ -109,7 +109,7 @@ function App() {
           <Route path="/proposal/detail/:id" element={user ? <ViewDetailProposal /> : <Navigate to="/" />} />
           <Route path="/list-approval-proposal/" element={user ? <ListApprovalProposal /> : <Navigate to="/" />} />
           <Route path="/list-reported-account/" element={user ? <ListReportedAccount /> : <Navigate to="/" />} />
-          <Route path="/admin/pending-sponsors" element={user ? <AdminPendingSponsorsPage /> : <Navigate to="/" />} />
+          <Route path="/pending-sponsors" element={user ? <AdminPendingSponsorsPage /> : <Navigate to="/" />} />
           <Route path="/milestones" element={user ? <MilestoneListPage /> : <Navigate to="/" />} />
           <Route path="/milestones/:milestone_id" element={<MilestoneDetailPage />} />
           <Route path="/agreements" element={user ? <HistoryAgreement /> : <Navigate to="/" />} />

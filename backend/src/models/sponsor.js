@@ -51,7 +51,7 @@ const Sponsor = db.define("sponsor", {
     status: {
         type: Sequelize.TEXT,
         allowNull: true,
-        defaultValue: 'requested'
+        defaultValue: 'Requested'
     }
 }, {});
 
