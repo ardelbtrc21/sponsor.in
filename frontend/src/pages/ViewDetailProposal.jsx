@@ -30,7 +30,7 @@ const ViewDetailProposal = () => {
     getDetailProposal()
   }, []);
 
-  const handleStatusChange = async () => {
+  const handleApprove = async () => {
     try {
       await axios.put(
         "/api/proposals/550e8400-e29b-41d4-a716-446655442222/approve"
@@ -167,7 +167,7 @@ const ViewDetailProposal = () => {
           <div className="text-center pt-4">
             <button
               className="bg-primary hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md"
-              onClick={handleStatusChange}
+              onClick={handleApprove}
             >
               Approve Proposal
             </button>

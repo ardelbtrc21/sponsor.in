@@ -89,7 +89,7 @@ const CreateMilestoneModal = ({ submission, onClose }) => {
         })
       );
 
-      await axios.post("http://localhost:5000/api/milestones/create", payload);
+      await axios.post("/api/milestones/create", payload);
       setSuccess(true);
     } catch (error) {
       console.error("Error submitting milestones:", error.response?.data || error.message);

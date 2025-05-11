@@ -98,7 +98,7 @@ function App() {
           <Route path="/signIn" element={<Login />} />
           {/* <Route path="/welcome" element={user ? <ApproveButton /> : <Navigate to="/" />} /> */}
           <Route path="/sponsoree-submissions" element={user ? <ViewMySubmissions /> : <Navigate to="/" />} />
-          {/* <Route path="/proposal-list" element={user ? <ViewListSubmission /> : <Navigate to="/" />} /> */}
+          <Route path="/proposal-list" element={user ? <ViewListSubmission /> : <Navigate to="/" />} />
           <Route path="/sponsors" element={user ? <SponsorList /> : <Navigate to="/" />} />
           <Route path="/sponsors/:id" element={user ? <SponsorDetail /> : <Navigate to="/" />} />
           <Route path="/report/:id" element={user ? <ReportAccountForm /> : <Navigate to="/" />} />

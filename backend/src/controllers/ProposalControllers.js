@@ -33,11 +33,11 @@ export const doApprovalProposal = async (req, res) => {
 
     const newStatus = await Status.create({
       submission_id: currentStatus.submission_id,
-      status_name: "Under Review",
+      status_name: "Accepted",
     });
 
     return res.status(201).json({
-      message: "New status 'Under Review' added.",
+      message: "New status accepted added.",
       data: newStatus,
     });
   } catch (err) {
