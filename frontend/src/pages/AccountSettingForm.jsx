@@ -54,14 +54,14 @@ const AccountSettingForm = () => {
       if (result.isConfirmed) {
         try {
           await axios.delete("/api/user");
-          dispatch(Logout());
+          await axios.delete("/api/logout");
 
           Swal.fire({
             title: "User Deleted!",
-            text: "Redirecting to homepage...",
+            text: "Redirecting to...",
             icon: "success",
             showConfirmButton: false,
-            timer: 5000,
+            timer: 3000,
             timerProgressBar: true,
           });
 

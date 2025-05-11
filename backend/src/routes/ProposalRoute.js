@@ -1,5 +1,5 @@
 import express from "express";
-import { createProposal, doApprovalProposal, getProposalByProposalId, getCompletedAgreements, getProposalByStatus, getProposalStatusByProposalId, getProposals } from "../controllers/ProposalControllers.js";
+import { createProposal, doApprovalProposal, getProposalByProposalId, getCompletedAgreements, getProposalByStatus, getProposalStatusByProposalId, getProposals, statusChangeProposal } from "../controllers/ProposalControllers.js";
 import { verifyUser, checkUserRole } from "../middleware/AuthUser.js";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -16,7 +16,8 @@ router.get("/api/proposal/:id", verifyUser, checkUserRole(["Sponsoree", "Sponsor
 router.put("/:status_id/approve", doApprovalProposal);
 router.get("/status/:username/:status_name", getProposalByStatus);
 router.get("/:proposal_id/status", getProposalStatusByProposalId);
-router.get("/preview/:filename", (req, res) => {
+router.patch("/api/proposal/change-status", statusChangeProposal);
+router.get("/api/proposals/preview/:filename", (req, res) => {
     const { filename } = req.params;
     const filePath = path.join(proposalFolder, filename);
 

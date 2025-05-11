@@ -76,6 +76,7 @@ const ListReportedAccount = () => {
                 confirmButtonText: "OK",
                 text: "Your request has been successfully added"
             });
+            window.location.reload();
         } catch (error) {
             Swal.fire({
                 icon: "error",
@@ -95,6 +96,7 @@ const ListReportedAccount = () => {
                 confirmButtonText: "OK",
                 text: "Your request has been successfully added"
             });
+            window.location.reload();
         } catch (error) {
             Swal.fire({
                 icon: "error",

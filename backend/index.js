@@ -17,6 +17,7 @@ import TagRoute from "./src/routes/TagRoute.js";
 import TargetRoute from "./src/routes/TargetRoute.js";
 import AgreementRoutes from "./src/routes/ProposalRoute.js";
 import path from "path";
+
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -77,6 +78,7 @@ app.use("/api/proposals", ListProposalRoute);
 app.use("/api/milestones", MilestoneRoute);
 app.use("/api/admin", AdminRoute);
 app.use("/api/agreements", AgreementRoutes);
+app.use('/backend/data/sponsorship_photo', express.static(path.join(__dirname, 'data/sponsorship_photo')));
 app.use(UserRoute);
 app.use(AuthRoute);
 app.use(TagRoute);
