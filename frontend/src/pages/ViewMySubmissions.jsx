@@ -15,7 +15,7 @@ const statuses = [
   { label: "REJECTED", value: "Rejected" },
 ];
 
-const ViewProposalStatus = () => {
+const ViewMySubmissions = () => {
   const navigate = useNavigate();
   const [selectedStatus, setSelectedStatus] = useState("Submitted");
   const [proposals, setProposals] = useState([]);
@@ -133,7 +133,7 @@ const ViewProposalStatus = () => {
                     <div className="flex gap-3 flex-wrap">
                       <button
                         onClick={() =>
-                          navigate(`/view-proposal-detail/${proposal.proposal_id}`)
+                          navigate(`/proposal/detail/${proposal.proposal_id}`)
                         }
                         className="btn-primary text-white px-4 py-2 rounded-md"
                       >
@@ -164,4 +164,4 @@ const ViewProposalStatus = () => {
   );
 };
 
-export default ViewProposalStatus;
+export default ViewMySubmissions;

@@ -8,7 +8,7 @@ import ReportAccountForm from "./pages/ReportAccountForm";
 import Register from "./pages/Register";
 import "./Style/index.css";
 import ViewDetailProposal from "./pages/ViewDetailProposal";
-import ViewProposalStatus from "./pages/ViewProposalStatus";
+import ViewMySubmissions from "./pages/ViewMySubmissions";
 import ViewListSubmission from "./pages/ViewListProposal";
 import CreateProposalForm from "./pages/CreateProposalForm";
 import { useDispatch, useSelector } from "react-redux";
@@ -92,13 +92,13 @@ function App() {
     <ThemeProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={user ? <Navigate to="/home" /> : <LandingScreen />} />
-          <Route path="/home" element={user ? <ModernLayout /> : <Navigate to="/" />} />
+          <Route path="/" element={user ? <Home /> : <LandingScreen />} />
+          <Route path="/home" element={user ? <Home /> : <Navigate to="/" />} />
           <Route path="/signUp" element={<Register />} />
           <Route path="/signIn" element={<Login />} />
           {/* <Route path="/welcome" element={user ? <ApproveButton /> : <Navigate to="/" />} /> */}
-          <Route path="/proposal-status" element={user ? <ViewProposalStatus /> : <Navigate to="/" />} />
-          <Route path="/proposal-list" element={user ? <ViewListSubmission /> : <Navigate to="/" />} />
+          <Route path="/sponsoree-submissions" element={user ? <ViewMySubmissions /> : <Navigate to="/" />} />
+          {/* <Route path="/proposal-list" element={user ? <ViewListSubmission /> : <Navigate to="/" />} /> */}
           <Route path="/sponsors" element={user ? <SponsorList /> : <Navigate to="/" />} />
           <Route path="/sponsors/:id" element={user ? <SponsorDetail /> : <Navigate to="/" />} />
           <Route path="/report/:id" element={user ? <ReportAccountForm /> : <Navigate to="/" />} />
