@@ -58,7 +58,7 @@ const ViewListSubmission = () => {
                   <td className="px-4 py-2">{submission.proposal_name}</td>
                   <td className="px-4 py-2">{latestStatus}</td>
                   <td className="px-4 py-2">
-                    {latestStatus === "processing agreement" && (
+                    {latestStatus === "Processing Agreement" && (
                       <button
                         onClick={() => handleOpenModal(submission)}
                         className="text-blue-500 hover:text-blue-700"

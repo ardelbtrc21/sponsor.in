@@ -8,24 +8,55 @@ import Sponsor from "../models/sponsor.js";
 
 export const createMilestones = async (req, res) => {
   const t = await db.transaction();
-
   try {
-    const milestonesData = req.body;
+    const { milestones } = req.body; // milestones dalam bentuk JSON string
+    const parsedMilestones = JSON.parse(milestones); // Convert ke array objek
 
-    if (!Array.isArray(milestonesData) || milestonesData.length === 0) {
+    if (!Array.isArray(parsedMilestones) || parsedMilestones.length === 0) {
       return res.status(400).json({ message: "No milestones provided" });
     }
 
-    const milestonesWithId = milestonesData.map((m) => ({
-      ...m,
-      milestone_id: uuidv4(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }));
+    const files = req.files || {};
 
-    const createdMilestones = await Milestone.bulkCreate(milestonesWithId, {
-      transaction: t,
-    });
+    const milestoneEntries = [];
+
+    for (let i = 0; i < parsedMilestones.length; i++) {
+      const m = parsedMilestones[i];
+
+      if (!m.milestone_name || !m.milestone_description || !m.proposal_id) {
+        return res.status(400).json({ message: `Missing fields in milestone #${i + 1}` });
+      }
+
+      const milestoneId = uuidv4();
+      let fileName = null;
+
+      const file = files[`document_${i}`];
+      if (file) {
+        const ext = path.extname(file.name).toLowerCase();
+        if (ext !== ".pdf") {
+          return res.status(400).json({ message: `Milestone #${i + 1} file must be a PDF.` });
+        }
+        if (file.size > 10 * 1024 * 1024) {
+          return res.status(400).json({ message: `Milestone #${i + 1} file size must be under 10MB.` });
+        }
+
+        fileName = `${milestoneId}_${file.name}`;
+        const uploadPath = path.join(__dirname, "..", "..", "data", "milestones", fileName);
+        await file.mv(uploadPath);
+      }
+
+      milestoneEntries.push({
+        milestone_id: milestoneId,
+        proposal_id: m.proposal_id,
+        milestone_name: m.milestone_name,
+        milestone_description: m.milestone_description,
+        document: fileName,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+
+    const createdMilestones = await Milestone.bulkCreate(milestoneEntries, { transaction: t });
 
     const milestoneStatuses = createdMilestones.map((m) => ({
       milestone_status_id: uuidv4(),
@@ -35,10 +66,7 @@ export const createMilestones = async (req, res) => {
       updatedAt: new Date(),
     }));
 
-    await MilestoneStatus.bulkCreate(milestoneStatuses, { 
-      transaction: t 
-    });
-
+    await MilestoneStatus.bulkCreate(milestoneStatuses, { transaction: t });
     await t.commit();
 
     return res.status(201).json({
@@ -47,11 +75,8 @@ export const createMilestones = async (req, res) => {
     });
   } catch (error) {
     await t.rollback();
-    console.error("Error creating milestones:", error);
-    return res.status(500).json({
-      message: "Internal Server Error",
-      error: error.message,
-    });
+    console.error("Milestone creation error:", error);
+    return res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 
