@@ -15,7 +15,7 @@ const statuses = [
   { label: "REJECTED", value: "Rejected" },
 ];
 
-const ViewProposalStatus = () => {
+const ViewMySubmissions = () => {
   const navigate = useNavigate();
   const [selectedStatus, setSelectedStatus] = useState("Submitted");
   const [proposals, setProposals] = useState([]);
@@ -164,4 +164,4 @@ const ViewProposalStatus = () => {
   );
 };
 
-export default ViewProposalStatus;
+export default ViewMySubmissions;
