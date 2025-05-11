@@ -7,6 +7,9 @@ export const getAllSponsors = async (req, res) => {
 
   try {
     const sponsors = await Sponsor.findAll({
+      where: {
+        status: "Approved"
+      },
       include: {
         model: User,
         as: "user_sponsors",
@@ -58,6 +61,7 @@ export const getSponsorById = async (req, res) => {
       name: sponsor.user_sponsors?.name || null,
       profile_photo: sponsor.user_sponsors?.profile_photo,
       nib: sponsor.nib,
+      is_available: sponsor.is_available,
       status: sponsor.status
     };
 
