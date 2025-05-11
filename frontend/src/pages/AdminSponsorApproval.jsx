@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Inbox } from "lucide-react";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 const AdminPendingSponsorsPage = () => {
   const [pendingSponsors, setPendingSponsors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [approving, setApproving] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios
@@ -14,9 +16,20 @@ const AdminPendingSponsorsPage = () => {
       .then((response) => {
         setPendingSponsors(response.data);
       })
-      .catch((err) => console.error("Error fetching pending sponsors:", err))
+      .catch((err) => {
+        console.error("Error fetching pending sponsors:", err);
+        if (err.response?.status === 403) {
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "You do not have permission to view this page.",
+          }).then(() => {
+            navigate("/");
+          });
+        }
+      })
       .finally(() => setLoading(false));
-  }, []);
+  }, [navigate]);
 
   const handleApprove = (username) => {
     axios

@@ -3,22 +3,21 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import TrackStatusModal from "../components/TrackStatusModal";
-import Footer from "../components/Footer";
-import Header from "../components/Header";
 import "../Style/styles.css";
+import ModernLayout from "../components/Layout";
 
 const statuses = [
-  "SUBMITTED",
-  "UNDER REVIEW",
-  "ACCEPTED",
-  "PROCESSING AGREEMENT",
-  "COMPLETED",
-  "REJECTED",
+  { label: "SUBMITTED", value: "Submitted" },
+  { label: "UNDER REVIEW", value: "Under Review" },
+  { label: "ACCEPTED", value: "Accepted" },
+  { label: "PROCESSING AGREEMENT", value: "Processing Agreement" },
+  { label: "COMPLETED", value: "Completed" },
+  { label: "REJECTED", value: "Rejected" },
 ];
 
 const ViewProposalStatus = () => {
   const navigate = useNavigate();
-  const [selectedStatus, setSelectedStatus] = useState("SUBMITTED");
+  const [selectedStatus, setSelectedStatus] = useState("Submitted");
   const [proposals, setProposals] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStatusList, setSelectedStatusList] = useState([]);
@@ -28,10 +27,8 @@ const ViewProposalStatus = () => {
   useEffect(() => {
     const fetchProposals = async () => {
       try {
-        console.log("Sponsoree id: ", user.username);
-        const status = selectedStatus.toLowerCase();
         const response = await axios.get(
-          `/api/proposals/status/${user.username}/${status}`
+          `/api/proposals/status/${user.username}/${selectedStatus}`
         );
         console.log("Response: ", response.data);
         setProposals(response.data);
@@ -59,26 +56,25 @@ const ViewProposalStatus = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen max-w">
-      <Header />
-
-      <div className="flex-1 space-y-6">
+    <ModernLayout>
+      <div className="flex flex-col min-h-screen max-w">
+        <div className="flex-1 space-y-6">
         <h1 className="text-4xl text-primary font-bold flex justify-center tracking-wider pt-10 mb-4">
           TRACK YOUR PROPOSAL STATUS!
         </h1>
 
         <div className="custom-menu">
-          {statuses.map((status) => (
+          {statuses.map(({ label, value }) => (
             <button
-              key={status}
-              onClick={() => setSelectedStatus(status)}
+              key={value}
+              onClick={() => setSelectedStatus(value)}
               className={`custom-box p-1 rounded-lg font-medium ${
-                selectedStatus === status
+                selectedStatus === value
                   ? "btn-primary text-white"
                   : "btn-secondary-without-border hover:bg-gray-300"
               }`}
             >
-              {status}
+              {label}
             </button>
           ))}
         </div>
@@ -158,15 +154,13 @@ const ViewProposalStatus = () => {
           )}
         </div>
       </div>
-
-      <Footer />
-
       <TrackStatusModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         selectedStatusList={selectedStatusList}
       />
     </div>
+    </ModernLayout>
   );
 };
 

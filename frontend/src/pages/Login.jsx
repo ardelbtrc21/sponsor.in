@@ -35,10 +35,10 @@ const Login = () => {
             await dispatch(LoginUser({ username, password })).unwrap();
             const res = await dispatch(getMe()).unwrap();
     
-            if (res.role === "sponsor") {
+            if (res.role === "Sponsor") {
                 const sponsorRes = await axios.get(`/api/sponsors/${res.username}`);
                 const sponsorStatus = sponsorRes.data.status;
-                if (sponsorStatus !== "approved") {
+                if (sponsorStatus !== "Approved") {
                     dispatch(reset());
                     Swal.fire({
                         icon: "error",

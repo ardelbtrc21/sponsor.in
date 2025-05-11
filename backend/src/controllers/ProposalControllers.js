@@ -23,21 +23,21 @@ export const doApprovalProposal = async (req, res) => {
     const currentStatus = await Status.findOne({
       where: {
         status_id: status_id,
-        status_name: "submitted",
+        status_name: "Submitted",
       }
     });
 
     if (!currentStatus) {
-      return res.status(404).json({ message: "No 'submitted' status found." });
+      return res.status(404).json({ message: "No 'Submitted' status found." });
     }
 
     const newStatus = await Status.create({
       submission_id: currentStatus.submission_id,
-      status_name: "under review",
+      status_name: "Under Review",
     });
 
     return res.status(201).json({
-      message: "New status 'UNDER REVIEW' added.",
+      message: "New status 'Under Review' added.",
       data: newStatus,
     });
   } catch (err) {

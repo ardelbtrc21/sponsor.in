@@ -5,7 +5,7 @@ export const getPendingSponsors = async (req, res) => {
   try {
     const pendingSponsors = await Sponsor.findAll({
       where: {
-        status: "requested"
+        status: "Requested"
       },
       include: {
         model: User,
@@ -30,7 +30,7 @@ export const approveSponsor = async (req, res) => {
       return res.status(404).json({ message: "Sponsor not found" });
     }
 
-    sponsor.status = "approved";
+    sponsor.status = "Approved";
     await sponsor.save();
 
     const user = await User.findOne({ where: { username } });
