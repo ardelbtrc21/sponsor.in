@@ -110,6 +110,13 @@ const Sidebar = ({ isOpen, onClose }) => {
               >
                 List Sponsor
               </Link>
+              <Link
+                to="/sponsoree-submissions"
+                onClick={onClose}
+                className="w-full block py-2 rounded-md hover:bg-gray-100 transition"
+              >
+                My Submissions
+              </Link>
             </li>
           )}
           {user && user.role === "Admin" && (
