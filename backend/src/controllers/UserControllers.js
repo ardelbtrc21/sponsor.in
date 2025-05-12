@@ -438,7 +438,7 @@ export const editProfile = async (req, res) => {
             await SponsorshipPhotos.destroy({
                 where: { photo: item }
             });
-            fs.unlinkSync(path.join(__dirname, "..", "..", "data", "sponsorship_photo", item));
+            // fs.unlinkSync(path.join(__dirname, "..", "..", "data", "sponsorship_photo", item));
         });
 
         const backgroundPhoto = req.files?.background_photo || null;
@@ -464,7 +464,7 @@ export const editProfile = async (req, res) => {
                 if (!allowedExt.includes(ext)) {
                     return res.status(400).json({ background_photo: "Invalid file extension." });
                 }
-                if (backgroundPhoto.data.length > 5 * 1024 * 1024) {
+                if (backgroundPhoto.data.length > 100 * 1024 * 1024) {
                     return res.status(400).json({ background_photo: "Max size 5MB." });
                 }
 
