@@ -1,5 +1,5 @@
 import express from "express";
-import { createProposal, doApprovalProposal, getProposalByProposalId, getCompletedAgreements, getProposalByStatus, getProposalStatusByProposalId, getProposals, getAllProposals, getUserByUsername, getLatestProposalStatus, doRejectProposal, doCompleteProposal } from "../controllers/ProposalControllers.js";
+import { createProposal, doApprovalProposal, doViewProposal, getProposalByProposalId, getCompletedAgreements, getProposalByStatus, getProposalStatusByProposalId, getProposals, getAllProposals, getUserByUsername, getLatestProposalStatus, doRejectProposal, doCompleteProposal } from "../controllers/ProposalControllers.js";
 import { verifyUser, checkUserRole } from "../middleware/AuthUser.js";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -14,6 +14,7 @@ router.post("/api/create-proposal", verifyUser, checkUserRole(["Sponsoree"]), cr
 router.post("/api/proposals", verifyUser, checkUserRole(["Sponsoree", "Sponsor", "Admin"]), getProposals);
 router.get("/api/proposal/:id", verifyUser, checkUserRole(["Sponsoree", "Sponsor", "Admin"]), getProposalByProposalId);
 router.put("/api/proposals/:proposal_status_id/approve", doApprovalProposal);
+router.put("/api/proposals/:proposal_status_id/view", doViewProposal);
 router.put("/api/proposals/:proposal_status_id/reject", doRejectProposal);
 router.get("/api/proposals/list", getAllProposals);
 router.get("/api/proposals/status/:username/:status_name", getProposalByStatus);
