@@ -8,10 +8,6 @@ const Report = db.define("report", {
     primaryKey: true,
     allowNull: false,
   },
-  username: {
-    type: Sequelize.TEXT,
-    allowNull: false,
-  },
   created_by: {
     type: Sequelize.TEXT,
     allowNull: false,
@@ -45,7 +41,6 @@ const Report = db.define("report", {
   },
 }, {
   tableName: "reports",
-  timestamps: false,
 });
 
 export default Report;

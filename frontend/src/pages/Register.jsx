@@ -340,7 +340,7 @@ export default function RegisterPage() {
                         </div>
 
                         <p className="text-center text-sm mt-4">
-                            Already have an account? <a href="/" className="font-semibold hover:underline">Log in</a>
+                            Already have an account? <a href="/SignIn" className="font-semibold hover:underline">Log in</a>
                         </p>
                     </form>
                 </div>
