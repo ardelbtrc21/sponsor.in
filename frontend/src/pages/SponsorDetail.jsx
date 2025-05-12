@@ -31,7 +31,7 @@ const SponsorDetail = () => {
   if (!sponsor) return null;
 
   return (
-    <div className="w-screen min-h-screen bg-white relative overflow-x-hidden">
+    <div className="w-screen min-h-screen bg-white relative overflow-x-hidden pb-12">
       {/* Tombol back pojok kiri atas */}
       <button
         onClick={() => navigate(-1)}
@@ -44,7 +44,7 @@ const SponsorDetail = () => {
       {/* Banner */}
       <div className="relative w-full">
         <img
-          src={sponsor.profile_photo ? URL.createObjectURL(sponsor.profile_photo) : defaultProfile}
+          src={sponsor.background_photo ? `/api/background_photo/preview/${sponsor?.background_photo}` : defaultProfile}
           className="w-screen h-72 object-cover"
           style={{ imageRendering: "auto" }}
           alt="banner"
@@ -56,7 +56,7 @@ const SponsorDetail = () => {
         {/* Foto Profil */}
         <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 z-10">
           <img
-              src={sponsor.profile_photo ? URL.createObjectURL(sponsor.profile_photo) : defaultProfile}
+              src={sponsor.profile_photo ? `/profile_photo/${sponsor.profile_photo}` : defaultProfile}
             alt="profile_photo"
             className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover bg-white"
           />
@@ -66,6 +66,7 @@ const SponsorDetail = () => {
       {/* Info Sponsor */}
       <div className="flex flex-col items-center mt-20 text-center px-4">
         <h1 className="text-2xl font-bold text-[#031930]">{sponsor.name}</h1>
+        <p className="text-sm text-gray-500 mt-2">@{sponsor.username}</p>
         <div className="flex items-center gap-2 text-sm text-gray-600 mt-2">
           <span>⭐ {sponsor.rating || 4.5}</span>
           <span>• {sponsor.deals || "1K"} Deals</span>
@@ -100,7 +101,7 @@ const SponsorDetail = () => {
       <div className="mt-16 px-6">
         <h2 className="text-2xl font-semibold text-center text-[#031930]">Our Sponsorships</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 max-w-6xl mx-auto">
-          {(sponsor.sponsorships || [
+          {(sponsor.sponsorships_photo || [
             "https://i.pinimg.com/736x/75/bb/c1/75bbc141800fa53fb59c6a06bc2c27c3.jpg",
             "https://i.pinimg.com/474x/eb/fb/02/ebfb0275b4e79fcfb02928300e71bcf2.jpg",
             "https://i.pinimg.com/474x/c3/15/4e/c3154e3047a094b517dead55017adee0.jpg",

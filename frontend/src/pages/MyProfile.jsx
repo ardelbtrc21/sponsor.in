@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import defaultProfile from '../assets/profile_default.png';
 import { useSelector, useDispatch } from 'react-redux';
@@ -14,6 +14,7 @@ const MyProfile = () => {
     const [sponsoree, setSponsoree] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const location = useLocation();
 
     useEffect(() => {
         fetch(`/api/user/${username}`)
@@ -100,7 +101,18 @@ const MyProfile = () => {
                         {/* Category Provides */}
                         <p className="text-sm text-gray-700 mb-2">
                             <span className="font-semibold">Category Provides:</span>{" "}
-                            {sponsor.user_sponsors.category_provides || "-"}
+                            {sponsor.user_sponsors.category_provides?.length > 0 ? (
+                                sponsor.user_sponsors.category_provides.split(',').map((cat, idx) => (
+                                    <span
+                                        key={idx}
+                                        className="inline-block mx-1 mt-1 px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded text-xs"
+                                    >
+                                        {cat}
+                                    </span>
+                                ))
+                            ) : (
+                                <span className="ml-1">-</span>
+                            )}
                         </p>
 
                         {/* Tags Sponsor */}

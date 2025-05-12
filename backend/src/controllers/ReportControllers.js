@@ -6,7 +6,6 @@ export const newReport = async (req, res) => {
   try {
     const newReport = await Report.create({
       report_id,
-      username,
       created_by,
       created_for,
       reason,

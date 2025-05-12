@@ -304,7 +304,8 @@ export const createProposal = async (req, res) => {
     event_location,
     target_age_min,
     target_age_max,
-    target_gender
+    target_gender,
+    support_needed
   } = req.body;
   const tags = JSON.parse(req.body.tags);
   const target_participants = JSON.parse(req.body.target_participants);
@@ -372,6 +373,7 @@ export const createProposal = async (req, res) => {
     if (!target_age_max || target_age_max == "") errors.target_age = "Target age must be filled in!";
     if (!errors.target_age && (target_age_max < target_age_min)) errors.target_age = "Target age invalid!"
     if (!target_gender || target_gender == "") errors.target_gender = "Target gender must be filled in!";
+    if (!support_needed || target_gender == "") errors.support_needed = "Support needed must be filled in!";
     if (!target_participants || target_participants.length <= 0) errors.target_participants = "Target participant must be filled in!";
     let targetID = []
     if (!errors.target_participants) {
@@ -424,7 +426,8 @@ export const createProposal = async (req, res) => {
           event_location: event_location,
           target_age_min: target_age_min,
           target_age_max: target_age_max,
-          target_gender: target_gender
+          target_gender: target_gender,
+          support_needed: support_needed
         });
         await ProposalStatus.create({
           proposal_id: newProposal.proposal_id,
@@ -447,6 +450,7 @@ export const createProposal = async (req, res) => {
           }
         }
       } catch (error) {
+        console.log(error)
         res.status(400).json({ msg: error.message });
       }
     });

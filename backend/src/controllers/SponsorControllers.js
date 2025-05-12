@@ -1,4 +1,6 @@
 import Sponsor from "../models/sponsor.js";
+import Tag from "../models/tag.js";
+import TargetParticipant from "../models/target_participant.js";
 import User from "../models/user.js";
 import { Op } from "sequelize";
 
@@ -38,17 +40,52 @@ export const getAllSponsors = async (req, res) => {
   }
 };
 
+function isUUID(str) {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(str);
+}
+
 export const getSponsorById = async (req, res) => {
-  const { id } = req.params; 
+  const { id } = req.params;
+  let where;
+  console.log(isUUID(id))
+  if(isUUID(id)){
+    where = {
+      sponsor_id: id
+    }
+  } else{
+    where = {
+      username: id
+    }
+  }
+  console.log(where)
 
   try {
     const sponsor = await Sponsor.findOne({
-      where: { username: id },  
-      include: {
-        model: User,
-        as: "user_sponsors",
-        attributes: ["name", "profile_photo"], 
-      },
+      where: where,
+      include: [
+        {
+          model: Tag,
+          as: "tags_sponsors",
+          required: false,
+          attributes: ["tag_name"],
+          duplicating: false
+        },
+        {
+          model: TargetParticipant,
+          as: "target_sponsors",
+          required: false,
+          attributes: ["target_participant_category"],
+          duplicating: false
+        },
+        {
+          model: User,
+          as: "user_sponsors",
+          required: false,
+          attributes: ["name", "email", "profile_photo", "is_banned", "background_photo"],
+          duplicating: false
+        },
+      ],
     });
 
     if (!sponsor) {
@@ -59,11 +96,17 @@ export const getSponsorById = async (req, res) => {
       sponsor_id: sponsor.sponsor_id,
       username: sponsor.username,
       name: sponsor.user_sponsors?.name || null,
+      email: sponsor.user_sponsors?.email || null,
       profile_photo: sponsor.user_sponsors?.profile_photo,
       nib: sponsor.nib,
       is_available: sponsor.is_available,
-      status: sponsor.status
+      status: sponsor.status,
+      category_provides: sponsor.category_provides,
+      tags_sponsors: sponsor.tags_sponsors,
+      target_sponsors: sponsor.target_sponsors,
+      background_photo: sponsor.user_sponsors?.background_photo || null
     };
+    console.log(result)
 
     res.json(result);
   } catch (error) {
@@ -93,7 +136,7 @@ export const getPendingSponsors = async (req, res) => {
 
 export const approveSponsor = async (req, res) => {
   const { username } = req.params;
-  
+
   try {
     const sponsor = await Sponsor.findOne({ where: { username } });
 
@@ -106,7 +149,7 @@ export const approveSponsor = async (req, res) => {
 
     const user = await User.findOne({ where: { username } });
     if (user) {
-      user.last_login = new Date(); 
+      user.last_login = new Date();
       await user.save();
     }
 
@@ -119,7 +162,7 @@ export const approveSponsor = async (req, res) => {
 
 export const rejectSponsor = async (req, res) => {
   const { username } = req.params;
-  
+
   try {
     const sponsor = await Sponsor.findOne({ where: { username } });
 

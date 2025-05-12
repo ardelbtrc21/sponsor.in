@@ -17,21 +17,32 @@ const CreateProposalForm = () => {
   const [proposalName, setProposalName] = useState("");
   const [file_proposal, setFileProposal] = useState(null);
   const [eventName, setEventName] = useState("");
+  const [sponsor, setSponsor] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [eventLocation, setEventLocation] = useState("");
   const [targetAgeMin, setTargetAgeMin] = useState("");
   const [targetAgeMax, setTargetAgeMax] = useState("");
   const [targetGender, setTargetGender] = useState("");
+  const [supportNeeded, setSupportNeeded] = useState("");
   const [message, setMessage] = useState("");
   const [sponsoree_id, setSponsoreeId] = useState("");
   const [formErrors, setFormErrors] = useState({});
   const [tagsDB, SetTagsDB] = useState([]);
   const [tags, setTags] = useState([]);
+  const [tagSponsor, setTagSponsor] = useState([]);
   const filteredTags = tagsDB.filter(o => !tags.includes(o));
   const [targetsDB, SetTargetsDB] = useState([]);
   const [targets, setTargets] = useState([]);
+  const [targetSponsor, setTargetsSponsor] = useState([]);
   const filteredTargets = targetsDB.filter(o => !targets.includes(o));
   const [fileList, setFileList] = useState([]);
+  const [targetMismatchWarningTarget, setTargetMismatchWarningTarget] = useState(false);
+  const [targetMismatchWarningTag, setTargetMismatchWarningTag] = useState(false);
+  const [targetMismatchWarningCategory, setTargetMismatchWarningCategory] = useState(false);
+  const [mismatchedTargets, setMismatchedTargets] = useState([]);
+  const [mismatchedTag, setMismatchedTag] = useState([]);
+  const [category_provides, setCategoryProvides] = useState([]);
+  const [mismatchedCategory, setMismatchedCategory] = useState([]);
 
   const { user } = useSelector((state) => state.auth);
   let username;
@@ -52,6 +63,50 @@ const CreateProposalForm = () => {
       console.log(error);
     }
   };
+
+  const getSponsor = async () => {
+    try {
+      console.log(sponsorId);
+      const response = await axios.get(`/api/sponsors/${sponsorId}`);
+      setSponsor(response);
+      setCategoryProvides(response.data.category_provides?.split(','))
+      if (response.data.target_sponsors) {
+        setTargetsSponsor(response.data.target_sponsors.map(item => item.target_participant_category));
+      }
+      if (response.data.tags_sponsors) {
+        setTagSponsor(response.data.tags_sponsors.map(item => item.tag_name));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const categories = [
+    { value: "Fund", label: "Fund" },
+    { value: "Product", label: "Product" },
+    { value: "Services", label: "Services" }
+  ];
+
+  useEffect(() => {
+    const mismatches = targets?.filter(target => !targetSponsor.includes(target));
+    setTargetMismatchWarningTarget(mismatches.length > 0);
+    setMismatchedTargets(mismatches);
+  }, [targets, targetSponsor]);
+
+  useEffect(() => {
+    const mismatches = tags?.filter(tag => !tagSponsor.includes(tag));
+    setTargetMismatchWarningTag(mismatches.length > 0);
+    setMismatchedTag(mismatches);
+  }, [tags, tagSponsor]);
+
+  useEffect(() => {
+    if (category_provides) {
+      const mismatches = supportNeeded?.values?.filter(support => !category_provides.includes(support));
+      setTargetMismatchWarningCategory(mismatches?.length > 0);
+      setMismatchedCategory(mismatches);
+    }
+  }, [supportNeeded, category_provides]);
+
 
   const getTags = async () => {
     try {
@@ -122,12 +177,15 @@ const CreateProposalForm = () => {
     getUser()
     getTags()
     getTargets()
+    getSponsor()
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const formData = new FormData();
+      const tempSupport = supportNeeded.values;
+      console.log(tempSupport)
       formData.append("proposal_name", proposalName);
       formData.append("file_proposal", "file");
       formData.append("event_name", eventName);
@@ -140,7 +198,8 @@ const CreateProposalForm = () => {
       formData.append("target_participants", JSON.stringify(targets));
       formData.append("sponsor_id", sponsorId);
       formData.append("sponsoree_id", sponsoree_id);
-      formData.append("file_proposal", file_proposal)
+      formData.append("file_proposal", file_proposal);
+      formData.append("support_needed", tempSupport.join(','));
 
       await axios.post("/api/create-proposal", formData, {
         headers: {
@@ -158,6 +217,7 @@ const CreateProposalForm = () => {
       });
       navigate(-1);
     } catch (error) {
+      console.log(error)
       setFormErrors(error.response.data);
       if (error.response.data.msg) {
         Swal.fire({
@@ -245,15 +305,95 @@ const CreateProposalForm = () => {
               </div>
 
               <div>
-                <label className="block mb-2 text-base font-medium text-gray-900">Target Participant<span className="text-sm text-red-500 ml-1">*</span></label>
-                <Select mode="multiple" name="targets" placeholder="Search here" value={targets} className="w-full p-3 pr-10 border rounded-xl bg-white text-base" onChange={(e) => setTargets(e)} options={filteredTargets.map(item => ({ value: item, label: item }))} />
-                <span className="text-sm text-red-800 mt-2 block">{formErrors.target_participants}</span>
+                <label className="block mb-2 text-base font-medium text-gray-900">
+                  Target Participant<span className="text-sm text-red-500 ml-1">*</span>
+                </label>
+                <Select
+                  mode="multiple"
+                  name="targets"
+                  placeholder="Search here"
+                  value={targets}
+                  className="w-full p-3 pr-10 border rounded-xl bg-white text-base"
+                  onChange={(e) => setTargets(e)}
+                  options={filteredTargets.map(item => ({ value: item, label: item }))}
+                />
+                <span className="text-sm text-red-800 mt-2 block">
+                  {formErrors.target_participants}
+                </span>
+                {targetMismatchWarningTarget && (
+                  <span className="text-sm text-yellow-600 mt-2 block">
+                    ⚠ Beberapa target participant yang dipilih tidak termasuk dalam preferensi sponsor.
+                  </span>
+                )}
+                {targetMismatchWarningTarget && (
+                  <div className="text-sm text-yellow-600 mt-2">
+                    ⚠ Target participant berikut tidak termasuk dalam preferensi sponsor:
+                    <ul className="list-disc ml-6 mt-1">
+                      {mismatchedTargets.map((target, index) => (
+                        <li key={index}>{target}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
 
               <div>
                 <label className="block mb-2 text-base font-medium text-gray-900">Tags Related Event<span className="text-sm text-red-500 ml-1">*</span></label>
                 <Select mode="multiple" name="tags" placeholder="Search here" value={tags} className="w-full p-3 pr-10 border rounded-xl bg-white text-base" onChange={(e) => setTags(e)} options={filteredTags.map(item => ({ value: item, label: item }))} />
-                <span className="text-sm text-red-800 mt-2 block">{formErrors.tags}</span>
+                <span className="text-sm text-red-800 mt-2 block">
+                  {formErrors.tags}
+                </span>
+                {targetMismatchWarningTag && (
+                  <span className="text-sm text-yellow-600 mt-2 block">
+                    ⚠ Beberapa tag related yang dipilih tidak termasuk dalam preferensi sponsor.
+                  </span>
+                )}
+                {targetMismatchWarningTag && (
+                  <div className="text-sm text-yellow-600 mt-2">
+                    ⚠ Tag related berikut tidak termasuk dalam preferensi sponsor:
+                    <ul className="list-disc ml-6 mt-1">
+                      {mismatchedTargets.map((target, index) => (
+                        <li key={index}>{target}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block mb-2 text-base font-medium text-gray-900">Support Needed<span className="text-sm text-red-500 ml-1">*</span></label>
+                <Select
+                  mode="multiple"
+                  name="support_needed"
+                  placeholder="Search here"
+                  value={supportNeeded.values}
+                  className="w-full p-3 pr-10 border rounded-xl bg-white text-base"
+                  onChange={(values) =>
+                    setSupportNeeded({
+                      ...supportNeeded,
+                      values,
+                    })
+                  } 
+                  options={categories}
+                  />
+                <span className="text-sm text-red-800 mt-2 block">
+                  {formErrors.support_needed}
+                </span>
+                {targetMismatchWarningCategory && (
+                  <span className="text-sm text-yellow-600 mt-2 block">
+                    ⚠ Beberapa support needed yang dipilih tidak termasuk dalam preferensi sponsor.
+                  </span>
+                )}
+                {targetMismatchWarningCategory && (
+                  <div className="text-sm text-yellow-600 mt-2">
+                    ⚠ Support needed berikut tidak termasuk dalam preferensi sponsor:
+                    <ul className="list-disc ml-6 mt-1">
+                      {mismatchedCategory.map((target, index) => (
+                        <li key={index}>{target}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
 
               <div>

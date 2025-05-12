@@ -67,6 +67,10 @@ const Proposal = db.define("proposal", {
         allowNull: false,
         type: Sequelize.DATE
     },
+    support_needed: {
+        allowNull: false,
+        type: Sequelize.TEXT
+    },
 }, {});
 
 Proposal.hasMany(ProposalStatus, {

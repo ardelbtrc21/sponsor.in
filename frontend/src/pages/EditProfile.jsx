@@ -39,27 +39,28 @@ const EditProfile = ({ sponsor: sponsoree }) => {
         sponsorship_photos: [],
         tags: [],
         targets: [],
-        category: ""
+        category: []
     });
 
     useEffect(() => {
-        if (passedSponsor) {
+        if (location.state?.sponsor) {
             setSponsorData(passedSponsor);
-        } else {
-            fetch(`/api/user/${username}`)
-                .then((res) => res.json())
-                .then((data) => setSponsorData(data))
-                .catch((err) => console.error(err));
         }
-    }, [passedSponsor, username]);
+    }, [passedSponsor, username, location.state?.sponsor]);
+    useEffect(() => {
+        if (location.state?.sponsoree) {
+            setSponsoree(passedSponsoree);
+        }
+    }, [passedSponsoree, username, location.state?.sponsoree]);
 
     useEffect(() => {
         if (sponsorData) {
+            console.log(sponsorData)
             setFormData({
                 name: sponsorData.name,
                 background_photo: sponsorData.background_photo,
                 is_available: sponsorData.user_sponsors?.is_available || false,
-                category_provides: sponsorData.user_sponsors?.category_provides || "",
+                category: sponsorData.user_sponsors?.category_provides.split(',') || [],
                 description: sponsorData.user_sponsors?.description || "",
                 sponsorship_photos: sponsorData.photo_sponsorship_users || [],
                 tags: sponsorData.user_sponsors?.tags_sponsors || [],
@@ -67,6 +68,16 @@ const EditProfile = ({ sponsor: sponsoree }) => {
             });
         }
     }, [sponsorData]);
+    useEffect(() => {
+        if (sponsoreeData) {
+            setFormData({
+                name: sponsoreeData.name,
+                background_photo: sponsoreeData.background_photo,
+                sponsorship_photos: sponsoreeData.photo_sponsorship_users || [],
+                category: sponsoreeData.user_sponsorees?.category || []
+            });
+        }
+    }, [sponsoreeData]);
 
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -93,6 +104,12 @@ const EditProfile = ({ sponsor: sponsoree }) => {
             }));
         }
     };
+
+    const categories = [
+        { value: "Fund", label: "Fund" },
+        { value: "Product", label: "Product" },
+        { value: "Services", label: "Services" }
+    ];
 
     const handleChange = (e) => {
         const { name, value, type, checked, files } = e.target;
@@ -173,15 +190,15 @@ const EditProfile = ({ sponsor: sponsoree }) => {
     };
 
     const handleSubmit = async (e) => {
+
         e.preventDefault();
 
         const data = new FormData();
         data.append("username", username);
         data.append("name", formData.name);
         data.append("is_available", formData.is_available);
-        data.append("category_provides", formData.category_provides);
         data.append("description", formData.description);
-        data.append("category", formData.category);
+        data.append("category_provides", formData.category?.join(','));
         data.append("removed_photos", JSON.stringify(removedPhotos))
 
         if (formData.background_photo instanceof File) {
@@ -211,23 +228,24 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                 },
             });
             console.log("Profile updated:", response.data);
-            navigate(-1);
+            navigate("/my-profile", { replace: true }); // ganti dengan path yang sesuai
+            window.location.reload(); // paksa reload
         } catch (error) {
             console.error("Failed to update profile:", error);
         }
     };
-
+    //testing
 
     const profilePhoto = user?.profile_photo
         ? `/profile_photo/${user.profile_photo}`
         : defaultProfile;
     let bannerPhoto;
-    if (!formData.background_photo && !user.background_photo) {
+    if (!formData?.background_photo && !sponsorData?.background_photo && !sponsoreeData?.background_photo) {
         bannerPhoto = defaultProfile
-    } else if (formData.background_photo) {
-        bannerPhoto = `/api/background_photo/preview/${formData.background_photo}`;
-    } else if (user.background_photo) {
-        bannerPhoto = `/api/background_photo/preview/${user.background_photo}`;
+    } else if (formData?.background_photo && formData?.background_photo !== (sponsorData?.background_photo || sponsoreeData?.background_photo)) {
+        bannerPhoto = URL.createObjectURL(formData.background_photo);
+    } else if (sponsorData?.background_photo || sponsoreeData?.background_photo) {
+        bannerPhoto = sponsorData?.background_photo ? `/api/background_photo/preview/${sponsorData.background_photo}` : `/api/background_photo/preview/${sponsoreeData.background_photo}`;
     }
 
     return (
@@ -239,7 +257,7 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                     alt="Banner"
                     className="h-full w-full object-cover"
                 />
-
+                {console.log(formData.category_provides)}
                 <div className="absolute bottom-2 right-2 bg-dropdown">
                     <button
                         onClick={() => setShowBgDropdown(!showBgDropdown)}
@@ -318,7 +336,7 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                         onChange={handleChange}
                         className="hidden"
                     />
-                    {sponsorData && sponsorData.length > 0 && (
+                    {sponsorData && sponsorData !== null && (
                         <div className="flex items-center gap-2">
                             <input
                                 type="checkbox"
@@ -351,14 +369,13 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                             disabled
                             className="w-full p-3 border rounded-xl bg-gray-100 cursor-not-allowed"
                         />
-                        {console.log(sponsoreeData)}
                     </div>
 
                     {sponsoreeData && sponsoreeData !== null && (
                         <div className="relative w-full mb-4">
                             <select
                                 name="category"
-                                value={formData.category ? formData.category : sponsoreeData.user_sponsorees.category}
+                                value={formData.category}
                                 onChange={handleChange}
                                 className="w-full appearance-none p-3 pr-10 border rounded-xl bg-white"
                             >
@@ -379,24 +396,30 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                         </div>
                     )}
 
-                    {sponsorData && sponsorData.length > 0 && (
+                    {sponsorData && sponsorData !== null && (
                         <div className="relative">
                             <label className="block text-sm font-medium mb-1">Category Provides</label>
                             <div className="relative">
-                                <select
-                                    name="category_provides"
-                                    value={formData.category_provides}
-                                    onChange={handleChange}
-                                    className="w-full pl-4 pr-10 py-3 border rounded-xl bg-white text-base focus:outline-none appearance-none"
-                                >
-                                    <option value="">Select Category</option>
-                                    <option value="Fund">Fund</option>
-                                    <option value="Product">Product</option>
-                                    <option value="Services">Services</option>
-                                </select>
-                                <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
-                                    <ChevronDownIcon className="w-5 h-5 text-gray-600" />
-                                </div>
+                                <Select
+                                    mode="tags"
+                                    style={{ width: '100%' }}
+                                    placeholder="Add Category"
+                                    value={formData.category}
+                                    onChange={(values) =>
+                                        setFormData({
+                                            ...formData,
+                                            category: values,
+                                        })
+                                    }
+                                    options={[
+                                        ...categories,
+                                        ...(Array.isArray(formData.category)
+                                            ? formData.category
+                                                .filter(val => !categories.some(opt => opt.value === val))
+                                                .map(val => ({ value: val, label: val }))
+                                            : [])
+                                    ]}
+                                />
                             </div>
                         </div>
                     )}
@@ -412,7 +435,7 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                         />
                     </div>
                     {console.log(formData.sponsorship_photos.length)} */}
-                    {sponsorData && sponsorData.length > 0 && (
+                    {sponsorData && sponsorData !== null && (
                         <div>
                             <label className="block text-sm font-medium mb-1">About Us (Description)</label>
                             <textarea
@@ -472,7 +495,7 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                         </div>
                     </div>
 
-                    {sponsorData && sponsorData.length > 0 && (
+                    {sponsorData && sponsorData !== null && (
                         <div>
                             <div>
                                 <label className="block text-sm font-medium mb-1">Tags</label>
