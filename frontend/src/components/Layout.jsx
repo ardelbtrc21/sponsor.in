@@ -152,7 +152,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         <div className="absolute bottom-4 w-full px-6">
           <button
             onClick={handleLogout}
-            className="w-full py-2 text-white bg-red-600 hover:bg-red-700 rounded-md font-semibold transition"
+            className="w-full py-2 text-white bg-red-600 hover:bg-red-700 rounded-full font-semibold transition"
           >
             Logout
           </button>
@@ -193,6 +193,7 @@ const ModernLayout = ({ children }) => {
         <ArrowLeft size={20} />
         Back
       </button>
+
       {/* Page Content */}
       <main className="flex-1">
         {children}
