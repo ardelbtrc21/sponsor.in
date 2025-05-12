@@ -230,7 +230,7 @@ const EditProfile = ({ sponsor: sponsoree }) => {
             console.error("Failed to update profile:", error);
         }
     };
-    //test
+    //testing
 
     const profilePhoto = user?.profile_photo
         ? `/profile_photo/${user.profile_photo}`
