@@ -224,7 +224,8 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                 },
             });
             console.log("Profile updated:", response.data);
-            navigate("/my-profile");
+            navigate("/my-profile", { replace: true }); // ganti dengan path yang sesuai
+            window.location.reload(); // paksa reload
         } catch (error) {
             console.error("Failed to update profile:", error);
         }
@@ -234,12 +235,12 @@ const EditProfile = ({ sponsor: sponsoree }) => {
         ? `/profile_photo/${user.profile_photo}`
         : defaultProfile;
     let bannerPhoto;
-    if (!formData.background_photo && !user.background_photo) {
+    if (!formData?.background_photo && !sponsorData?.background_photo && !sponsoreeData?.background_photo) {
         bannerPhoto = defaultProfile
-    } else if (formData.background_photo && formData.background_photo !== user.background_photo) {
-        bannerPhoto =  URL.createObjectURL(formData.background_photo);
-    } else if (user.background_photo) {
-        bannerPhoto = `/api/background_photo/preview/${user.background_photo}`;
+    } else if (formData?.background_photo && formData?.background_photo !== (sponsorData?.background_photo || sponsoreeData?.background_photo)) {
+        bannerPhoto = URL.createObjectURL(formData.background_photo);
+    } else if (sponsorData?.background_photo || sponsoreeData?.background_photo) {
+        bannerPhoto = sponsorData?.background_photo ? `/api/background_photo/preview/${sponsorData.background_photo}` : `/api/background_photo/preview/${sponsoreeData.background_photo}`;
     }
 
     return (

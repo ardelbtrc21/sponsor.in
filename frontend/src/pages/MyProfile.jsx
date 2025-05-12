@@ -38,13 +38,6 @@ const MyProfile = () => {
             });
     }, [username]);
 
-
-    useEffect(() => {
-        if (location.state?.shouldReload) {
-            window.location.reload();
-        }
-    }, [location]);
-
     if (loading) return <div className="text-center mt-10">Loading...</div>;
     if (error) return <div className="text-center mt-10 text-red-500">Error: {error}</div>;
 
