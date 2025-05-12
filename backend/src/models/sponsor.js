@@ -77,7 +77,7 @@ Sponsor.belongsToMany(TargetParticipant, {
     onUpdate: "CASCADE" 
 });
 TargetParticipant.belongsToMany(Sponsor, { 
-    through: SponsorTag, 
+    through: SponsorTargetParticipant, 
     foreignKey: "target_participant_id", 
     as: "id_target_sponsors", 
     onDelete: "CASCADE", 

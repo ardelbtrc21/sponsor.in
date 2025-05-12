@@ -94,6 +94,15 @@ const Sidebar = ({ isOpen, onClose }) => {
         <ul className="flex flex-col gap-2 p-6 text-base font-medium">
           <li>
             <Link
+              to="/my-profile"
+              onClick={onClose}
+              className="w-full block py-2 rounded-md hover:bg-gray-100 transition"
+            >
+              My Profile
+            </Link>
+          </li>
+          <li>
+            <Link
               to="/"
               onClick={onClose}
               className="w-full block py-2 rounded-md hover:bg-gray-100 transition"
@@ -150,15 +159,6 @@ const Sidebar = ({ isOpen, onClose }) => {
               className="w-full block py-2 rounded-md hover:bg-gray-100 transition"
             >
               Setting Account
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/about"
-              onClick={onClose}
-              className="w-full block py-2 rounded-md hover:bg-gray-100 transition"
-            >
-              About
             </Link>
           </li>
           <li>

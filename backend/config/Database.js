@@ -20,7 +20,7 @@ const db = new Sequelize(DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD, {
     host: DATABASE_HOST,
     port: Number(DATABASE_PORT),
     dialect: "postgres",
-    logging: false,
+    logging: console.log,
 });
 // pg.types.setTypeParser(20, parseBigint);
 db.authenticate()

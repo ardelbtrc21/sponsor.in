@@ -1,5 +1,5 @@
 import express from "express";
-import { createProposal, doApprovalProposal, getProposalByProposalId, getCompletedAgreements, getProposalByStatus, getProposalStatusByProposalId, getProposals, getAllProposals, getUserByUsername } from "../controllers/ProposalControllers.js";
+import { createProposal, doApprovalProposal, getProposalByProposalId, getCompletedAgreements, getProposalByStatus, getProposalStatusByProposalId, getProposals, getAllProposals, getUserByUsername, statusChangeProposal } from "../controllers/ProposalControllers.js";
 import { verifyUser, checkUserRole } from "../middleware/AuthUser.js";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -14,10 +14,10 @@ router.post("/api/create-proposal", verifyUser, checkUserRole(["Sponsoree"]), cr
 router.post("/api/proposals", verifyUser, checkUserRole(["Sponsoree", "Sponsor", "Admin"]), getProposals);
 router.get("/api/proposal/:id", verifyUser, checkUserRole(["Sponsoree", "Sponsor", "Admin"]), getProposalByProposalId);
 router.put("/:status_id/approve", doApprovalProposal);
-router.get("/api/proposals/list", getAllProposals);
 router.get("/api/proposals/status/:username/:status_name", getProposalByStatus);
+router.get("/api/proposals/list", getAllProposals);
 router.get("/api/proposals/:proposal_id/status", getProposalStatusByProposalId);
-router.get("/preview/:filename", (req, res) => {
+router.get("/api/proposals/preview/:filename", (req, res) => {
     const { filename } = req.params;
     const filePath = path.join(proposalFolder, filename);
 

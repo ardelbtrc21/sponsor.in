@@ -63,10 +63,11 @@ const ListReportedAccount = () => {
         }));
     };
 
-    const handleBanAccount = async (username) => {
+    const handleBanAccount = async (username, report_id) => {
         try {
             await axios.patch("/api/banAccount", {
-                username: username
+                username: username,
+                report_id: report_id
             })
             Swal.fire({
                 title: "Ban Account Successful!",
@@ -75,6 +76,27 @@ const ListReportedAccount = () => {
                 confirmButtonText: "OK",
                 text: "Your request has been successfully added"
             });
+            window.location.reload();
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: error.response.data.msg,
+            });
+        }
+    }
+
+    const handleRejectReport = async (report_id) => {
+        try {
+            await axios.patch(`/api/reject-report/${report_id}`)
+            Swal.fire({
+                title: "Reject Account Successful!",
+                icon: "success",
+                confirmButtonColor: "#3085d6",
+                confirmButtonText: "OK",
+                text: "Your request has been successfully added"
+            });
+            window.location.reload();
         } catch (error) {
             Swal.fire({
                 icon: "error",
@@ -310,7 +332,12 @@ const ListReportedAccount = () => {
                         {reports.map((report, index) => (
                             <tr key={index} className="hover:bg-gray-50">
                                 <td className="px-4 py-2 text-gray-800 text-center">
-                                    {report.created_for}
+                                    <span
+                                        onClick={() => handleViewAccount(report.created_for)}
+                                        className="text-gray-600 font-medium hover:underline cursor-pointer"
+                                    >
+                                        {report.created_for}
+                                    </span>
                                 </td>
                                 <td className="px-4 py-2 text-gray-600 text-center">
                                     {report.created_by}
@@ -345,20 +372,27 @@ const ListReportedAccount = () => {
                                 <td className="px-4 py-2 text-center">
                                     <div className="flex justify-center items-center gap-2">
                                         <button
-                                            className="border border-primary text-primary font-semibold text-xs px-3 py-1.5 rounded-lg bg-transparent hover:bg-primary hover:text-white transition"
-                                            onClick={() => handleViewAccount(report.created_for)}
+                                            disabled={report.status !== "submitted"}
+                                            className={`border text-primary font-semibold text-xs px-3 py-1.5 rounded-lg transition 
+                                            ${report.status !== "submitted"
+                                                    ? "border-gray-300 text-gray-400 bg-gray-100 cursor-not-allowed"
+                                                    : "border-primary bg-transparent hover:bg-primary hover:text-white"}
+                                        `}
+                                            onClick={() => handleRejectReport(report.report_id)}
                                         >
-                                            VIEW ACCOUNT
+                                            REJECT REPORT
                                         </button>
                                         <button
-                                            className="bg-red-800 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-red-700"
-                                            onClick={() => handleBanAccount(report.created_for)}
+                                            disabled={report.status !== "submitted"}
+                                            className={`text-white text-xs px-3 py-1.5 rounded-lg transition 
+                                            ${report.status !== "submitted"
+                                                    ? "bg-gray-300 cursor-not-allowed"
+                                                    : "bg-red-800 hover:bg-red-700"}
+                                        `}
+                                            onClick={() => handleBanAccount(report.created_for, report.report_id)}
                                         >
                                             BAN ACCOUNT
                                         </button>
-                                        {/* <button className="text-gray-700 hover:text-gray-900">
-                                            <ArrowDownTrayIcon className="h-4 w-4" />
-                                        </button> */}
                                     </div>
                                 </td>
                             </tr>
