@@ -31,7 +31,7 @@ const SponsorDetail = () => {
   if (!sponsor) return null;
 
   return (
-    <div className="w-screen min-h-screen bg-white relative overflow-x-hidden">
+    <div className="w-screen min-h-screen bg-white relative overflow-x-hidden pb-12">
       {/* Tombol back pojok kiri atas */}
       <button
         onClick={() => navigate(-1)}

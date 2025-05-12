@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import defaultProfile from '../assets/profile_default.png';
 import { useSelector, useDispatch } from 'react-redux';
@@ -14,6 +14,7 @@ const MyProfile = () => {
     const [sponsoree, setSponsoree] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const location = useLocation();
 
     useEffect(() => {
         fetch(`/api/user/${username}`)
@@ -36,6 +37,13 @@ const MyProfile = () => {
                 setLoading(false);
             });
     }, [username]);
+
+
+    useEffect(() => {
+        if (location.state?.shouldReload) {
+            window.location.reload();
+        }
+    }, [location]);
 
     if (loading) return <div className="text-center mt-10">Loading...</div>;
     if (error) return <div className="text-center mt-10 text-red-500">Error: {error}</div>;
