@@ -27,7 +27,6 @@ const ReportAccountForm = () => {
     try {
       await axios.post("/api/report", {
         report_id: uuidv4(),
-        username: reportedUsername,
         created_by: (user && user.username),
         created_for: reportedUsername,
         reason: reason,
