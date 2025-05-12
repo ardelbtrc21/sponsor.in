@@ -445,6 +445,7 @@ export const createProposal = async (req, res) => {
           }
         }
       } catch (error) {
+        console.log(error)
         res.status(400).json({ msg: error.message });
       }
     });
