@@ -69,8 +69,8 @@ const ViewMySubmissions = () => {
                 key={value}
                 onClick={() => setSelectedStatus(value)}
                 className={`custom-box p-1 rounded-lg font-medium ${selectedStatus === value
-                    ? "btn-primary text-white"
-                    : "btn-secondary-without-border hover:bg-gray-300"
+                  ? "btn-primary text-white"
+                  : "btn-secondary-without-border hover:bg-gray-300"
                   }`}
               >
                 {label}
@@ -112,11 +112,11 @@ const ViewMySubmissions = () => {
                     >
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full">
 
-                        <div className="flex flex-col text-base space-y-1">
-                          <h2 className="font-bold text-gray-900 break-words">
+                        <div className="flex flex-col text-base space-y-1 max-w-full md:max-w-xl break-words">
+                          <h2 className="font-bold text-gray-900 break-words line-clamp-2">
                             {proposal.status_proposals?.proposal_name || "Proposal Name Unavailable"}
                           </h2>
-                          <p className="text-gray-700 break-words">
+                          <p className="text-gray-700 break-words line-clamp-2">
                             {proposal.status_proposals?.event_name || "Event Name Unavailable"}
                           </p>
                           <p className="text-gray-500">
