@@ -8,7 +8,6 @@ import { Upload, Select } from "antd";
 import axios from "axios";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import Swal from "sweetalert2";
-import ModernLayout from "../components/Layout";
 const { Dragger } = Upload;
 
 const EditProfile = ({ sponsor: sponsoree }) => {
@@ -61,7 +60,7 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                 name: sponsorData.name,
                 background_photo: sponsorData.background_photo,
                 is_available: sponsorData.user_sponsors?.is_available || false,
-                category_provides: sponsorData.user_sponsors?.category_provides || "",
+                category: sponsorData.user_sponsors?.category_provides.split(',') || [],
                 description: sponsorData.user_sponsors?.description || "",
                 sponsorship_photos: sponsorData.photo_sponsorship_users || [],
                 tags: sponsorData.user_sponsors?.tags_sponsors || [],
@@ -93,11 +92,6 @@ const EditProfile = ({ sponsor: sponsoree }) => {
     useEffect(() => {
         if (!fileInputRef.current) {
             console.warn("fileInputRef not ready");
-        }
-    }, []);
-    useEffect(() => {
-        if (formData.background_photo) {
-            console.log(formData)
         }
     }, []);
 
@@ -234,8 +228,8 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                 },
             });
             console.log("Profile updated:", response.data);
-            // navigate("/my-profile", { replace: true }); // ganti dengan path yang sesuai
-            // window.location.reload(); // paksa reload
+            navigate("/my-profile", { replace: true }); // ganti dengan path yang sesuai
+            window.location.reload(); // paksa reload
         } catch (error) {
             console.error("Failed to update profile:", error);
         }
@@ -255,8 +249,6 @@ const EditProfile = ({ sponsor: sponsoree }) => {
     }
 
     return (
-        <ModernLayout>
-            
         <div className="min-h-screen bg-white">
             {/* Header Section */}
             <div className="relative h-60 w-full">
@@ -265,7 +257,7 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                     alt="Banner"
                     className="h-full w-full object-cover"
                 />
-
+                {console.log(formData.category_provides)}
                 <div className="absolute bottom-2 right-2 bg-dropdown">
                     <button
                         onClick={() => setShowBgDropdown(!showBgDropdown)}
@@ -381,7 +373,6 @@ const EditProfile = ({ sponsor: sponsoree }) => {
 
                     {sponsoreeData && sponsoreeData !== null && (
                         <div className="relative w-full mb-4">
-                            {console.log(formData.category)}
                             <select
                                 name="category"
                                 value={formData.category}
@@ -420,7 +411,14 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                                             category: values,
                                         })
                                     }
-                                    options={categories}
+                                    options={[
+                                        ...categories,
+                                        ...(Array.isArray(formData.category)
+                                            ? formData.category
+                                                .filter(val => !categories.some(opt => opt.value === val))
+                                                .map(val => ({ value: val, label: val }))
+                                            : [])
+                                    ]}
                                 />
                             </div>
                         </div>
@@ -548,7 +546,6 @@ const EditProfile = ({ sponsor: sponsoree }) => {
             </div>
         </div>
     );
-        </ModernLayout>
 };
 
 export default EditProfile;
