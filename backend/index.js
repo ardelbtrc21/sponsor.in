@@ -7,12 +7,10 @@ import SequelizeStore from "connect-session-sequelize";
 import UserRoute from "./src/routes/UserRoute.js";
 import AuthRoute from "./src/routes/AuthRoute.js";
 import fileUpload from "express-fileupload";
-import ListProposalRoute from '../backend/src/routes/ListProposal.js';
-import MilestoneRoute from '../backend/src/routes/Milestone.js';
+import MilestoneRoute from './src/routes/MilestoneRoute.js';
 import SponsorRoute from './src/routes/SponsorRoute.js'
 import ReportRoute from './src/routes/ReportRoute.js';
 import ProposalRoute from './src/routes/ProposalRoute.js';
-import AdminRoute from './src/routes/AdminRoute.js';
 import TagRoute from "./src/routes/TagRoute.js";
 import TargetRoute from "./src/routes/TargetRoute.js";
 import AgreementRoutes from "./src/routes/ProposalRoute.js";
@@ -35,11 +33,6 @@ app.use(cors({
     origin: "http://localhost:3000",
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
-
-app.use("/api/proposals", ProposalRoute);
-app.use("/api", ListProposalRoute);
-app.use(MilestoneRoute);
-
 
 const sessionStore = SequelizeStore(session.Store)
 const store = new sessionStore({
@@ -70,15 +63,11 @@ app.use(express.json());
 app.use(fileUpload());
 app.use(express.static("public"));
 app.use('/backend/data/proposal', express.static(proposalFolder));
-app.use("/api/sponsors", SponsorRoute);
+app.use(SponsorRoute);
 app.use(ReportRoute);
 app.use(ProposalRoute);
-app.use("/api/proposals", ProposalRoute);
-app.use("/api/proposals", ListProposalRoute);
-app.use("/api/milestones", MilestoneRoute);
-app.use("/api/admin", AdminRoute);
-app.use("/api/agreements", AgreementRoutes);
-app.use('/backend/data/sponsorship_photo', express.static(path.join(__dirname, 'data/sponsorship_photo')));
+app.use(MilestoneRoute);
+app.use(AgreementRoutes);
 app.use(UserRoute);
 app.use(AuthRoute);
 app.use(TagRoute);

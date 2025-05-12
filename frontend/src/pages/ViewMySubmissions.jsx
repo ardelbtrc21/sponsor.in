@@ -3,22 +3,21 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import TrackStatusModal from "../components/TrackStatusModal";
-import Footer from "../components/Footer";
-import Header from "../components/Header";
 import "../Style/styles.css";
+import ModernLayout from "../components/Layout";
 
 const statuses = [
-  "SUBMITTED",
-  "UNDER REVIEW",
-  "ACCEPTED",
-  "PROCESSING AGREEMENT",
-  "COMPLETED",
-  "REJECTED",
+  { label: "SUBMITTED", value: "Submitted" },
+  { label: "UNDER REVIEW", value: "Under Review" },
+  { label: "ACCEPTED", value: "Accepted" },
+  { label: "PROCESSING AGREEMENT", value: "Processing Agreement" },
+  { label: "COMPLETED", value: "Completed" },
+  { label: "REJECTED", value: "Rejected" },
 ];
 
-const ViewProposalStatus = () => {
+const ViewMySubmissions = () => {
   const navigate = useNavigate();
-  const [selectedStatus, setSelectedStatus] = useState("SUBMITTED");
+  const [selectedStatus, setSelectedStatus] = useState("Submitted");
   const [proposals, setProposals] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStatusList, setSelectedStatusList] = useState([]);
@@ -28,18 +27,19 @@ const ViewProposalStatus = () => {
   useEffect(() => {
     const fetchProposals = async () => {
       try {
-        console.log("Sponsoree id: ", user.username);
         const response = await axios.get(
-          `http://localhost:5000/api/proposals/status/${user.username}/${selectedStatus}`
+          `/api/proposals/status/${user.username}/${selectedStatus}`
         );
         console.log("Response: ", response.data);
         setProposals(response.data);
       } catch (error) {
+        setProposals([]);
         console.error("Error fetching proposals by status:", error);
       }
     };
     fetchProposals();
   }, [selectedStatus, user.id]);
+
   const handleTrackClick = async (proposal_id) => {
     try {
       const response = await axios.get(`/api/proposals/${proposal_id}/status`);
@@ -56,26 +56,25 @@ const ViewProposalStatus = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-
-      <div className="flex-1 space-y-6">
+    <ModernLayout>
+      <div className="flex flex-col min-h-screen max-w">
+        <div className="flex-1 space-y-6">
         <h1 className="text-4xl text-primary font-bold flex justify-center tracking-wider pt-10 mb-4">
           TRACK YOUR PROPOSAL STATUS!
         </h1>
 
         <div className="custom-menu">
-          {statuses.map((status) => (
+          {statuses.map(({ label, value }) => (
             <button
-              key={status}
-              onClick={() => setSelectedStatus(status)}
+              key={value}
+              onClick={() => setSelectedStatus(value)}
               className={`custom-box p-1 rounded-lg font-medium ${
-                selectedStatus === status
+                selectedStatus === value
                   ? "btn-primary text-white"
                   : "btn-secondary-without-border hover:bg-gray-300"
               }`}
             >
-              {status}
+              {label}
             </button>
           ))}
         </div>
@@ -97,7 +96,7 @@ const ViewProposalStatus = () => {
                   d="M9 12h6m-6 4h6m2 4H7a2 2 0 01-2-2V6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v12a2 2 0 01-2 2z"
                 />
               </svg>
-              <h2 className="text-lg text-blue-800 font-bold">
+              <h2 className="text-lg text-primary font-bold">
                 You haven't received any proposals yet
               </h2>
               <h4 className="text-sm text-gray-400 mt-1">
@@ -106,27 +105,35 @@ const ViewProposalStatus = () => {
             </div>
           ) : (
             <div>
-              {proposals.map((proposal) => (
+             <div className="w-full px-4 sm:px-6 lg:px-8 max-w-screen-xl mx-auto">
+             {proposals.map((proposal) => (
                 <div
                   key={proposal.proposal_status_id}
-                  className="flex items-center p-4 rounded-xl shadow-sm bg-white"
+                  className="w-full border-b border-gray-300 px-4 md:px-8 py-4 bg-white"
                 >
-                  <div className="event-group flex-1 flex flex-row gap-1">
-                    <h2 className="event-name text-lg font-bold">
-                      {proposal.status_proposals?.event_name || "Event Name Unavailable"}
-                    </h2>
-                    <p className="event-desc text-gray-700">
-                      {proposal.status_proposals?.proposal_name || "Proposal Name Unavailable"}
-                    </p>
-                    <p className="event-date text-gray-700">
-                      {proposal.status_proposals?.event_date
-                        ? new Date(proposal.status_proposals?.event_date).toUTCString().substring(0, 16)
-                        : "Unknown Date"}
-                    </p>
-                    <div className="flex items-center gap-3">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full">
+                    
+                    <div className="flex flex-col md:flex-row md:items-center gap-2 flex-wrap">
+                      <h2 className="text-lg font-bold text-gray-900">
+                        {proposal.status_proposals?.proposal_name || "Proposal Name Unavailable"}
+                      </h2>
+                      <span className="hidden md:inline text-gray-400">|</span>
+                      <p className="text-gray-700">
+                        {proposal.status_proposals?.event_name || "Event Name Unavailable"}
+                      </p>
+                      <span className="hidden md:inline text-gray-400">|</span>
+                      <p className="text-gray-500">
+                        {proposal.status_proposals?.event_date
+                          ? new Date(proposal.status_proposals?.event_date).toUTCString().substring(0, 16)
+                          : "Unknown Date"}
+                      </p>
+                    </div>
+
+                    {/* Button Group */}
+                    <div className="flex gap-3 flex-wrap">
                       <button
                         onClick={() =>
-                          navigate(`/view-proposal-detail/${proposal.proposal_id}`)
+                          navigate(`/proposal/detail/${proposal.proposal_id}`)
                         }
                         className="btn-primary text-white px-4 py-2 rounded-md"
                       >
@@ -142,20 +149,19 @@ const ViewProposalStatus = () => {
                   </div>
                 </div>
               ))}
+              </div>
             </div>
           )}
         </div>
       </div>
-
-      <Footer />
-
       <TrackStatusModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         selectedStatusList={selectedStatusList}
       />
     </div>
+    </ModernLayout>
   );
 };
 
-export default ViewProposalStatus;
+export default ViewMySubmissions;

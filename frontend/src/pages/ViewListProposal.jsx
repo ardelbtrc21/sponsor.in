@@ -10,7 +10,7 @@ const ViewListSubmission = () => {
   useEffect(() => {
     const fetchSubmissions = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/proposals/list");
+        const response = await axios.get("/api/proposals/list");
         setSubmissions(response.data);
         console.log("response data: ", response.data);
       } catch (error) {
@@ -23,7 +23,7 @@ const ViewListSubmission = () => {
 
   const handleOpenModal = async (submission) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/milestones/status/${submission["status_proposals.proposal_status_id"]}`);
+      const response = await axios.get(`/api/milestones/status/${submission["status_proposals.proposal_status_id"]}`);
       setSelectedSubmission({ ...submission, status_id: response.data.proposal_status_id });
       setIsModalOpen(true);
     } catch (error) {
@@ -58,7 +58,7 @@ const ViewListSubmission = () => {
                   <td className="px-4 py-2">{submission.proposal_name}</td>
                   <td className="px-4 py-2">{latestStatus}</td>
                   <td className="px-4 py-2">
-                    {latestStatus === "PROCESSING AGREEMENT" && (
+                    {latestStatus === "Processing Agreement" && (
                       <button
                         onClick={() => handleOpenModal(submission)}
                         className="text-blue-500 hover:text-blue-700"

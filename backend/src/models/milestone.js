@@ -1,6 +1,7 @@
 import { Sequelize } from "sequelize";
 import db from "../../config/Database.js";
 import { v4 as uuidv4 } from 'uuid';
+import MilestoneStatus from "./milestone_status.js";
 
 const Milestone = db.define("milestone", {
     milestone_id: {
@@ -43,5 +44,17 @@ const Milestone = db.define("milestone", {
         type: Sequelize.DATE
       },
 }, {});
+
+Milestone.hasMany(MilestoneStatus, {
+  foreignKey: "milestone_id",
+  as: "status_milestones",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE"
+});
+
+MilestoneStatus.belongsTo(Milestone, {
+  foreignKey: "milestone_id",
+  as: "status_milestones"
+});
 
 export default Milestone;

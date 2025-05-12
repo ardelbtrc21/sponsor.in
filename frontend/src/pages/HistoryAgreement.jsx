@@ -5,19 +5,22 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { Spin } from "antd";
 
-const HistoryAgreement = () => {
+const HistoryAgreement = ({ username, role }) => {
   const { user } = useSelector((state) => state.auth);
   const [agreements, setAgreements] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const viewingUsername = username || user?.username;
+  const viewingRole = role || user?.role;
+
   useEffect(() => {
     const fetchAgreements = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/agreements/history", {
+        const response = await axios.get("/api/agreements/history", {
           params: {
-            username: user?.username,
-            role: user?.role
-          }
+            username: viewingUsername,
+            role: viewingRole,
+          },
         });
         setAgreements(response.data);
       } catch (error) {
@@ -27,20 +30,20 @@ const HistoryAgreement = () => {
       }
     };
 
-    if (user?.username && user?.role) {
+    if (viewingUsername && viewingRole) {
       fetchAgreements();
     } else {
       setLoading(false);
     }
-  }, [user]);
+  }, [viewingUsername, viewingRole]);
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
 
-      <main className="flex-1 px-4 py-8">
+      <main className="flex-1 w-full max-w-screen-xl mx-auto px-4 py-8">
         <h1 className="text-4xl text-primary font-bold flex justify-center tracking-wider mb-6">
-          MY HISTORY SPONSORSHIP
+          {username ? `AGREEMENT HISTORY` : `MY HISTORY SPONSORSHIP`}
         </h1>
 
         {loading ? (
@@ -52,24 +55,26 @@ const HistoryAgreement = () => {
             <p className="text-lg">No completed agreements found.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex flex-col w-full">
             {agreements.map((agreement, index) => (
               <div
                 key={index}
-                className="bg-white p-6 rounded-lg shadow-md border border-gray-100 hover:shadow-lg transition-shadow duration-300"
+                className="w-full flex flex-col md:flex-row justify-between items-start md:items-center px-4 py-4 border-b border-gray-300"
               >
-                <h2 className="text-lg font-semibold text-gray-800">
-                  {agreement.event_name}
-                </h2>
-                <p className="text-sm text-gray-600">
-                  Date: {new Date(agreement.event_date).toLocaleDateString()}
-                </p>
-                <p className="text-sm text-gray-600">
-                  Sponsor: {agreement.sponsor_username}
-                </p>
-                <p className="text-sm text-gray-600">
-                  Sponsoree: {agreement.sponsoree_username}
-                </p>
+                <div className="flex-1 space-y-1">
+                  <h2 className="text-lg font-bold text-gray-800">
+                    {agreement.event_name}
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    Date: {new Date(agreement.event_date).toLocaleDateString()}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Sponsor: {agreement.sponsor_username}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Sponsoree: {agreement.sponsoree_username}
+                  </p>
+                </div>
               </div>
             ))}
           </div>

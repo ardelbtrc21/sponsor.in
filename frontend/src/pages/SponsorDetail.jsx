@@ -50,7 +50,7 @@ const SponsorDetail = () => {
           alt="banner"
         />
         <span className="absolute top-4 right-4 bg-green-500 text-white text-sm px-3 py-1 rounded-full shadow-md">
-          {sponsor.is_available? "Available": "Unavailable"}
+          {sponsor.is_available ? "Available" : "Unavailable"}
         </span>
 
         {/* Foto Profil */}

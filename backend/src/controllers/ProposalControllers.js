@@ -18,27 +18,26 @@ const __dirname = path.dirname(__filename);
 
 export const doApprovalProposal = async (req, res) => {
   const { status_id } = req.params;
-  console.log("Incoming status_id:", status_id);
   try {
     let errors = {};
     const currentStatus = await Status.findOne({
       where: {
         status_id: status_id,
-        status_name: "SUBMITTED",
+        status_name: "Submitted",
       }
     });
 
     if (!currentStatus) {
-      return res.status(404).json({ message: "No 'submitted' status found." });
+      return res.status(404).json({ message: "No 'Submitted' status found." });
     }
 
     const newStatus = await Status.create({
       submission_id: currentStatus.submission_id,
-      status_name: "UNDER REVIEW",
+      status_name: "Under Review",
     });
 
     return res.status(201).json({
-      message: "New status 'UNDER REVIEW' added.",
+      message: "New status 'Under Review' added.",
       data: newStatus,
     });
   } catch (err) {
@@ -50,12 +49,37 @@ export const doApprovalProposal = async (req, res) => {
   }
 }
 
+export const getAllProposals = async (req, res) => {
+  try {
+    const proposals = await Proposal.findAll({
+      include: {
+        model: ProposalStatus,
+        as: 'status_proposals'
+      },
+      order: [["createdAt", "ASC"]], 
+      raw: true
+    });
+
+    res.json(proposals);
+  } catch (error) {
+    console.error("Error fetching proposals:", error.message);
+    res.status(500).json({
+      message: "Failed to fetch proposals",
+      error: error.message,
+    });
+  }
+};
+
+
 export const getProposalByStatus = async (req, res) => {
   const { username, status_name } = req.params;
 
   try {
     const proposals = await ProposalStatus.findAll({
-      where: { status_name },
+      where: {
+        status_name,
+        '$status_proposals.sponsoree_proposals.username$': username
+      },
       include: [
         {
           model: Proposal,
@@ -67,8 +91,8 @@ export const getProposalByStatus = async (req, res) => {
               where: { username },
               attributes: []
             }
-          ],
-        },
+          ]
+        }
       ],
       order: [['createdAt', 'DESC']]
     });
@@ -86,7 +110,6 @@ export const getProposalByStatus = async (req, res) => {
 
 export const getProposalStatusByProposalId = async (req, res) => {
   const { proposal_id } = req.params;
-  console.log("Received proposal_id:", proposal_id);
   try {
     const statuses = await ProposalStatus.findAll({
       where: {
@@ -95,7 +118,6 @@ export const getProposalStatusByProposalId = async (req, res) => {
       order: [["createdAt", "ASC"]],
       raw: true
     });
-    console.log("response body: ", statuses);
     return res.status(200).json(statuses);
   } catch (error) {
     return res.status(500).json({
@@ -408,7 +430,7 @@ export const getCompletedAgreements = async (req, res) => {
         include: [
           {
             model: User,
-            as: "user_sponsoree",
+            as: "user_sponsorees",
             where: { username },
             attributes: ["username"]
           }
@@ -417,11 +439,11 @@ export const getCompletedAgreements = async (req, res) => {
 
       baseIncludes.push({
         model: Sponsor,
-        as: "sponsor",
+        as: "sponsor_proposals",
         include: [
           {
             model: User,
-            as: "user_sponsor",
+            as: "user_sponsors",
             attributes: ["username"]
           }
         ]
@@ -438,14 +460,34 @@ export const getCompletedAgreements = async (req, res) => {
     const formatted = proposals.map((proposal) => ({
       event_name: proposal.event_name,
       event_date: proposal.event_date,
-      sponsor_username: proposal.sponsor?.user_sponsor?.username || null,
-      sponsoree_username: proposal.sponsoree?.user_sponsoree?.username || null
+      sponsor_username: proposal.sponsor_proposals?.user_sponsors?.username || null,
+      sponsoree_username: proposal.sponsoree_proposals?.user_sponsorees?.username || null
     }));
 
     res.status(200).json(formatted);
   } catch (err) {
     console.error("Error fetching completed agreements:", err);
     res.status(500).json({ message: "Error retrieving completed agreements." });
+  }
+};
+
+export const getUserByUsername = async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    const user = await User.findOne({
+      where: { username },
+      attributes: ["username", "role"]
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
