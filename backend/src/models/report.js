@@ -38,6 +38,11 @@ const Report = db.define("report", {
     allowNull: false,
     defaultValue: Sequelize.literal("NOW()"),
   },
+  updatedAt: {
+    type: Sequelize.DATE,
+    allowNull: false,
+    defaultValue: Sequelize.literal("NOW()"),
+  },
 }, {
   tableName: "reports",
   timestamps: false,

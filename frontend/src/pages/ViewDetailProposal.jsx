@@ -24,8 +24,20 @@ const ViewDetailProposal = () => {
   const getDetailProposal = async () => {
     try {
       const response = await axios.get(`/api/proposal/${id}`);
-      setProposals(response.data);
+      setProposals(response.data)
       getLatestStatus(id);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const changeToUnderReview = async () => {
+    try {
+      await axios.patch("/api/proposal/change-status", {
+        proposal_id: id,
+        status: "Under Review"
+      });
+     
     } catch (error) {
       console.log(error);
     }
@@ -43,6 +55,7 @@ const ViewDetailProposal = () => {
 
   useEffect(() => {
     getDetailProposal();
+    changeToUnderReview()
   }, [id]);
 
   const handleApproveProposal = async () => {

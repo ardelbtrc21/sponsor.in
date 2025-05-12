@@ -2,11 +2,18 @@
 import Sponsor from "../models/sponsor.js";
 import Sponsoree from "../models/sponsoree.js";
 import User from "../models/user.js";
+import Report from "../models/report.js";
 import bcrypt from "bcryptjs";
-import sequelize, { Op } from "sequelize";
+import sequelize, { Op, where } from "sequelize";
 import path from "path";
 import { unlink } from 'node:fs';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
+import SponsorshipPhotos from "../models/sponsorship_photos.js";
+import Tag from "../models/tag.js";
+import TargetParticipant from "../models/target_participant.js";
+import SponsorTag from "../models/sponsor_tag.js";
+import SponsorTargetParticipant from "../models/sponsor_target_participant.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -283,7 +290,7 @@ export const getUserById = async (req, res) => {
     try {
         console.log("req sini: " + req.params.username)
         const username = req.params.username.toLowerCase();
-        const user = await User.findOne({
+        let user = await User.findOne({
             where: {
                 username: username
             }, include: [
@@ -291,17 +298,38 @@ export const getUserById = async (req, res) => {
                     model: Sponsor,
                     as: "user_sponsors",
                     required: false,
-                    attributes: ["username", "nib", "document", "sponsor_id"],
-                    duplicating: false
+                    duplicating: false,
+                    include: [
+                        {
+                            model: Tag,
+                            as: "tags_sponsors",
+                            required: false,
+                            attributes: ["tag_name"],
+                            duplicating: false
+                        },
+                        {
+                            model: TargetParticipant,
+                            as: "target_sponsors",
+                            required: false,
+                            attributes: ["target_participant_category"],
+                            duplicating: false
+                        },
+                    ]
                 },
                 {
                     model: Sponsoree,
                     as: "user_sponsorees",
                     required: false,
-                    attributes: ["username", "category", "sponsoree_id"],
+                    duplicating: false
+                },
+                {
+                    model: SponsorshipPhotos,
+                    as: "photo_sponsorship_users",
+                    required: false,
                     duplicating: false
                 }
-            ]
+            ],
+            attributes: { exclude: ['password'] }
         });
         if (!user) {
             return res.status(400).json({ msg: "User not found !" });
@@ -390,6 +418,206 @@ export const updateUserAccount = async (req, res) => {
     }
 };
 
+export const editProfile = async (req, res) => {
+    try {
+        const { username } = req.body;
+        const {
+            is_available,
+            category_provides,
+            description,
+            tags,
+            targets,
+            name,
+            category
+        } = req.body;
+        console.log("disini", category)
+
+        const removedPhotos = JSON.parse(req.body.removed_photos || '[]');
+        console.log(req.body)
+        removedPhotos.forEach(async (item) => {
+            await SponsorshipPhotos.destroy({
+                where: { photo: item }
+            });
+            fs.unlinkSync(path.join(__dirname, "..", "..", "data", "sponsorship_photo", item));
+        });
+
+        const backgroundPhoto = req.files?.background_photo || null;
+        const sponsorshipPhotos = req.files?.sponsorship_photos || null;
+        const user = await User.findOne({ where: { username } });
+
+        if (user.role === "Sponsor") {
+            const sponsor = await Sponsor.findOne({ where: { username } });
+
+            if (!sponsor || !user) {
+                return res.status(404).json({ msg: "Sponsor not found!" });
+            }
+
+            // Update sponsor fields
+            if (is_available !== undefined) sponsor.is_available = is_available;
+            if (category_provides !== undefined) sponsor.category_provides = category_provides;
+            if (description !== undefined) sponsor.description = description;
+
+            // Update background photo
+            if (backgroundPhoto) {
+                const ext = path.extname(backgroundPhoto.name).toLowerCase();
+                const allowedExt = [".jpg", ".jpeg", ".png"];
+                if (!allowedExt.includes(ext)) {
+                    return res.status(400).json({ background_photo: "Invalid file extension." });
+                }
+                if (backgroundPhoto.data.length > 5 * 1024 * 1024) {
+                    return res.status(400).json({ background_photo: "Max size 5MB." });
+                }
+
+                const filename = `${username}_background${ext}`;
+                const filepath = path.join(__dirname, "..", "..", "data", "background_photo", filename);
+
+                backgroundPhoto.mv(filepath, async (err) => {
+                    if (err) return res.status(500).json({ msg: "Background upload failed", error: err });
+                });
+
+                user.background_photo = filename;
+            }
+
+            // Update tags
+            if (tags) {
+                await SponsorTag.destroy({ where: { sponsor_id: sponsor.sponsor_id } });
+                const parsedTags = Array.isArray(tags) ? tags : JSON.parse(tags);
+                for (const tag of parsedTags) {
+                    const response = await Tag.findOne({
+                        where: {
+                            tag_name: tag.tag_name,
+                        },
+                        attributes: ["tag_id"]
+                    })
+                    await SponsorTag.create({
+                        sponsor_id: sponsor.sponsor_id,
+                        tag_id: response.dataValues.tag_id
+                    });
+                }
+            }
+
+            // Update target participants
+            if (targets) {
+                await SponsorTargetParticipant.destroy({ where: { sponsor_id: sponsor.sponsor_id } });
+                const parsedTargets = Array.isArray(targets) ? targets : JSON.parse(targets);
+                for (const target of parsedTargets) {
+                    console.log(target)
+                    const response = await TargetParticipant.findOne({
+                        where: {
+                            target_participant_category: target.target_participant_category,
+                        },
+                        attributes: ["target_participant_id"]
+                    })
+                    await SponsorTargetParticipant.create({
+                        sponsor_id: sponsor.sponsor_id,
+                        target_participant_id: response.dataValues.target_participant_id
+                    });
+                }
+            }
+
+            // Upload multiple sponsorship photos
+            if (sponsorshipPhotos) {
+                const files = Array.isArray(sponsorshipPhotos) ? sponsorshipPhotos : [sponsorshipPhotos];
+
+                for (const file of files) {
+                    const ext = path.extname(file.name).toLowerCase();
+                    const allowedExt = [".jpg", ".jpeg", ".png"];
+                    if (!allowedExt.includes(ext)) {
+                        return res.status(400).json({ sponsorship_photos: "Invalid photo extension" });
+                    }
+                    if (file.data.length > 5 * 1024 * 1024) {
+                        return res.status(400).json({ sponsorship_photos: "Each photo max 5MB" });
+                    }
+
+                    const photoName = `${username}_${Date.now()}${ext}`;
+                    const photoPath = path.join(__dirname, "..", "..", "data", "sponsorship_photo", photoName);
+                    file.mv(photoPath, async (err) => {
+                        if (err) {
+                            return res.status(500).json({ msg: "Photo upload failed", error: err });
+                        }
+                    });
+
+                    await SponsorshipPhotos.create({
+                        username,
+                        photo: photoName
+                    });
+                }
+            }
+            if (name !== undefined) user.name = name;
+
+            await user.save();
+            await sponsor.save();
+
+            return res.status(200).json({ msg: "Sponsor profile updated successfully." });
+        } else if (user.role === "Sponsoree") {
+            const sponsoree = await Sponsoree.findOne({ where: { username } });
+
+            if (!sponsoree || !user) {
+                return res.status(404).json({ msg: "Sponsoree not found!" });
+            }
+            sponsoree.category = category
+            // Update background photo
+            if (backgroundPhoto) {
+                const ext = path.extname(backgroundPhoto.name).toLowerCase();
+                const allowedExt = [".jpg", ".jpeg", ".png"];
+                if (!allowedExt.includes(ext)) {
+                    return res.status(400).json({ background_photo: "Invalid file extension." });
+                }
+                if (backgroundPhoto.data.length > 5 * 1024 * 1024) {
+                    return res.status(400).json({ background_photo: "Max size 5MB." });
+                }
+
+                const filename = `${username}_background${ext}`;
+                const filepath = path.join(__dirname, "..", "..", "data", "background_photo", filename);
+
+                backgroundPhoto.mv(filepath, async (err) => {
+                    if (err) return res.status(500).json({ msg: "Background upload failed", error: err });
+                });
+
+                user.background_photo = filename;
+            }
+
+            // Upload multiple sponsorship photos
+            if (sponsorshipPhotos) {
+                const files = Array.isArray(sponsorshipPhotos) ? sponsorshipPhotos : [sponsorshipPhotos];
+
+                for (const file of files) {
+                    const ext = path.extname(file.name).toLowerCase();
+                    const allowedExt = [".jpg", ".jpeg", ".png"];
+                    if (!allowedExt.includes(ext)) {
+                        return res.status(400).json({ sponsorship_photos: "Invalid photo extension" });
+                    }
+                    if (file.data.length > 5 * 1024 * 1024) {
+                        return res.status(400).json({ sponsorship_photos: "Each photo max 5MB" });
+                    }
+
+                    const photoName = `${username}_${Date.now()}${ext}`;
+                    const photoPath = path.join(__dirname, "..", "..", "data", "sponsorship_photo", photoName);
+                    file.mv(photoPath, async (err) => {
+                        if (err) {
+                            return res.status(500).json({ msg: "Photo upload failed", error: err });
+                        }
+                    });
+
+                    await SponsorshipPhotos.create({
+                        username,
+                        photo: photoName
+                    });
+                }
+            }
+            if (name !== undefined) user.name = name;
+
+            await user.save();
+            await sponsoree.save();
+
+            return res.status(200).json({ msg: "Sponsoree profile updated successfully." });
+        }
+
+    } catch (error) {
+        return res.status(500).json({ msg: error.message });
+    }
+}
+
 export const changePassword = async (req, res) => {
     const { currentPassword, newPassword, } = req.body;
     if (!currentPassword) return res.status(404).json({ msg: "Current Password must be filled in !" });
@@ -445,13 +673,21 @@ export const deleteUser = async (req, res) => {
 export const banAccount = async (req, res) => {
     try {
         const username = req.body.username;
+        const report_id = req.body.report_id;
         const user = await User.findOne({
             where: {
                 username: username
             }
         });
         if (!user) return res.status(404).json({ msg: "User Not Found" });
-        if(user){
+        if (user) {
+            await Report.update({
+                status: "approved"
+            }, {
+                where: {
+                    report_id: report_id
+                }
+            })
             await User.update({
                 is_banned: true
             }, {

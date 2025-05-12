@@ -24,7 +24,9 @@ import HistoryAgreement from "./pages/HistoryAgreement";
 import Home from "./pages/Home";
 import AccountSetting from "./pages/AccountSettingForm";
 import ListReportedAccount from "./pages/ListReportedAccounts";
-import MilestoneListPage from "./components/ListMilestone";
+import MyProfile from "./pages/MyProfile";
+import EditProfile from "./pages/EditProfile";
+import MilestoneListPage from "./pages/ViewListMilestone";
 import MilestoneDetailPage from "./pages/MilestoneDetail";
 import HistoryAgreementWrapper from "./components/HistoryAgreementWrapper";
 
@@ -109,6 +111,8 @@ function App() {
           <Route path="/proposal/detail/:id" element={user ? <ViewDetailProposal /> : <Navigate to="/" />} />
           <Route path="/list-approval-proposal/" element={user ? <ListApprovalProposal /> : <Navigate to="/" />} />
           <Route path="/list-reported-account/" element={user ? <ListReportedAccount /> : <Navigate to="/" />} />
+          <Route path="/my-profile/" element={user ? <MyProfile /> : <Navigate to="/" />} />
+          <Route path="/edit-profile/" element={user ? <EditProfile /> : <Navigate to="/" />} />
           <Route path="/pending-sponsors" element={user ? <AdminPendingSponsorsPage /> : <Navigate to="/" />} />
           {/* <Route path="/milestones" element={user ? <MilestoneListPage /> : <Navigate to="/" />} /> */}
           <Route path="/milestones/:milestone_id" element={<MilestoneDetailPage />} />
