@@ -10,7 +10,7 @@ import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import Swal from "sweetalert2";
 const { Dragger } = Upload;
 
-const EditProfile = ({ sponsor }) => {
+const EditProfile = ({ sponsor: sponsoree }) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const location = useLocation();
@@ -23,12 +23,13 @@ const EditProfile = ({ sponsor }) => {
     const [targets, setTargets] = useState([]);
     const filteredTargets = targetsDB.filter(o => !targets.includes(o));
     const passedSponsor = location.state?.sponsor;
+    const passedSponsoree = location.state?.sponsoree;
     const user = useSelector((state) => state.auth.user);
     const username = user.username;
     const [removedPhotos, setRemovedPhotos] = useState([]);
     const [sponsorData, setSponsorData] = useState(passedSponsor || null);
+    const [sponsoreeData, setSponsoree] = useState(passedSponsoree || null);
     const [showBgDropdown, setShowBgDropdown] = useState(false);
-
     const [formData, setFormData] = useState({
         name: "",
         background_photo: null,
@@ -38,6 +39,7 @@ const EditProfile = ({ sponsor }) => {
         sponsorship_photos: [],
         tags: [],
         targets: [],
+        category: ""
     });
 
     useEffect(() => {
@@ -76,6 +78,12 @@ const EditProfile = ({ sponsor }) => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    useEffect(() => {
+        if (!fileInputRef.current) {
+            console.warn("fileInputRef not ready");
+        }
+    }, []);
+
     const handleBackgroundPhotoUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -87,10 +95,13 @@ const EditProfile = ({ sponsor }) => {
     };
 
     const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
+        const { name, value, type, checked, files } = e.target;
         if (type === "checkbox") {
             setFormData({ ...formData, [name]: checked });
-        } else {
+        } else if (type === "file") {
+            setFormData({ ...formData, [name]: files[0] });
+        }
+        else {
             setFormData({ ...formData, [name]: value });
         }
     };
@@ -170,6 +181,7 @@ const EditProfile = ({ sponsor }) => {
         data.append("is_available", formData.is_available);
         data.append("category_provides", formData.category_provides);
         data.append("description", formData.description);
+        data.append("category", formData.category);
         data.append("removed_photos", JSON.stringify(removedPhotos))
 
         if (formData.background_photo instanceof File) {
@@ -206,10 +218,17 @@ const EditProfile = ({ sponsor }) => {
     };
 
 
-    const profilePhoto = sponsorData?.profile_photo ? sponsorData.profile_photo : defaultProfile;
-    const bannerPhoto = formData.background_photo
-        ? URL.createObjectURL(formData.background_photo)
-        : (sponsorData?.background_photo || defaultProfile);
+    const profilePhoto = user?.profile_photo
+        ? `/profile_photo/${user.profile_photo}`
+        : defaultProfile;
+    let bannerPhoto;
+    if (!formData.background_photo && !user.background_photo) {
+        bannerPhoto = defaultProfile
+    } else if (formData.background_photo) {
+        bannerPhoto = `/api/background_photo/preview/${formData.background_photo}`;
+    } else if (user.background_photo) {
+        bannerPhoto = `/api/background_photo/preview/${user.background_photo}`;
+    }
 
     return (
         <div className="min-h-screen bg-white">
@@ -221,7 +240,7 @@ const EditProfile = ({ sponsor }) => {
                     className="h-full w-full object-cover"
                 />
 
-                <div className="absolute bottom-2 right-2">
+                <div className="absolute bottom-2 right-2 bg-dropdown">
                     <button
                         onClick={() => setShowBgDropdown(!showBgDropdown)}
                         className="bg-white text-black p-1 rounded-full hover:bg-gray-200"
@@ -236,9 +255,12 @@ const EditProfile = ({ sponsor }) => {
                         <div className="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg z-50 py-1 text-sm">
                             <button
                                 onClick={() => {
-                                    if (sponsorData?.background_photo || formData.background_photo) {
+                                    if ((user?.background_photo || formData.background_photo) && sponsorData) {
                                         setFormData({ ...formData, background_photo: null });
                                         setSponsorData({ ...sponsorData, background_photo: null });
+                                    } else {
+                                        setFormData({ ...formData, background_photo: null });
+                                        setSponsoree({ ...sponsoreeData, background_photo: null });
                                     }
                                     setShowBgDropdown(false);
                                 }}
@@ -248,20 +270,13 @@ const EditProfile = ({ sponsor }) => {
                             </button>
                             <button
                                 onClick={() => {
-                                    fileInputRef.current?.click();
+                                    document.getElementById('uploadBackgroundInput').click();
                                     setShowBgDropdown(false);
                                 }}
                                 className="w-full text-left px-4 py-2 hover:bg-gray-100"
                             >
                                 Upload
                             </button>
-                            <input
-                                type="file"
-                                ref={fileInputRef}
-                                accept="image/*"
-                                style={{ display: 'none' }}
-                                onChange={handleBackgroundPhotoUpload}
-                            />
                         </div>
                     )}
                 </div>
@@ -275,14 +290,14 @@ const EditProfile = ({ sponsor }) => {
                         <span className="text-sm">Back</span>
                     </button>
                 </div>
-                <div className="absolute top-4 right-4">
+                {/* <div className="absolute top-4 right-4">
                     <button
                         onClick={handleSave}
                         className="bg-primary hover:opacity-90 text-white px-6 py-2 rounded-xl text-sm font-semibold shadow"
                     >
                         Save Changes
                     </button>
-                </div>
+                </div> */}
                 <div className="absolute -bottom-12 left-6 flex items-center gap-4">
                     <img
                         src={profilePhoto}
@@ -303,17 +318,18 @@ const EditProfile = ({ sponsor }) => {
                         onChange={handleChange}
                         className="hidden"
                     />
-
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            name="is_available"
-                            checked={formData.is_available}
-                            onChange={handleChange}
-                            className="h-4 w-4 text-green-600 border-gray-300 rounded"
-                        />
-                        <label className="text-sm">Available for Sponsorship</label>
-                    </div>
+                    {sponsorData && sponsorData.length > 0 && (
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                name="is_available"
+                                checked={formData.is_available}
+                                onChange={handleChange}
+                                className="h-4 w-4 text-green-600 border-gray-300 rounded"
+                            />
+                            <label className="text-sm">Available for Sponsorship</label>
+                        </div>
+                    )}
 
                     <div>
                         <label className="block text-sm font-medium mb-1">Name</label>
@@ -331,30 +347,59 @@ const EditProfile = ({ sponsor }) => {
                         <input
                             type="text"
                             name="username"
-                            value={sponsorData.username}
+                            value={sponsorData ? sponsorData.username : sponsoreeData.username}
                             disabled
                             className="w-full p-3 border rounded-xl bg-gray-100 cursor-not-allowed"
                         />
+                        {console.log(sponsoreeData)}
                     </div>
-                    <div className="relative">
-                        <label className="block text-sm font-medium mb-1">Category Provides</label>
-                        <div className="relative">
+
+                    {sponsoreeData && sponsoreeData !== null && (
+                        <div className="relative w-full mb-4">
                             <select
-                                name="category_provides"
-                                value={formData.category_provides}
+                                name="category"
+                                value={formData.category ? formData.category : sponsoreeData.user_sponsorees.category}
                                 onChange={handleChange}
-                                className="w-full pl-4 pr-10 py-3 border rounded-xl bg-white text-base focus:outline-none appearance-none"
+                                className="w-full appearance-none p-3 pr-10 border rounded-xl bg-white"
                             >
                                 <option value="">Select Category</option>
-                                <option value="Fund">Fund</option>
-                                <option value="Product">Product</option>
-                                <option value="Services">Services</option>
+                                <option value="school">School</option>
+                                <option value="university">University</option>
+                                <option value="social organization">Social Organization</option>
+                                <option value="religious organization">Religious Organization</option>
+                                <option value="art organization">Art Organization</option>
+                                <option value="environmental organization">Environmental Organization</option>
+                                <option value="personal">Personal</option>
+                                <option value="others">Others</option>
                             </select>
-                            <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
+
+                            <div className="pointer-events-none absolute right-4 inset-y-0 flex items-center">
                                 <ChevronDownIcon className="w-5 h-5 text-gray-600" />
                             </div>
                         </div>
-                    </div>
+                    )}
+
+                    {sponsorData && sponsorData.length > 0 && (
+                        <div className="relative">
+                            <label className="block text-sm font-medium mb-1">Category Provides</label>
+                            <div className="relative">
+                                <select
+                                    name="category_provides"
+                                    value={formData.category_provides}
+                                    onChange={handleChange}
+                                    className="w-full pl-4 pr-10 py-3 border rounded-xl bg-white text-base focus:outline-none appearance-none"
+                                >
+                                    <option value="">Select Category</option>
+                                    <option value="Fund">Fund</option>
+                                    <option value="Product">Product</option>
+                                    <option value="Services">Services</option>
+                                </select>
+                                <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
+                                    <ChevronDownIcon className="w-5 h-5 text-gray-600" />
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* <div>
                         <label className="block text-sm font-medium mb-1">Category Provides</label>
@@ -367,15 +412,17 @@ const EditProfile = ({ sponsor }) => {
                         />
                     </div>
                     {console.log(formData.sponsorship_photos.length)} */}
-                    <div>
-                        <label className="block text-sm font-medium mb-1">About Us (Description)</label>
-                        <textarea
-                            name="description"
-                            value={formData.description}
-                            onChange={handleChange}
-                            className="w-full p-3 border rounded-xl min-h-[100px]"
-                        />
-                    </div>
+                    {sponsorData && sponsorData.length > 0 && (
+                        <div>
+                            <label className="block text-sm font-medium mb-1">About Us (Description)</label>
+                            <textarea
+                                name="description"
+                                value={formData.description}
+                                onChange={handleChange}
+                                className="w-full p-3 border rounded-xl min-h-[100px]"
+                            />
+                        </div>
+                    )}
 
                     <div>
                         <label className="block text-sm font-medium mb-2">Sponsorship Photos</label>
@@ -395,7 +442,7 @@ const EditProfile = ({ sponsor }) => {
                                 <InboxOutlined style={{ color: "#888" }} />
                             </p>
                             <p className="text-base font-semibold text-gray-700">Drop images here</p>
-                            <p className="text-sm text-gray-500">Drag or click to upload multiple sponsorship images</p>
+                            <p className="text-sm text-gray-500">Drag or click to upload multiple sponsorship images, max 3 photos</p>
                         </Dragger>
 
                         <div className="flex flex-row flex-wrap gap-4 mt-4">
@@ -425,41 +472,45 @@ const EditProfile = ({ sponsor }) => {
                         </div>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Tags</label>
-                        <Select
-                            mode="tags"
-                            style={{ width: '100%' }}
-                            placeholder="Add tags"
-                            value={formData.tags.map((tag) => tag.tag_name)}
-                            onChange={(values) =>
-                                setFormData({
-                                    ...formData,
-                                    tags: values.map((val) => ({ tag_name: val })),
-                                })
-                            }
-                            options={filteredTags.map(item => ({ value: item, label: item }))}
-                        />
-                    </div>
+                    {sponsorData && sponsorData.length > 0 && (
+                        <div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Tags</label>
+                                <Select
+                                    mode="tags"
+                                    style={{ width: '100%' }}
+                                    placeholder="Add tags"
+                                    value={formData.tags.map((tag) => tag.tag_name)}
+                                    onChange={(values) =>
+                                        setFormData({
+                                            ...formData,
+                                            tags: values.map((val) => ({ tag_name: val })),
+                                        })
+                                    }
+                                    options={filteredTags.map(item => ({ value: item, label: item }))}
+                                />
+                            </div>
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Target Market</label>
-                        <Select
-                            mode="tags"
-                            style={{ width: '100%' }}
-                            placeholder="Add target markets"
-                            value={formData.targets.map((t) => t.target_participant_category)}
-                            onChange={(values) =>
-                                setFormData({
-                                    ...formData,
-                                    targets: values.map((val) => ({
-                                        target_participant_category: val,
-                                    })),
-                                })
-                            }
-                            options={filteredTargets.map(item => ({ value: item, label: item }))}
-                        />
-                    </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Target Market</label>
+                                <Select
+                                    mode="tags"
+                                    style={{ width: '100%' }}
+                                    placeholder="Add target markets"
+                                    value={formData.targets.map((t) => t.target_participant_category)}
+                                    onChange={(values) =>
+                                        setFormData({
+                                            ...formData,
+                                            targets: values.map((val) => ({
+                                                target_participant_category: val,
+                                            })),
+                                        })
+                                    }
+                                    options={filteredTargets.map(item => ({ value: item, label: item }))}
+                                />
+                            </div>
+                        </div>
+                    )}
                     <div className="flex justify-center pt-8">
                         <button
                             onClick={handleSubmit}

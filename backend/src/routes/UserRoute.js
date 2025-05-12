@@ -10,6 +10,7 @@ const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const sponsorshipFolder = path.join(__dirname, "../../data/sponsorship_photo");
+const backgroundFolder = path.join(__dirname, "../../data/background_photo");
 router.post("/api/user", createUser);
 router.get("/api/users", verifyUser, checkUserRole(["Admin", "Sponsor", "Sponsoree"]), getUsers);
 router.get("/api/user/:username", verifyUser, getUserById);
@@ -21,6 +22,17 @@ router.patch("/api/editProfile", verifyUser, editProfile);
 router.get("/api/sponsorship_photos/preview/:filename", (req, res) => {
     const { filename } = req.params;
     const filePath = path.join(sponsorshipFolder, filename);
+
+    if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ message: "File not found" });
+    }
+
+    res.setHeader("Content-Type", "image/jpeg"); // atau sesuaikan berdasarkan ekstensi file
+    res.sendFile(filePath);
+});
+router.get("/api/background_photo/preview/:filename", (req, res) => {
+    const { filename } = req.params;
+    const filePath = path.join(backgroundFolder, filename);
 
     if (!fs.existsSync(filePath)) {
         return res.status(404).json({ message: "File not found" });
