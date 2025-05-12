@@ -17,21 +17,29 @@ const CreateProposalForm = () => {
   const [proposalName, setProposalName] = useState("");
   const [file_proposal, setFileProposal] = useState(null);
   const [eventName, setEventName] = useState("");
+  const [sponsor, setSponsor] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [eventLocation, setEventLocation] = useState("");
   const [targetAgeMin, setTargetAgeMin] = useState("");
   const [targetAgeMax, setTargetAgeMax] = useState("");
   const [targetGender, setTargetGender] = useState("");
+  const [supportNeeded, setSupportNeeded] = useState("");
   const [message, setMessage] = useState("");
   const [sponsoree_id, setSponsoreeId] = useState("");
   const [formErrors, setFormErrors] = useState({});
   const [tagsDB, SetTagsDB] = useState([]);
   const [tags, setTags] = useState([]);
+  const [tagSponsor, setTagSponsor] = useState([]);
   const filteredTags = tagsDB.filter(o => !tags.includes(o));
   const [targetsDB, SetTargetsDB] = useState([]);
   const [targets, setTargets] = useState([]);
+  const [targetSponsor, setTargetsSponsor] = useState([]);
   const filteredTargets = targetsDB.filter(o => !targets.includes(o));
   const [fileList, setFileList] = useState([]);
+  const [targetMismatchWarningTarget, setTargetMismatchWarningTarget] = useState(false);
+  const [targetMismatchWarningTag, setTargetMismatchWarningTag] = useState(false);
+  const [mismatchedTargets, setMismatchedTargets] = useState([]);
+  const [mismatchedTag, setMismatchedTag] = useState([]);
 
   const { user } = useSelector((state) => state.auth);
   let username;
@@ -52,6 +60,35 @@ const CreateProposalForm = () => {
       console.log(error);
     }
   };
+
+  const getSponsor = async () => {
+    try {
+      console.log(sponsorId);
+      const response = await axios.get(`/api/sponsors/${sponsorId}`);
+      setSponsor(response);
+      console.log(response.data)
+      if (response.data.target_sponsors) {
+        setTargetsSponsor(response.data.target_sponsors.map(item => item.target_participant_category));
+      }
+      if (response.data.tags_sponsors) {
+        setTagSponsor(response.data.tags_sponsors.map(item => item.tag_name));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    const mismatches = targets.filter(target => !targetSponsor.includes(target));
+    setTargetMismatchWarningTarget(mismatches.length > 0);
+    setMismatchedTargets(mismatches);
+  }, [targets, targetSponsor]);
+
+  useEffect(() => {
+    const mismatches = tags.filter(tag => !tagSponsor.includes(tag));
+    setTargetMismatchWarningTag(mismatches.length > 0);
+    setMismatchedTag(mismatches);
+  }, [tags, tagSponsor]);
 
   const getTags = async () => {
     try {
@@ -122,6 +159,7 @@ const CreateProposalForm = () => {
     getUser()
     getTags()
     getTargets()
+    getSponsor()
   }, []);
 
   const handleSubmit = async (e) => {
@@ -140,6 +178,7 @@ const CreateProposalForm = () => {
       formData.append("target_participants", JSON.stringify(targets));
       formData.append("sponsor_id", sponsorId);
       formData.append("sponsoree_id", sponsoree_id);
+      formData.append("support_needed", supportNeeded);
       formData.append("file_proposal", file_proposal)
 
       await axios.post("/api/create-proposal", formData, {
@@ -245,15 +284,75 @@ const CreateProposalForm = () => {
               </div>
 
               <div>
-                <label className="block mb-2 text-base font-medium text-gray-900">Target Participant<span className="text-sm text-red-500 ml-1">*</span></label>
-                <Select mode="multiple" name="targets" placeholder="Search here" value={targets} className="w-full p-3 pr-10 border rounded-xl bg-white text-base" onChange={(e) => setTargets(e)} options={filteredTargets.map(item => ({ value: item, label: item }))} />
-                <span className="text-sm text-red-800 mt-2 block">{formErrors.target_participants}</span>
+                <label className="block mb-2 text-base font-medium text-gray-900">
+                  Target Participant<span className="text-sm text-red-500 ml-1">*</span>
+                </label>
+                <Select
+                  mode="multiple"
+                  name="targets"
+                  placeholder="Search here"
+                  value={targets}
+                  className="w-full p-3 pr-10 border rounded-xl bg-white text-base"
+                  onChange={(e) => setTargets(e)}
+                  options={filteredTargets.map(item => ({ value: item, label: item }))}
+                />
+                <span className="text-sm text-red-800 mt-2 block">
+                  {formErrors.target_participants}
+                </span>
+                {targetMismatchWarningTarget && (
+                  <span className="text-sm text-yellow-600 mt-2 block">
+                    ⚠ Beberapa target participant yang dipilih tidak termasuk dalam preferensi sponsor.
+                  </span>
+                )}
+                {targetMismatchWarningTarget && (
+                  <div className="text-sm text-yellow-600 mt-2">
+                    ⚠ Target participant berikut tidak termasuk dalam preferensi sponsor:
+                    <ul className="list-disc ml-6 mt-1">
+                      {mismatchedTargets.map((target, index) => (
+                        <li key={index}>{target}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
 
               <div>
                 <label className="block mb-2 text-base font-medium text-gray-900">Tags Related Event<span className="text-sm text-red-500 ml-1">*</span></label>
                 <Select mode="multiple" name="tags" placeholder="Search here" value={tags} className="w-full p-3 pr-10 border rounded-xl bg-white text-base" onChange={(e) => setTags(e)} options={filteredTags.map(item => ({ value: item, label: item }))} />
-                <span className="text-sm text-red-800 mt-2 block">{formErrors.tags}</span>
+                <span className="text-sm text-red-800 mt-2 block">
+                  {formErrors.tags}
+                </span>
+                {targetMismatchWarningTag && (
+                  <span className="text-sm text-yellow-600 mt-2 block">
+                    ⚠ Beberapa tag related yang dipilih tidak termasuk dalam preferensi sponsor.
+                  </span>
+                )}
+                {targetMismatchWarningTag && (
+                  <div className="text-sm text-yellow-600 mt-2">
+                    ⚠ Tag related berikut tidak termasuk dalam preferensi sponsor:
+                    <ul className="list-disc ml-6 mt-1">
+                      {mismatchedTag.map((target, index) => (
+                        <li key={index}>{target}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block mb-2 text-base font-medium text-gray-900">Support Needed<span className="text-sm text-red-500 ml-1">*</span></label>
+                <div className="relative">
+                  <select name="supportNeeded" value={supportNeeded} onChange={(e) => setSupportNeeded(e.target.value)} className="w-full appearance-none p-3 pr-10 border rounded-xl bg-white text-base">
+                    <option value="">Select Support</option>
+                    <option value="Fund">Fund</option>
+                    <option value="Product">Product</option>
+                    <option value="Services">Services</option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
+                    <ChevronDownIcon className="w-5 h-5 text-gray-600" />
+                  </div>
+                </div>
+                <span className="text-sm text-red-800 mt-2 block">{formErrors.supportNeeded}</span>
               </div>
 
               <div>
