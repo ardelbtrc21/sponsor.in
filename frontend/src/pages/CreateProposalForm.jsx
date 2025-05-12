@@ -38,8 +38,11 @@ const CreateProposalForm = () => {
   const [fileList, setFileList] = useState([]);
   const [targetMismatchWarningTarget, setTargetMismatchWarningTarget] = useState(false);
   const [targetMismatchWarningTag, setTargetMismatchWarningTag] = useState(false);
+  const [targetMismatchWarningCategory, setTargetMismatchWarningCategory] = useState(false);
   const [mismatchedTargets, setMismatchedTargets] = useState([]);
   const [mismatchedTag, setMismatchedTag] = useState([]);
+  const [category_provides, setCategoryProvides] = useState([]);
+  const [mismatchedCategory, setMismatchedCategory] = useState([]);
 
   const { user } = useSelector((state) => state.auth);
   let username;
@@ -66,7 +69,7 @@ const CreateProposalForm = () => {
       console.log(sponsorId);
       const response = await axios.get(`/api/sponsors/${sponsorId}`);
       setSponsor(response);
-      console.log(response.data)
+      setCategoryProvides(response.data.category_provides?.split(','))
       if (response.data.target_sponsors) {
         setTargetsSponsor(response.data.target_sponsors.map(item => item.target_participant_category));
       }
@@ -78,17 +81,32 @@ const CreateProposalForm = () => {
     }
   };
 
+  const categories = [
+    { value: "Fund", label: "Fund" },
+    { value: "Product", label: "Product" },
+    { value: "Services", label: "Services" }
+  ];
+
   useEffect(() => {
-    const mismatches = targets.filter(target => !targetSponsor.includes(target));
+    const mismatches = targets?.filter(target => !targetSponsor.includes(target));
     setTargetMismatchWarningTarget(mismatches.length > 0);
     setMismatchedTargets(mismatches);
   }, [targets, targetSponsor]);
 
   useEffect(() => {
-    const mismatches = tags.filter(tag => !tagSponsor.includes(tag));
+    const mismatches = tags?.filter(tag => !tagSponsor.includes(tag));
     setTargetMismatchWarningTag(mismatches.length > 0);
     setMismatchedTag(mismatches);
   }, [tags, tagSponsor]);
+
+  useEffect(() => {
+    if (category_provides) {
+      const mismatches = supportNeeded?.values?.filter(support => !category_provides.includes(support));
+      setTargetMismatchWarningCategory(mismatches?.length > 0);
+      setMismatchedCategory(mismatches);
+    }
+  }, [supportNeeded, category_provides]);
+
 
   const getTags = async () => {
     try {
@@ -166,6 +184,8 @@ const CreateProposalForm = () => {
     e.preventDefault();
     try {
       const formData = new FormData();
+      const tempSupport = supportNeeded.values;
+      console.log(tempSupport)
       formData.append("proposal_name", proposalName);
       formData.append("file_proposal", "file");
       formData.append("event_name", eventName);
@@ -178,8 +198,8 @@ const CreateProposalForm = () => {
       formData.append("target_participants", JSON.stringify(targets));
       formData.append("sponsor_id", sponsorId);
       formData.append("sponsoree_id", sponsoree_id);
-      formData.append("support_needed", supportNeeded);
-      formData.append("file_proposal", file_proposal)
+      formData.append("file_proposal", file_proposal);
+      formData.append("support_needed", tempSupport.join(','));
 
       await axios.post("/api/create-proposal", formData, {
         headers: {
@@ -197,6 +217,7 @@ const CreateProposalForm = () => {
       });
       navigate(-1);
     } catch (error) {
+      console.log(error)
       setFormErrors(error.response.data);
       if (error.response.data.msg) {
         Swal.fire({
@@ -331,7 +352,7 @@ const CreateProposalForm = () => {
                   <div className="text-sm text-yellow-600 mt-2">
                     ⚠ Tag related berikut tidak termasuk dalam preferensi sponsor:
                     <ul className="list-disc ml-6 mt-1">
-                      {mismatchedTag.map((target, index) => (
+                      {mismatchedTargets.map((target, index) => (
                         <li key={index}>{target}</li>
                       ))}
                     </ul>
@@ -341,18 +362,38 @@ const CreateProposalForm = () => {
 
               <div>
                 <label className="block mb-2 text-base font-medium text-gray-900">Support Needed<span className="text-sm text-red-500 ml-1">*</span></label>
-                <div className="relative">
-                  <select name="supportNeeded" value={supportNeeded} onChange={(e) => setSupportNeeded(e.target.value)} className="w-full appearance-none p-3 pr-10 border rounded-xl bg-white text-base">
-                    <option value="">Select Support</option>
-                    <option value="Fund">Fund</option>
-                    <option value="Product">Product</option>
-                    <option value="Services">Services</option>
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
-                    <ChevronDownIcon className="w-5 h-5 text-gray-600" />
+                <Select
+                  mode="multiple"
+                  name="support_needed"
+                  placeholder="Search here"
+                  value={supportNeeded.values}
+                  className="w-full p-3 pr-10 border rounded-xl bg-white text-base"
+                  onChange={(values) =>
+                    setSupportNeeded({
+                      ...supportNeeded,
+                      values,
+                    })
+                  } 
+                  options={categories}
+                  />
+                <span className="text-sm text-red-800 mt-2 block">
+                  {formErrors.support_needed}
+                </span>
+                {targetMismatchWarningCategory && (
+                  <span className="text-sm text-yellow-600 mt-2 block">
+                    ⚠ Beberapa support needed yang dipilih tidak termasuk dalam preferensi sponsor.
+                  </span>
+                )}
+                {targetMismatchWarningCategory && (
+                  <div className="text-sm text-yellow-600 mt-2">
+                    ⚠ Support needed berikut tidak termasuk dalam preferensi sponsor:
+                    <ul className="list-disc ml-6 mt-1">
+                      {mismatchedCategory.map((target, index) => (
+                        <li key={index}>{target}</li>
+                      ))}
+                    </ul>
                   </div>
-                </div>
-                <span className="text-sm text-red-800 mt-2 block">{formErrors.supportNeeded}</span>
+                )}
               </div>
 
               <div>
