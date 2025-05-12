@@ -23,13 +23,14 @@ export const doApprovalProposal = async (req, res) => {
     const currentStatus = await ProposalStatus.findOne({
       where: {
         proposal_status_id: proposal_status_id,
-        status_name: "Submitted",
+        status_name: "Under Review",
+        endAt: null
       },
     });
 
     if (!currentStatus) {
       return res.status(404).json({
-        message: "No 'Submitted' status found for this proposal.",
+        message: "No 'Under Review' status found for this proposal.",
       });
     }
 
@@ -49,13 +50,16 @@ export const doApprovalProposal = async (req, res) => {
       });
     }
 
+    currentStatus.endAt = new Date();
+    await currentStatus.save();
+
     const newStatus = await ProposalStatus.create({
       proposal_id: currentStatus.proposal_id, 
-      status_name: "Approved", 
+      status_name: "Accepted", 
     });
 
     return res.status(201).json({
-      message: "Proposal status successfully updated to 'Approved'.",
+      message: "Proposal status successfully updated to 'Accepted'.",
       data: newStatus,
     });
 
@@ -68,6 +72,7 @@ export const doApprovalProposal = async (req, res) => {
   }
 };
 
+
 export const doRejectProposal = async (req, res) => {
   const { proposal_status_id } = req.params;
 
@@ -75,13 +80,13 @@ export const doRejectProposal = async (req, res) => {
     const currentStatus = await ProposalStatus.findOne({
       where: {
         proposal_status_id: proposal_status_id,
-        status_name: "Submitted",
+        status_name: "Under Review",
       },
     });
 
     if (!currentStatus) {
       return res.status(404).json({
-        message: "No 'Submitted' status found for this proposal.",
+        message: "No 'Under Review' status found for this proposal.",
       });
     }
 
@@ -161,7 +166,6 @@ export const getAllProposals = async (req, res) => {
   }
 };
 
-
 export const getProposalByStatus = async (req, res) => {
   const { username, status_name } = req.params;
 
@@ -169,7 +173,8 @@ export const getProposalByStatus = async (req, res) => {
     const proposals = await ProposalStatus.findAll({
       where: {
         status_name,
-        '$status_proposals.sponsoree_proposals.username$': username
+        '$status_proposals.sponsoree_proposals.username$': username,
+        endAt: null
       },
       include: [
         {
@@ -445,6 +450,7 @@ export const createProposal = async (req, res) => {
           }
         }
       } catch (error) {
+        console.log(error)
         res.status(400).json({ msg: error.message });
       }
     });
@@ -741,5 +747,61 @@ export const getProposals = async (req, res) => {
   } catch (error) {
     console.log(error)
     res.status(500).json({ msg: error.message });
+  }
+}
+
+export const doCompleteProposal = async ( req, res) => {
+  const { proposal_status_id } = req.params;
+  console.log("incoming stat id: ", proposal_status_id);
+  try {
+    const currentStatus = await ProposalStatus.findOne({
+      where: {
+        proposal_status_id: proposal_status_id,
+        status_name: "Processing Agreement",
+        endAt: null
+      },
+    });
+
+    if (!currentStatus) {
+      return res.status(404).json({
+        message: "No 'Processing Agreement' status found for this proposal.",
+      });
+    }
+
+    if (!currentStatus.proposal_id) {
+      return res.status(400).json({
+        message: "Invalid proposal_id associated with the current status.",
+      });
+    }
+
+    const proposal = await Proposal.findOne({
+      where: { proposal_id: currentStatus.proposal_id },
+    });
+
+    if (!proposal) {
+      return res.status(404).json({
+        message: "Proposal not found with the given proposal_id.",
+      });
+    }
+
+    currentStatus.endAt = new Date();
+    await currentStatus.save();
+
+    const newStatus = await ProposalStatus.create({
+      proposal_id: currentStatus.proposal_id, 
+      status_name: "Completed", 
+    });
+
+    return res.status(201).json({
+      message: "Proposal status successfully updated to 'Completed'.",
+      data: newStatus,
+    });
+
+  } catch (err) {
+    console.error("Error in doCompletelProposal:", err);
+    return res.status(500).json({
+      message: "Internal Server Error",
+      error: err.message,
+    });
   }
 }

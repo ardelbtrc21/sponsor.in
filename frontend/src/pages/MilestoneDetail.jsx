@@ -1,21 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, redirect } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
 import ModernLayout from "../components/Layout";
 import dayjs from "dayjs";
 import { useSelector } from "react-redux";
+import { Input, Upload, Button } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
 
 const MilestoneDetailPage = () => {
   const { milestone_id } = useParams();
+  const { TextArea } = Input;
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
 
   const [milestone, setMilestone] = useState(null);
   const [status, setStatus] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
+  const [replyMilestone, setReplyMilestone] = useState("");
+  const [milestoneReplyAttachment, setMilestoneReplyAttachment] = useState(null);
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -42,12 +45,53 @@ const MilestoneDetailPage = () => {
         title: "Success",
         text: "Milestone status updated!",
         confirmButtonColor: "#6366F1",
-      }).then(() => navigate("/milestones"));
+      }).then(() => {
+        navigate(-1); 
+      });
     } catch (err) {
       Swal.fire({
         icon: "error",
         title: "Error",
         text: "Failed to update status.",
+        confirmButtonColor: "#EF4444",
+      });
+    }
+  };
+
+  const handleReplyMilestone = async (e) => {
+    e.preventDefault();
+
+    try {
+      const formData = new FormData();
+      formData.append("milestone_reply", replyMilestone);
+      formData.append("milestone_id", milestone_id);
+      if (milestoneReplyAttachment?.originFileObj || milestoneReplyAttachment !== null) {
+        console.log(milestoneReplyAttachment)
+        formData.append("milestone_reply_attachment", milestoneReplyAttachment?.originFileObj);
+      }
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
+
+
+      await axios.patch("/api/milestones/reply", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
+
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Reply milestone success!",
+        confirmButtonColor: "#6366F1",
+      }).then(() => navigate("/milestones"));
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Reply milestone failed.",
         confirmButtonColor: "#EF4444",
       });
     }
@@ -107,7 +151,7 @@ const MilestoneDetailPage = () => {
                   Current Status: {renderStatusBadge(status)}
                 </p>
 
-                {user.role === "Sponsor" && (
+                {user.role === "Sponsor" && status !== "Completed" && (
                   <>
                     <div className="mb-6">
                       <label

@@ -185,25 +185,25 @@ const AdminPendingSponsorsPage = () => {
                         className={`text-xs px-3 py-1.5 rounded-lg text-white font-semibold ${
                           approving === sponsor.user_sponsors.username
                             ? "bg-primary cursor-not-allowed"
-                            : "bg-primary hover:bg-green-700"
+                            : "bg-primary hover:opacity-80"
                         }`}
                       >
                         {approving === sponsor.user_sponsors.username
-                          ? "Approving..."
-                          : "Approve"}
+                          ? "APPROVING..."
+                          : "APPROVE"}
                       </button>
                       <button
                         onClick={() => handleReject(sponsor.user_sponsors.username)}
                         disabled={approving === sponsor.user_sponsors.username}
                         className={`text-xs px-3 py-1.5 rounded-lg text-white font-semibold ${
                           approving === sponsor.user_sponsors.username
-                            ? "bg-secondary cursor-not-allowed"
-                            : "bg-secondary hover:bg-red-700"
+                            ? "bg-red-600 cursor-not-allowed"
+                            : "bg-red-600 hover:opacity-80"
                         }`}
                       >
                         {approving === sponsor.user_sponsors.username
-                          ? "Rejecting..."
-                          : "Reject"}
+                          ? "REJECTING..."
+                          : "REJECT"}
                       </button>
                     </div>
                   </td>

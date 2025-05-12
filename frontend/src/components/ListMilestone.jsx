@@ -4,19 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import dayjs from "dayjs";
 
-const ListMilestone = ({ proposal_id }) => {
-  const { user } = useSelector((state) => state.auth);
-  const [milestones, setMilestones] = useState([]);
+const ListMilestone = ({ milestones }) => {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (user?.username) {
-      axios
-        .get(`/api/milestones/proposals/${proposal_id}`)
-        .then((res) => setMilestones(res.data))
-        .catch((err) => console.error("Failed to fetch milestones:", err));
-    }
-  }, [user, proposal_id]);
 
   const renderStatusBadge = (status) => {
     let bgColor = "bg-gray-400";
@@ -33,14 +22,14 @@ const ListMilestone = ({ proposal_id }) => {
   return (
     <div className="relative max-w-4xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-md">
       <h2 className="text-2xl font-bold mb-4 text-primary text-center tracking-wide">
-        List of Milestones
+        LIST OF MILESTONES
       </h2>
 
       {milestones.length > 0 ? (
         <table className="table-fixed w-full border-collapse">
           <thead>
             <tr className="border-b text-center">
-              <th className="px-4 py-2 w-[20%]">Milestone Name</th>
+              <th className="w-[20%]">Milestone Name</th>
               <th className="px-4 py-2 w-[30%]">Description</th>
               <th className="px-4 py-2 w-[20%]">Created At</th>
               <th className="px-4 py-2 w-[15%]">Status</th>
@@ -92,3 +81,4 @@ const ListMilestone = ({ proposal_id }) => {
 };
 
 export default ListMilestone;
+

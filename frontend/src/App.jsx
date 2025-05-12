@@ -9,14 +9,12 @@ import Register from "./pages/Register";
 import "./Style/index.css";
 import ViewDetailProposal from "./pages/ViewDetailProposal";
 import ViewMySubmissions from "./pages/ViewMySubmissions";
-import ViewListSubmission from "./pages/ViewListProposal";
 import CreateProposalForm from "./pages/CreateProposalForm";
 import { useDispatch, useSelector } from "react-redux";
 import { getMe } from "./features/authSlice";
 import { useEffect, useState } from "react";
 import { Spin } from "antd";
 import ChangePassword from "./pages/ChangePassword";
-import ModernLayout from "./components/Layout";
 import ListApprovalProposal from "./pages/ListApprovalProposal";
 import LandingScreen from "./pages/LandingScreen";
 import AdminPendingSponsorsPage from "./pages/AdminSponsorApproval";
@@ -99,7 +97,6 @@ function App() {
           <Route path="/signIn" element={<Login />} />
           {/* <Route path="/welcome" element={user ? <ApproveButton /> : <Navigate to="/" />} /> */}
           <Route path="/sponsoree-submissions" element={user ? <ViewMySubmissions /> : <Navigate to="/" />} />
-          <Route path="/proposal-list" element={user ? <ViewListSubmission /> : <Navigate to="/" />} />
           <Route path="/sponsors" element={user ? <SponsorList /> : <Navigate to="/" />} />
           <Route path="/sponsors/:id" element={user ? <SponsorDetail /> : <Navigate to="/" />} />
           <Route path="/report/:id" element={user ? <ReportAccountForm /> : <Navigate to="/" />} />
