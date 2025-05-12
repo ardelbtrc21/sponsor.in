@@ -546,12 +546,12 @@ export const getCompletedAgreements = async (req, res) => {
       {
         model: ProposalStatus,
         as: "status_proposals",
-        where: { status_name: "completed" },
+        where: { status_name: "Completed" },
         required: true
       }
     ];
 
-    if (role.toLowerCase() === "sponsor") {
+    if (role === "Sponsor") {
       baseIncludes.push({
         model: Sponsor,
         as: "sponsor_proposals",
@@ -578,7 +578,7 @@ export const getCompletedAgreements = async (req, res) => {
         ]
       });
 
-    } else if (role.toLowerCase() === "sponsoree") {
+    } else if (role === "Sponsoree") {
       baseIncludes.push({
         model: Sponsoree,
         as: "sponsoree_proposals",
