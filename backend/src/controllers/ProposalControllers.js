@@ -17,37 +17,128 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const doApprovalProposal = async (req, res) => {
-  const { status_id } = req.params;
+  const { proposal_status_id } = req.params;
+
   try {
-    let errors = {};
-    const currentStatus = await Status.findOne({
+    const currentStatus = await ProposalStatus.findOne({
       where: {
-        status_id: status_id,
+        proposal_status_id: proposal_status_id,
         status_name: "Submitted",
-      }
+      },
     });
 
     if (!currentStatus) {
-      return res.status(404).json({ message: "No 'Submitted' status found." });
+      return res.status(404).json({
+        message: "No 'Submitted' status found for this proposal.",
+      });
     }
 
-    const newStatus = await Status.create({
-      submission_id: currentStatus.submission_id,
-      status_name: "Accepted",
+    if (!currentStatus.proposal_id) {
+      return res.status(400).json({
+        message: "Invalid proposal_id associated with the current status.",
+      });
+    }
+
+    const proposal = await Proposal.findOne({
+      where: { proposal_id: currentStatus.proposal_id },
+    });
+
+    if (!proposal) {
+      return res.status(404).json({
+        message: "Proposal not found with the given proposal_id.",
+      });
+    }
+
+    const newStatus = await ProposalStatus.create({
+      proposal_id: currentStatus.proposal_id, 
+      status_name: "Approved", 
     });
 
     return res.status(201).json({
-      message: "New status accepted added.",
+      message: "Proposal status successfully updated to 'Approved'.",
       data: newStatus,
     });
+
   } catch (err) {
-    console.log(err);
+    console.error("Error in doApprovalProposal:", err);
     return res.status(500).json({
       message: "Internal Server Error",
       error: err.message,
     });
   }
-}
+};
+
+export const doRejectProposal = async (req, res) => {
+  const { proposal_status_id } = req.params;
+
+  try {
+    const currentStatus = await ProposalStatus.findOne({
+      where: {
+        proposal_status_id: proposal_status_id,
+        status_name: "Submitted",
+      },
+    });
+
+    if (!currentStatus) {
+      return res.status(404).json({
+        message: "No 'Submitted' status found for this proposal.",
+      });
+    }
+
+    if (!currentStatus.proposal_id) {
+      return res.status(400).json({
+        message: "Invalid proposal_id associated with the current status.",
+      });
+    }
+
+    const proposal = await Proposal.findOne({
+      where: { proposal_id: currentStatus.proposal_id },
+    });
+
+    if (!proposal) {
+      return res.status(404).json({
+        message: "Proposal not found with the given proposal_id.",
+      });
+    }
+
+    const newStatus = await ProposalStatus.create({
+      proposal_id: currentStatus.proposal_id, 
+      status_name: "Rejected", 
+    });
+
+    return res.status(201).json({
+      message: "Proposal status successfully updated to 'Rejected'.",
+      data: newStatus,
+    });
+
+  } catch (err) {
+    console.error("Error in doRejectProposal:", err);
+    return res.status(500).json({
+      message: "Internal Server Error",
+      error: err.message,
+    });
+  }
+};
+
+export const getLatestProposalStatus = async (req, res) => {
+  try {
+    const { proposal_id } = req.params;
+
+    const latestStatus = await ProposalStatus.findOne({
+      where: { proposal_id: proposal_id },
+      order: [['createdAt', 'DESC']],
+    });
+
+    if (!latestStatus) {
+      return res.status(404).json({ message: 'No status found for this proposal' });
+    }
+
+    return res.status(200).json(latestStatus);
+  } catch (error) {
+    console.error("Error fetching latest status:", error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
 
 export const getAllProposals = async (req, res) => {
   try {
@@ -133,7 +224,7 @@ export const getProposalByProposalId = async (req, res) => {
       model: ProposalStatus,
       as: "status_proposals",
       required: true,
-      attributes: ["proposal_id", "status_name"],
+      attributes: ["proposal_status_id", "proposal_id", "status_name"],
       duplicating: false
     },
     {
