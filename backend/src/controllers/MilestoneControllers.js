@@ -159,24 +159,32 @@ export const getMilestoneById = async (req, res) => {
 
 export const getMilestonesByProposalId = async (req, res) => {
   const { proposal_id } = req.params;
-  console.log("received prop id: ", proposal_id);
 
   try {
     const milestones = await Milestone.findAll({
-      where: { proposal_id: proposal_id},
+      where: { proposal_id: proposal_id },
       include: [
         {
           model: MilestoneStatus,
           as: "status_milestones",
-          separate: true,
-          limit: 1,
-          order: [["createdAt", "DESC"]],
+          separate: true, 
+          order: [["createdAt", "DESC"]], 
         },
       ],
       order: [["createdAt", "DESC"]],
     });
-    console.log("test: ", milestones);
-    res.json(milestones);
+
+    console.log("Fetched milestones: ", milestones);
+
+    const allCompleted = milestones.every(milestone => {
+      const latestStatus = milestone.status_milestones[0]; 
+      return latestStatus && latestStatus.status_name === "Completed"; 
+    });
+
+    res.json({
+      milestones,
+      canComplete: allCompleted,
+    });
   } catch (err) {
     console.error("Failed to fetch milestones by proposal ID:", err);
     res.status(500).json({ error: "Failed to fetch milestones" });

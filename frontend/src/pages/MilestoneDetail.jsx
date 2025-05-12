@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, redirect } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
 import ModernLayout from "../components/Layout";
 import dayjs from "dayjs";
 import { useSelector } from "react-redux";
@@ -42,7 +40,9 @@ const MilestoneDetailPage = () => {
         title: "Success",
         text: "Milestone status updated!",
         confirmButtonColor: "#6366F1",
-      }).then(() => navigate("/milestones"));
+      }).then(() => {
+        navigate(-1); 
+      });
     } catch (err) {
       Swal.fire({
         icon: "error",
@@ -107,7 +107,7 @@ const MilestoneDetailPage = () => {
                   Current Status: {renderStatusBadge(status)}
                 </p>
 
-                {user.role === "Sponsor" && (
+                {user.role === "Sponsor" && status !== "Completed" && (
                   <>
                     <div className="mb-6">
                       <label

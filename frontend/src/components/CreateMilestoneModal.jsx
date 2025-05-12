@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { v4 as uuidv4, v4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import Swal from "sweetalert2";
-import { redirect, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const CreateMilestoneModal = ({ submission, onClose }) => {
   const [milestones, setMilestones] = useState([]);
@@ -53,17 +53,47 @@ const CreateMilestoneModal = ({ submission, onClose }) => {
     setErrors(updatedErrors);
   };
 
+  const validateMilestones = () => {
+    const updatedErrors = [];
+    let isValid = true;
+
+    milestones.forEach((milestone, index) => {
+      const milestoneErrors = {};
+      
+      if (!milestone.milestone_name) {
+        milestoneErrors.milestone_name = "Milestone name is required.";
+        isValid = false;
+      }
+
+      if (!milestone.milestone_description) {
+        milestoneErrors.milestone_description = "Milestone description is required.";
+        isValid = false;
+      }
+
+      updatedErrors[index] = milestoneErrors;
+    });
+
+    setErrors(updatedErrors);
+    return isValid;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!validateMilestones()) {
+      return;
+    }
+
     const formData = new FormData();
-    formData.append("milestones", JSON.stringify(milestones)); 
+    formData.append("milestones", JSON.stringify(milestones));
 
     milestones.forEach((m, i) => {
-      if (m.document instanceof File) {
-        formData.append(`document_${i}`, m.document);
+      if (m.milestone_attachment instanceof File) {
+        formData.append(`document_${i}`, m.milestone_attachment);
       }
     });
+
+    setLoading(true);
 
     try {
       const res = await axios.post('/api/milestones/create', formData, {
@@ -71,13 +101,7 @@ const CreateMilestoneModal = ({ submission, onClose }) => {
           'Content-Type': 'multipart/form-data',
         },
       });
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Milestone Created!',
-        text: res.data.message,
-      });
-      redirect();
+      setSuccess(true); 
     } catch (err) {
       const msg = err.response?.data?.message || 'Failed to create milestones';
       Swal.fire({
@@ -85,6 +109,8 @@ const CreateMilestoneModal = ({ submission, onClose }) => {
         title: 'Error',
         text: msg,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -139,6 +165,7 @@ const CreateMilestoneModal = ({ submission, onClose }) => {
                       placeholder="Milestone name"
                       value={milestone.milestone_name}
                       onChange={(e) => handleMilestoneChange(index, "milestone_name", e.target.value)}
+                      required
                     />
                     {errors[index]?.milestone_name && (
                       <p className="text-red-500 text-sm mb-1">{errors[index].milestone_name}</p>
@@ -149,6 +176,7 @@ const CreateMilestoneModal = ({ submission, onClose }) => {
                       placeholder="Milestone description"
                       value={milestone.milestone_description}
                       onChange={(e) => handleMilestoneChange(index, "milestone_description", e.target.value)}
+                      required
                     />
                     {errors[index]?.milestone_description && (
                       <p className="text-red-500 text-sm mb-1">{errors[index].milestone_description}</p>
@@ -159,9 +187,6 @@ const CreateMilestoneModal = ({ submission, onClose }) => {
                       className="w-full border p-3 rounded-xl mb-2 focus:ring-primary focus:border-primary"
                       onChange={(e) => handleFileChange(index, e.target.files[0])}
                     />
-                    {errors[index]?.milestone_attachment && (
-                      <p className="text-red-500 text-sm mb-1">{errors[index].milestone_attachment}</p>
-                    )}
 
                     <button
                       onClick={() => removeMilestone(index)}

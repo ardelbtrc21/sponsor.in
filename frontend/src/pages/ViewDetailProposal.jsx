@@ -9,27 +9,62 @@ import { useParams } from "react-router-dom";
 import { pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import defaultProfile from '../assets/profile_default.png';
-import CreateMilestoneModal from "../components/CreateMilestoneModal"; // Assuming you have this component
+import CreateMilestoneModal from "../components/CreateMilestoneModal";
+import { useSelector } from "react-redux";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const ViewDetailProposal = () => {
+  const user = useSelector((state) => state.auth.user);
   const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
   const [proposals, setProposals] = useState({});
   const [latestStatus, setLatestStatus] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProposal, setSelectedProposal] = useState(null);
+  const [milestones, setMilestones] = useState([]);
+  const [canComplete, setCanComplete] = useState(false);
   const { id } = useParams();
 
   const getDetailProposal = async () => {
     try {
       const response = await axios.get(`/api/proposal/${id}`);
-      setProposals(response.data)
+      setProposals(response.data);
       getLatestStatus(id);
+      fetchMilestones(id);
     } catch (error) {
       console.log(error);
     }
-  }
+  };
+
+  const fetchMilestones = async (proposalId) => {
+    try {
+      const response = await axios.get(`/api/milestones/proposals/${proposalId}`);
+      const { milestones, canComplete } = response.data;
+      setMilestones(milestones);
+      setCanComplete(canComplete);
+    } catch (error) {
+      console.error("Error fetching milestones", error);
+    }
+  };
+
+  const handleCompleteMilestone = async () => {
+    try {
+      await axios.put(`/api/proposals/${latestStatus.proposal_status_id}/complete`);
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Milestones marked as completed!"
+      });
+      getDetailProposal();
+    } catch (error) {
+      console.error("error: ", error);
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: error.response?.data?.message || "Something went wrong."
+      });
+    }
+  };
 
   const changeToUnderReview = async () => {
     try {
@@ -37,7 +72,6 @@ const ViewDetailProposal = () => {
         proposal_id: id,
         status: "Under Review"
       });
-     
     } catch (error) {
       console.log(error);
     }
@@ -47,7 +81,6 @@ const ViewDetailProposal = () => {
     try {
       const response = await axios.get(`/api/proposal/${proposal_id}/status/latest`);
       setLatestStatus(response.data);
-      console.log("latest data: ", response.data);
     } catch (error) {
       console.error("Error fetching latest status", error);
     }
@@ -55,7 +88,7 @@ const ViewDetailProposal = () => {
 
   useEffect(() => {
     getDetailProposal();
-    changeToUnderReview()
+    changeToUnderReview();
   }, [id]);
 
   const handleApproveProposal = async () => {
@@ -83,7 +116,7 @@ const ViewDetailProposal = () => {
       Swal.fire({
         icon: "success",
         title: "Success",
-        text: "Successfully reject proposals."
+        text: "Successfully rejected proposal."
       });
       getDetailProposal();
     } catch (error) {
@@ -193,7 +226,6 @@ const ViewDetailProposal = () => {
                     {target.target_participant_category}
                   </span>
                 ))}
-
               </div>
             </Section>
           </div>
@@ -216,7 +248,7 @@ const ViewDetailProposal = () => {
 
           {/* Conditional Action Buttons */}
           <div className="text-center text-s pt-2 space-y-2">
-            {latestStatus?.status_name === "Submitted" && (
+            {user.role === 'Sponsor' && latestStatus?.status_name === "Submitted" && (
               <div>
                 <button
                   className="bg-red-600 hover:opacity-80 tracking-wider text-white font-semibold py-2 px-6 rounded-lg shadow-md mx-2"
@@ -230,24 +262,49 @@ const ViewDetailProposal = () => {
                 >
                   APPROVE PROPOSAL
                 </button>
-
               </div>
             )}
-            {/* Milestone List */}
-            <ListMilestone proposal_id={id} />
-            {(latestStatus?.status_name === "Approved" || latestStatus?.status_name === "Processing Agreement") && (
-              <button
-                className="bg-primary hover:bg-gray-700 text-white font-semibold tracking-wider py-2 px-6 rounded-lg shadow-md mt-0"
-                onClick={() => handleOpenModal(proposals)}
-              >
-                CREATE MILESTONE
-              </button>
-            )}
+
+            <div className="mb-6">
+              <ListMilestone milestones={milestones} />
+            </div>
+            <div>
+              {user.role === 'Sponsor' && (latestStatus?.status_name === "Accepted" || latestStatus?.status_name === "Processing Agreement") && (
+                <button
+                  className="bg-primary hover:bg-gray-700 text-white font-semibold tracking-wider py-2 px-6 rounded-lg shadow-md mt-0 mx-10"
+                  onClick={() => handleOpenModal(proposals)}
+                >
+                  CREATE MILESTONE
+                </button>
+              )}
+
+              {user.role === 'Sponsor' && latestStatus?.status_name === "Processing Agreement" && canComplete && (
+                <button
+                  className="bg-green-600 hover:bg-green-700 text-white font-semibold tracking-wider py-2 px-6 rounded-lg shadow-md"
+                  onClick={async () => {
+                    const result = await Swal.fire({
+                      title: 'Are you sure?',
+                      text: 'This will mark the milestone as complete.',
+                      icon: 'warning',
+                      showCancelButton: true,
+                      confirmButtonColor: '#16a34a', 
+                      cancelButtonColor: '#d33',
+                      confirmButtonText: 'Yes, complete it!',
+                    });
+
+                    if (result.isConfirmed) {
+                      handleCompleteMilestone();
+                    }
+                  }}
+                >
+                  COMPLETE MILESTONE
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Create Milestone Modal */}
       {isModalOpen && (
         <CreateMilestoneModal submission={selectedProposal} onClose={handleCloseModal} />
       )}
@@ -267,8 +324,8 @@ const Meta = ({ icon: Icon, label, value }) => (
 
 const Section = ({ title, children }) => (
   <div className="space-y-1">
-    <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
-    <div>{children}</div>
+    <h3 className="text-sm font-medium text-gray-900">{title}</h3>
+    {children}
   </div>
 );
 
