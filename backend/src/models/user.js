@@ -2,6 +2,7 @@ import { Sequelize } from "sequelize";
 import db from "../../config/Database.js";
 import Sponsor from "./sponsor.js";
 import Sponsoree from "./sponsoree.js";
+import SponsorshipPhotos from "./sponsorship_photos.js";
 
 const User = db.define("user", {
     username: {
@@ -52,7 +53,11 @@ const User = db.define("user", {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
-    }
+    },
+    background_photo: {
+        type: Sequelize.TEXT,
+        allowNull: true
+    },
 }, {});
 
 User.hasOne(Sponsor, {
@@ -74,6 +79,16 @@ User.hasOne(Sponsoree, {
 Sponsoree.belongsTo(User, {
     foreignKey: "username",
     as: "user_sponsorees"
+});
+User.hasMany(SponsorshipPhotos, {
+    foreignKey: "username",
+    as: "photo_sponsorship_users",
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE"
+});
+SponsorshipPhotos.belongsTo(User, {
+    foreignKey: "username",
+    as: "photo_sponsorship_users"
 });
 
 export default User;

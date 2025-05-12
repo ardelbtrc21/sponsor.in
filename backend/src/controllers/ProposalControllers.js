@@ -361,6 +361,23 @@ export const createProposal = async (req, res) => {
   }
 };
 
+export const statusChangeProposal = async (req, res) => {
+  const { proposal_id, status } = req.body
+  console.log(req.body)
+  try {
+    const proposal_status = await ProposalStatus.findAll({
+      where: {
+        proposal_id: proposal_id
+      }
+    })
+    for(const item of proposal_status){
+      
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 export const getCompletedAgreements = async (req, res) => {
   const { username, role } = req.query;
 
