@@ -1,25 +1,31 @@
-import React, { Fragment, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
+import ListMilestone from "../components/ListMilestone";
 import ModernLayout from "../components/Layout";
-import { CalendarDaysIcon, MapPinIcon, UserGroupIcon, EyeIcon } from '@heroicons/react/24/outline';
-import { Tag } from "antd";
+import { CalendarDaysIcon, MapPinIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import dayjs from "dayjs";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { Document, Page, pdfjs } from 'react-pdf';
+import { useParams } from "react-router-dom";
+import { pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import defaultProfile from '../assets/profile_default.png';
+import CreateMilestoneModal from "../components/CreateMilestoneModal"; // Assuming you have this component
+
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const ViewDetailProposal = () => {
   const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
-  const [proposals, setProposals] = useState([]);
+  const [proposals, setProposals] = useState({});
+  const [latestStatus, setLatestStatus] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProposal, setSelectedProposal] = useState(null);
   const { id } = useParams();
 
   const getDetailProposal = async () => {
     try {
       const response = await axios.get(`/api/proposal/${id}`);
       setProposals(response.data)
+      getLatestStatus(id);
     } catch (error) {
       console.log(error);
     }
@@ -31,34 +37,73 @@ const ViewDetailProposal = () => {
         proposal_id: id,
         status: "Under Review"
       });
+     
     } catch (error) {
       console.log(error);
     }
-  }
+  };
+
+  const getLatestStatus = async (proposal_id) => {
+    try {
+      const response = await axios.get(`/api/proposal/${proposal_id}/status/latest`);
+      setLatestStatus(response.data);
+      console.log("latest data: ", response.data);
+    } catch (error) {
+      console.error("Error fetching latest status", error);
+    }
+  };
 
   useEffect(() => {
-    getDetailProposal()
+    getDetailProposal();
     changeToUnderReview()
-  }, []);
+  }, [id]);
 
-  const handleStatusChange = async () => {
+  const handleApproveProposal = async () => {
     try {
-      await axios.put(
-        "/api/proposals/550e8400-e29b-41d4-a716-446655442222/approve"
-      );
+      await axios.put(`/api/proposals/${latestStatus.proposal_status_id}/approve`);
       Swal.fire({
         icon: "success",
         title: "Success",
-        text: "Successfully update status."
+        text: "Successfully updated status."
       });
+      getDetailProposal();
     } catch (error) {
       console.error("Error: ", error);
       Swal.fire({
         icon: "error",
         title: "Oops...",
-        text: error
+        text: error.message
       });
     }
+  };
+
+  const handleRejectProposal = async () => {
+    try {
+      await axios.put(`/api/proposals/${latestStatus.proposal_status_id}/reject`);
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Successfully reject proposals."
+      });
+      getDetailProposal();
+    } catch (error) {
+      console.error("Error: ", error);
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: error.message
+      });
+    }
+  };
+
+  const handleOpenModal = (proposal) => {
+    setSelectedProposal(proposal);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedProposal(null);
   };
 
   useEffect(() => {
@@ -77,7 +122,7 @@ const ViewDetailProposal = () => {
 
       const blob = new Blob([res.data], { type: "application/pdf" });
       const blobUrl = URL.createObjectURL(blob);
-      setPdfBlobUrl(blobUrl); // simpan URL blob ke state
+      setPdfBlobUrl(blobUrl);
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -121,19 +166,13 @@ const ViewDetailProposal = () => {
           {/* Meta Info Grid */}
           <div className="bg-white rounded-xl shadow p-4">
             <div className="flex justify-between text-sm text-gray-700 pt-4">
-              <Meta label="Event Date" value={new Date(proposals.event_date).toLocaleDateString(undefined, {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })} icon={CalendarDaysIcon} />
+              <Meta label="Event Date" value={dayjs(proposals.event_date).format("MMMM D, YYYY")} icon={CalendarDaysIcon} />
               <Meta label="Location" value={proposals.event_location} icon={MapPinIcon} />
               <Meta label="Target Age" value={proposals.target_age_min} icon={UserGroupIcon} />
               <Meta label="Target Gender" value={proposals.target_gender} icon={UserGroupIcon} />
             </div>
-            {/* </div> */}
 
             {/* Tags */}
-            {/* <div className="bg-white rounded-xl shadow p-4"> */}
             <div className="py-5">
               <Section title="Tags Related">
                 <div className="flex flex-wrap gap-2">
@@ -154,6 +193,7 @@ const ViewDetailProposal = () => {
                     {target.target_participant_category}
                   </span>
                 ))}
+
               </div>
             </Section>
           </div>
@@ -174,76 +214,43 @@ const ViewDetailProposal = () => {
             </div>
           </Section>
 
-          {/* Action Button */}
-          <div className="text-center pt-4">
-            <button
-              className="bg-primary hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md"
-              onClick={handleStatusChange}
-            >
-              Approve Proposal
-            </button>
+          {/* Conditional Action Buttons */}
+          <div className="text-center text-s pt-2 space-y-2">
+            {latestStatus?.status_name === "Submitted" && (
+              <div>
+                <button
+                  className="bg-red-600 hover:opacity-80 tracking-wider text-white font-semibold py-2 px-6 rounded-lg shadow-md mx-2"
+                  onClick={handleRejectProposal}
+                >
+                  REJECT PROPOSAL
+                </button>
+                <button
+                  className="bg-primary hover:bg-gray-700 tracking-wider text-white font-semibold py-2 px-6 rounded-lg shadow-md mx-2"
+                  onClick={handleApproveProposal}
+                >
+                  APPROVE PROPOSAL
+                </button>
+
+              </div>
+            )}
+            {/* Milestone List */}
+            <ListMilestone proposal_id={id} />
+            {(latestStatus?.status_name === "Approved" || latestStatus?.status_name === "Processing Agreement") && (
+              <button
+                className="bg-primary hover:bg-gray-700 text-white font-semibold tracking-wider py-2 px-6 rounded-lg shadow-md mt-0"
+                onClick={() => handleOpenModal(proposals)}
+              >
+                CREATE MILESTONE
+              </button>
+            )}
           </div>
         </div>
       </div>
-      {/* <div className="max-w-4xl mx-auto p-6">
-        <div className="bg-white shadow-xl rounded-2xl p-6 space-y-6">
-          <h1 className="text-3xl font-bold text-gray-900">{proposals.proposal_name}</h1>
 
-          <div className="space-y-3">
-            <DetailRow icon={CalendarDaysIcon} label="Event Name" value={proposals.event_name} />
-            <DetailRow icon={CalendarDaysIcon} label="Event Date" value={proposals.event_date} />
-            <DetailRow icon={MapPinIcon} label="Location" value={proposals.event_location} />
-            <DetailRow icon={UserGroupIcon} label="Target Age" value={proposals.target_age_min} />
-            <DetailRow icon={UserGroupIcon} label="Target Gender" value={proposals.target_gender} />
-
-            <div>
-              <p className="font-semibold text-gray-700">Tags Related:</p>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {proposals.tags_proposals?.map((tag, index) => (
-                  <span key={index} className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
-                    {tag.tag_name}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <p className="font-semibold text-gray-700">Target Participants:</p>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {proposals.target_proposals?.map((target, index) => (
-                  <span key={index} className="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full">
-                    {target.target_participant_category}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <p className="font-semibold text-gray-700 mb-2">Proposal File Preview:</p>
-              <div className="border border-gray-300 rounded-md overflow-hidden w-full h-screen">
-                {pdfBlobUrl ? (
-                  <iframe
-                    src={pdfBlobUrl}
-                    title="Proposal Preview"
-                    className="w-full h-full"
-                    frameBorder="0"
-                  />
-                ) : (
-                  <p>Loading preview...</p>
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="flex justify-center">
-            <button
-              className="bg-primary hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg shadow"
-              onClick={handleStatusChange}
-            >
-              Approve
-            </button>
-          </div>
-        </div>
-      </div> */}
+      {/* Create Milestone Modal */}
+      {isModalOpen && (
+        <CreateMilestoneModal submission={selectedProposal} onClose={handleCloseModal} />
+      )}
     </ModernLayout>
   );
 };
@@ -264,13 +271,5 @@ const Section = ({ title, children }) => (
     <div>{children}</div>
   </div>
 );
-
-// const DetailRow = ({ icon: Icon, label, value }) => (
-//   <div className="flex items-center space-x-2 text-gray-800">
-//     <Icon className="w-5 h-5 text-gray-500" />
-//     <span className="font-medium">{label}:</span>
-//     <span>{value}</span>
-//   </div>
-// );
 
 export default ViewDetailProposal;

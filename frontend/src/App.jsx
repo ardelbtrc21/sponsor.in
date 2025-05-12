@@ -26,7 +26,6 @@ import AccountSetting from "./pages/AccountSettingForm";
 import ListReportedAccount from "./pages/ListReportedAccounts";
 import MyProfile from "./pages/MyProfile";
 import EditProfile from "./pages/EditProfile";
-import MilestoneListPage from "./pages/ViewListMilestone";
 import MilestoneDetailPage from "./pages/MilestoneDetail";
 import HistoryAgreementWrapper from "./components/HistoryAgreementWrapper";
 
@@ -100,7 +99,7 @@ function App() {
           <Route path="/signIn" element={<Login />} />
           {/* <Route path="/welcome" element={user ? <ApproveButton /> : <Navigate to="/" />} /> */}
           <Route path="/sponsoree-submissions" element={user ? <ViewMySubmissions /> : <Navigate to="/" />} />
-          {/* <Route path="/proposal-list" element={user ? <ViewListSubmission /> : <Navigate to="/" />} /> */}
+          <Route path="/proposal-list" element={user ? <ViewListSubmission /> : <Navigate to="/" />} />
           <Route path="/sponsors" element={user ? <SponsorList /> : <Navigate to="/" />} />
           <Route path="/sponsors/:id" element={user ? <SponsorDetail /> : <Navigate to="/" />} />
           <Route path="/report/:id" element={user ? <ReportAccountForm /> : <Navigate to="/" />} />
@@ -114,7 +113,7 @@ function App() {
           <Route path="/my-profile/" element={user ? <MyProfile /> : <Navigate to="/" />} />
           <Route path="/edit-profile/" element={user ? <EditProfile /> : <Navigate to="/" />} />
           <Route path="/pending-sponsors" element={user ? <AdminPendingSponsorsPage /> : <Navigate to="/" />} />
-          <Route path="/milestones" element={user ? <MilestoneListPage /> : <Navigate to="/" />} />
+          {/* <Route path="/milestones" element={user ? <MilestoneListPage /> : <Navigate to="/" />} /> */}
           <Route path="/milestones/:milestone_id" element={<MilestoneDetailPage />} />
           <Route path="/agreements" element={user ? <HistoryAgreement /> : <Navigate to="/" />} />
           <Route path="/profile/:username/agreements" element={<HistoryAgreementWrapper />}

@@ -9,6 +9,12 @@ import defaultProfile from '../assets/profile_default.png';
 
 const Navbar = ({ onToggleSidebar }) => {
   const user = useSelector((state) => state.auth.user);
+  const navigate = useNavigate();
+  const handleProfileClick = () => {
+    if (user?.username) {
+      navigate(`/edit-profile/${user.username}`);
+    }
+  };
   return (
     <nav className="fixed top-0 left-0 w-full bg-primary text-white px-6 py-2 shadow-md flex items-center justify-between z-50 backdrop-blur-md bg-opacity-100">
       {/* Left Side */}
@@ -16,6 +22,7 @@ const Navbar = ({ onToggleSidebar }) => {
         <img
           src={user.profile_photo ? `/profile_photo/${user.profile_photo}` : defaultProfile}
           alt="User Avatar"
+          onClick={handleProfileClick}
           className="w-10 h-10 rounded-full border-2 border-white"
         />
         <button

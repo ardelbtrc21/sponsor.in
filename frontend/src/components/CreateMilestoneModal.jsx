@@ -1,21 +1,24 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { v4 as uuidv4, v4 } from 'uuid';
+import Swal from "sweetalert2";
+import { redirect, useNavigate } from "react-router-dom";
 
 const CreateMilestoneModal = ({ submission, onClose }) => {
   const [milestones, setMilestones] = useState([]);
+  const navigate = useNavigate();
   const [errors, setErrors] = useState([]);
   const [generalError, setGeneralError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Adjust if your real field is status_id instead
-  const statusId = submission.proposal_id;
+  const proposalId = submission.proposal_id;
 
   useEffect(() => {
-    if (!statusId) {
+    if (!proposalId) {
       setGeneralError("Status ID is not available yet.");
     }
-  }, [statusId]);
+  }, [proposalId]);
 
   const handleMilestoneChange = (index, field, value) => {
     const updated = [...milestones];
@@ -33,6 +36,8 @@ const CreateMilestoneModal = ({ submission, onClose }) => {
     setMilestones([
       ...milestones,
       {
+        milestone_status_id: uuidv4(),
+        proposal_id: proposalId,
         milestone_name: "",
         milestone_description: "",
         milestone_attachment: null,
@@ -50,27 +55,36 @@ const CreateMilestoneModal = ({ submission, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const formData = new FormData();
-    formData.append("milestones", JSON.stringify(milestones)); // milestones = array of objects
-  
+    formData.append("milestones", JSON.stringify(milestones)); 
+
     milestones.forEach((m, i) => {
       if (m.document instanceof File) {
-        formData.append(`document_${i}`, m.document); // Cocok dengan backend
+        formData.append(`document_${i}`, m.document);
       }
     });
-  
+
     try {
-      const res = await axios.post("/api/milestones/create", formData, {
+      const res = await axios.post('/api/milestones/create', formData, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          'Content-Type': 'multipart/form-data',
         },
       });
-  
-      console.log(res.data);
-      // Optionally reset form here
-    } catch (error) {
-      console.error(error.response?.data || error.message);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Milestone Created!',
+        text: res.data.message,
+      });
+      redirect();
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to create milestones';
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: msg,
+      });
     }
   };
 
@@ -111,7 +125,7 @@ const CreateMilestoneModal = ({ submission, onClose }) => {
           </div>
         ) : (
           <>
-            <h2 className="text-xl font-bold mb-4">Create Agreement's Milestones</h2>
+            <h2 className="text-center text-xl font-bold mb-4">CREATE AGREEMENT'S MILESTONE</h2>
 
             {milestones.length === 0 ? (
               <div className="text-center text-gray-500 mb-6">No milestones added yet.</div>

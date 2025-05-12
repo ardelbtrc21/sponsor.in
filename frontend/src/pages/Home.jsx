@@ -17,7 +17,7 @@ const Home = () => {
         } else if (role === "Sponsor") {
             navigate("/list-approval-proposal");
         } else if (role === "Admin"){
-            navigate("/admin/pending-sponsors")
+            navigate("/pending-sponsors")
         }
     }, [role, navigate]);
 };
