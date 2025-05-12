@@ -73,6 +73,62 @@ export const doApprovalProposal = async (req, res) => {
 };
 
 
+export const doViewProposal = async (req, res) => {
+  const { proposal_status_id } = req.params;
+  console.log(req.params)
+
+  try {
+    const currentStatus = await ProposalStatus.findOne({
+      where: {
+        proposal_status_id: proposal_status_id,
+        status_name: "Submitted",
+        endAt: null
+      },
+    });
+    console.log(currentStatus)
+    if(!currentStatus){
+      return res.status(204)
+    }
+
+    if (!currentStatus.proposal_id) {
+      return res.status(400).json({
+        message: "Invalid proposal_id associated with the current status.",
+      });
+    }
+
+    const proposal = await Proposal.findOne({
+      where: { proposal_id: currentStatus.proposal_id },
+    });
+
+    if (!proposal) {
+      return res.status(404).json({
+        message: "Proposal not found with the given proposal_id.",
+      });
+    }
+
+    currentStatus.endAt = new Date();
+    await currentStatus.save();
+
+    const newStatus = await ProposalStatus.create({
+      proposal_id: currentStatus.proposal_id, 
+      status_name: "Under Review", 
+    });
+
+    return res.status(201).json({
+      message: "Proposal status successfully updated to Under Review.",
+      data: newStatus,
+    });
+
+  } catch (err) {
+    console.error("Error to change status", err);
+    return res.status(500).json({
+      message: "Internal Server Error",
+      error: err.message,
+    });
+  }
+};
+
+
 export const doRejectProposal = async (req, res) => {
   const { proposal_status_id } = req.params;
 
@@ -490,12 +546,12 @@ export const getCompletedAgreements = async (req, res) => {
       {
         model: ProposalStatus,
         as: "status_proposals",
-        where: { status_name: "completed" },
+        where: { status_name: "Completed" },
         required: true
       }
     ];
 
-    if (role.toLowerCase() === "sponsor") {
+    if (role === "Sponsor") {
       baseIncludes.push({
         model: Sponsor,
         as: "sponsor_proposals",
@@ -522,7 +578,7 @@ export const getCompletedAgreements = async (req, res) => {
         ]
       });
 
-    } else if (role.toLowerCase() === "sponsoree") {
+    } else if (role === "Sponsoree") {
       baseIncludes.push({
         model: Sponsoree,
         as: "sponsoree_proposals",

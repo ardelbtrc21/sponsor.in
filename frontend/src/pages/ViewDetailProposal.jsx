@@ -68,12 +68,16 @@ const ViewDetailProposal = () => {
 
   const changeToUnderReview = async () => {
     try {
-      await axios.patch("/api/proposal/change-status", {
-        proposal_id: id,
-        status: "Under Review"
-      });
+      console.log(latestStatus)
+      await axios.put(`/api/proposals/${latestStatus.proposal_status_id}/view`);
+      getDetailProposal();
     } catch (error) {
-      console.log(error);
+      console.error("Error: ", error);
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: error.message
+      });
     }
   };
 
@@ -88,7 +92,6 @@ const ViewDetailProposal = () => {
 
   useEffect(() => {
     getDetailProposal();
-    changeToUnderReview();
   }, [id]);
 
   const handleApproveProposal = async () => {
@@ -128,6 +131,12 @@ const ViewDetailProposal = () => {
       });
     }
   };
+
+  useEffect(() => {
+    if (latestStatus && user.role === "Sponsor") {
+      changeToUnderReview();
+    }
+  }, [latestStatus]);
 
   const handleOpenModal = (proposal) => {
     setSelectedProposal(proposal);
@@ -248,7 +257,7 @@ const ViewDetailProposal = () => {
 
           {/* Conditional Action Buttons */}
           <div className="text-center text-s pt-2 space-y-2">
-            {user.role === 'Sponsor' && latestStatus?.status_name === "Submitted" && (
+            {user.role === 'Sponsor' && latestStatus?.status_name === "Under Review" && (
               <div>
                 <button
                   className="bg-red-600 hover:opacity-80 tracking-wider text-white font-semibold py-2 px-6 rounded-lg shadow-md mx-2"
@@ -287,7 +296,7 @@ const ViewDetailProposal = () => {
                       text: 'This will mark the milestone as complete.',
                       icon: 'warning',
                       showCancelButton: true,
-                      confirmButtonColor: '#16a34a', 
+                      confirmButtonColor: '#16a34a',
                       cancelButtonColor: '#d33',
                       confirmButtonText: 'Yes, complete it!',
                     });

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import defaultProfile from '../assets/profile_default.png';
 import ModernLayout from "../components/Layout";
 
 const SponsorDetail = () => {
+  const user = useSelector((state) => state.auth.user);
   const { id } = useParams();
   const navigate = useNavigate();
   const [sponsor, setSponsor] = useState(null);

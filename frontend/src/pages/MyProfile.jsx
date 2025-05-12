@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import defaultProfile from '../assets/profile_default.png';
 import { useSelector, useDispatch } from 'react-redux';
 import ModernLayout from "../components/Layout";
+import HistoryAgreement from "../components/HistoryAgreement";
 
 const MyProfile = () => {
     const user = useSelector((state) => state.auth.user);
@@ -179,6 +180,7 @@ const MyProfile = () => {
                                     />
                                 ))}
                         </div>
+                        <HistoryAgreement username={username} role={user.role} isMyProfile={true}/>
                     </div>
                 </div>
             )}
@@ -249,6 +251,7 @@ const MyProfile = () => {
                                 ))}
                         </div>
                     </div>
+                    <HistoryAgreement username={username} role={user.role} isMyProfile={true}/>
                 </div>
             )}
         </ModernLayout>

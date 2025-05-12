@@ -116,7 +116,7 @@ const ListApprovalProposal = () => {
       setPages(response.data.totalPage);
       setRows(response.data.totalRows);
     } catch (error) {
-      navigate("/dashboard");
+      navigate("/list-approval-proposal");
       Swal.fire({
         icon: "error",
         title: "Oops...",
@@ -360,9 +360,9 @@ const ListApprovalProposal = () => {
                     >
                       VIEW PROPOSAL DETAIL
                     </button>
-                    <button className="text-gray-700 hover:text-gray-900">
+                    {/* <button className="text-gray-700 hover:text-gray-900">
                       <ArrowDownTrayIcon className="h-4 w-4" />
-                    </button>
+                    </button> */}
                   </div>
                 </td>
               </tr>
