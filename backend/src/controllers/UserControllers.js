@@ -427,10 +427,9 @@ export const editProfile = async (req, res) => {
             description,
             tags,
             targets,
-            name,
-            category
+            name
         } = req.body;
-        console.log("disini", category)
+        console.log("disini", category_provides)
 
         const removedPhotos = JSON.parse(req.body.removed_photos || '[]');
         console.log(req.body)

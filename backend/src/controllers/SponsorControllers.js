@@ -78,6 +78,13 @@ export const getSponsorById = async (req, res) => {
           attributes: ["target_participant_category"],
           duplicating: false
         },
+        {
+          model: User,
+          as: "user_sponsors",
+          required: false,
+          attributes: ["name", "email", "profile_photo", "is_banned", "background_photo"],
+          duplicating: false
+        },
       ],
     });
 
@@ -89,12 +96,15 @@ export const getSponsorById = async (req, res) => {
       sponsor_id: sponsor.sponsor_id,
       username: sponsor.username,
       name: sponsor.user_sponsors?.name || null,
+      email: sponsor.user_sponsors?.email || null,
       profile_photo: sponsor.user_sponsors?.profile_photo,
       nib: sponsor.nib,
       is_available: sponsor.is_available,
       status: sponsor.status,
+      category_provides: sponsor.category_provides,
       tags_sponsors: sponsor.tags_sponsors,
-      target_sponsors: sponsor.target_sponsors
+      target_sponsors: sponsor.target_sponsors,
+      background_photo: sponsor.user_sponsors?.background_photo || null
     };
     console.log(result)
 
