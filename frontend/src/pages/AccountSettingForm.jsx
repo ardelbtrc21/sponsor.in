@@ -145,6 +145,7 @@ const AccountSettingForm = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="mt-1 block w-full border border-gray-300 rounded px-4 py-2"
+                  required
                 />
                 {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
               </div>
@@ -159,27 +160,25 @@ const AccountSettingForm = () => {
                   Change your password
                 </Link>
               </div>
-              <div className="flex justify-between items-center mt-8">
-                <button
-                  type="button"
-                  className="text-red-600 hover:underline text-sm font-semibold"
-                  onClick={() => {
-                    handleDeleteAccount()
-                  }}
-                >
-                  Delete Account
-                </button>
-
-                <button
-                  type="submit"
-                  className="bg-primary text-white px-6 py-2 rounded hover:bg-secondary w-1/4"
-                >
-                  Save Changes
-                </button>
-              </div>
+              {user.role !== 'Admin' && (
+                <div className="flex justify-between items-center mt-8">
+                  <button
+                    type="button"
+                    className="text-red-600 hover:underline text-sm font-semibold"
+                    onClick={() => handleDeleteAccount()}
+                  >
+                    Delete Account
+                  </button>
+                </div>
+              )}
+              <button
+                type="submit"
+                className="bg-primary text-white px-6 py-2 rounded hover:bg-secondary w-1/4"
+              >
+                Save Changes
+              </button>
             </div>
           </div>
-
           {/* Submit Button */}
           <div className="mt-8 text-center">
             {message && <p className="text-green-600 mt-4">{message}</p>}

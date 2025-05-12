@@ -3,80 +3,81 @@ import Milestone from "../models/milestone.js";
 import MilestoneStatus from "../models/milestone_status.js";
 import Proposal from "../models/proposal.js";
 import ProposalStatus from "../models/proposal_status.js";
-import { v4 as uuidv4, v4 } from 'uuid';
+import { v4 as uuidv4} from 'uuid';
 import Sponsor from "../models/sponsor.js";
+import path from "path";
 
 export const createMilestones = async (req, res) => {
-  const t = await db.transaction();
   try {
-    const { milestones } = req.body; // milestones dalam bentuk JSON string
-    const parsedMilestones = JSON.parse(milestones); // Convert ke array objek
-
-    if (!Array.isArray(parsedMilestones) || parsedMilestones.length === 0) {
-      return res.status(400).json({ message: "No milestones provided" });
+    const milestones = JSON.parse(req.body.milestones);
+    if (!milestones || milestones.length === 0) {
+      return res.status(400).json({ message: "No milestone data provided." });
     }
 
-    const files = req.files || {};
+    let errors = {};
+    const createdMilestones = [];
 
-    const milestoneEntries = [];
-
-    for (let i = 0; i < parsedMilestones.length; i++) {
-      const m = parsedMilestones[i];
-
-      if (!m.milestone_name || !m.milestone_description || !m.proposal_id) {
-        return res.status(400).json({ message: `Missing fields in milestone #${i + 1}` });
-      }
-
-      const milestoneId = uuidv4();
+    for (let i = 0; i < milestones.length; i++) {
+      const milestone = milestones[i];
       let fileName = null;
 
-      const file = files[`document_${i}`];
-      if (file) {
-        const ext = path.extname(file.name).toLowerCase();
+      const document = req.files ? req.files[`document_${i}`] : null;
+
+      if (document) {
+        const ext = path.extname(String(document.name)).toLowerCase();
         if (ext !== ".pdf") {
-          return res.status(400).json({ message: `Milestone #${i + 1} file must be a PDF.` });
+          errors[`document_${i}`] = `File ${document.name} must be a PDF.`;
+          continue;
         }
-        if (file.size > 10 * 1024 * 1024) {
-          return res.status(400).json({ message: `Milestone #${i + 1} file size must be under 10MB.` });
+        const fileSize = document.data.length;
+        if (fileSize > 10000000) {
+          errors[`document_${i}`] = `File ${document.name} must be less than 10MB.`;
+          continue;
         }
 
-        fileName = `${milestoneId}_${file.name}`;
+        fileName = `${milestone.proposal_id}_${Date.now()}_${document.name}`;
         const uploadPath = path.join(__dirname, "..", "..", "data", "milestones", fileName);
-        await file.mv(uploadPath);
+
+        await new Promise((resolve, reject) => {
+          document.mv(uploadPath, (err) => {
+            if (err) reject(err);
+            else resolve();
+          });
+        });
       }
 
-      milestoneEntries.push({
-        milestone_id: milestoneId,
-        proposal_id: m.proposal_id,
-        milestone_name: m.milestone_name,
-        milestone_description: m.milestone_description,
-        document: fileName,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+      const created = await Milestone.create({
+        milestone_id: uuidv4(),
+        proposal_id: milestone.proposal_id,
+        milestone_name: milestone.milestone_name,
+        milestone_description: milestone.milestone_description,
+        milestone_attachment: fileName,
+        completed_date: milestone.completed_date || null,
+        created_date: new Date(),
       });
+
+      await MilestoneStatus.create({
+        status_id: uuidv4(),
+        milestone_id: created.milestone_id,
+        status_name: "Pending",
+        updatedAt: new Date()
+      });
+
+      createdMilestones.push(created);
     }
 
-    const createdMilestones = await Milestone.bulkCreate(milestoneEntries, { transaction: t });
-
-    const milestoneStatuses = createdMilestones.map((m) => ({
-      milestone_status_id: uuidv4(),
-      milestone_id: m.milestone_id,
-      status_name: "pending",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }));
-
-    await MilestoneStatus.bulkCreate(milestoneStatuses, { transaction: t });
-    await t.commit();
+    if (Object.keys(errors).length > 0) {
+      return res.status(400).json({ message: "Some milestones failed", errors });
+    }
 
     return res.status(201).json({
-      message: "Milestones and statuses created successfully",
+      message: "Milestones created successfully.",
       data: createdMilestones,
     });
+
   } catch (error) {
-    await t.rollback();
-    console.error("Milestone creation error:", error);
-    return res.status(500).json({ message: "Internal server error", error: error.message });
+    console.error("Milestone error:", error);
+    return res.status(500).json({ message: "Server error while creating milestones." });
   }
 };
 
@@ -134,7 +135,7 @@ export const getPendingMilestonesByUsername = async (req, res) => {
 
     const filtered = milestones.filter(milestone => {
       const latestStatus = milestone.status_milestones[0];
-      return latestStatus?.status_name === 'pending';
+      return latestStatus?.status_name === 'Submitted';
     });
     console.log("Result: ", filtered);
     res.json(filtered);
@@ -145,7 +146,6 @@ export const getPendingMilestonesByUsername = async (req, res) => {
 };
 
 export const getMilestoneById = async (req, res) => {
-  console.log("Test: ", req.params.milestone_id);
   const milestone = await Milestone.findByPk(req.params.milestone_id);
   const status = await MilestoneStatus.findOne({
     where: { milestone_id: req.params.milestone_id },
@@ -157,11 +157,38 @@ export const getMilestoneById = async (req, res) => {
   res.json({ milestone, status });
 };
 
+export const getMilestonesByProposalId = async (req, res) => {
+  const { proposal_id } = req.params;
+  console.log("received prop id: ", proposal_id);
+
+  try {
+    const milestones = await Milestone.findAll({
+      where: { proposal_id: proposal_id},
+      include: [
+        {
+          model: MilestoneStatus,
+          as: "status_milestones",
+          separate: true,
+          limit: 1,
+          order: [["createdAt", "DESC"]],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+    console.log("test: ", milestones);
+    res.json(milestones);
+  } catch (err) {
+    console.error("Failed to fetch milestones by proposal ID:", err);
+    res.status(500).json({ error: "Failed to fetch milestones" });
+  }
+};
+
+
 export const updateMilestoneStatus = async (req, res) => {
   const { status_name } = req.body;
   const milestone_id = req.params.milestone_id;
 
-  if (!["completed", "need revision"].includes(status_name.toLowerCase())) {
+  if (!["Completed", "Revision Required"].includes(status_name)) {
     return res.status(400).json({ message: "Invalid status" });
   }
 
