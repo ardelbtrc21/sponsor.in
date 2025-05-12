@@ -12,7 +12,7 @@ const Navbar = ({ onToggleSidebar }) => {
   const navigate = useNavigate();
   const handleProfileClick = () => {
     if (user?.username) {
-      navigate(`/edit-profile/${user.username}`);
+      navigate(`/my-profile`);
     }
   };
   return (
