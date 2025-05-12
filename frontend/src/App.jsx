@@ -26,7 +26,6 @@ import AccountSetting from "./pages/AccountSettingForm";
 import ListReportedAccount from "./pages/ListReportedAccounts";
 import MyProfile from "./pages/MyProfile";
 import EditProfile from "./pages/EditProfile";
-import MilestoneListPage from "./pages/ViewListMilestone";
 import MilestoneDetailPage from "./pages/MilestoneDetail";
 import HistoryAgreementWrapper from "./components/HistoryAgreementWrapper";
 

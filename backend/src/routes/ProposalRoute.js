@@ -20,8 +20,7 @@ router.put("/:status_id/approve", doApprovalProposal);
 router.get("/api/proposals/status/:username/:status_name", getProposalByStatus);
 router.get("/api/proposals/list", getAllProposals);
 router.get("/api/proposals/:proposal_id/status", getProposalStatusByProposalId);
-router.get("/api/proposals/:proposal_id/status/latest", getLatestProposalStatus);
-
+router.get("/api/proposal/:proposal_id/status/latest", getLatestProposalStatus);
 router.get("/api/proposals/preview/:filename", (req, res) => {
     const { filename } = req.params;
     const filePath = path.join(proposalFolder, filename);
