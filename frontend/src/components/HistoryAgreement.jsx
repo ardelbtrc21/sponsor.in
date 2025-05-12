@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import Header from "./Header";
+import Footer from "./Footer";
 import { Spin } from "antd";
 
-const HistoryAgreement = ({ username, role }) => {
+const HistoryAgreement = ({ username, role, isMyProfile }) => {
   const { user } = useSelector((state) => state.auth);
   const [agreements, setAgreements] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,11 +39,9 @@ const HistoryAgreement = ({ username, role }) => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
-
       <main className="flex-1 w-full max-w-screen-xl mx-auto px-4 py-8">
-        <h1 className="text-4xl text-primary font-bold flex justify-center tracking-wider mb-6">
-          {username ? `AGREEMENT HISTORY` : `MY HISTORY SPONSORSHIP`}
+        <h1 className="text-2xl text-primary font-bold flex justify-center tracking-wider mt-6 mb-6">
+          {isMyProfile ? `MY HISTORY SPONSORSHIP` : `AGREEMENT HISTORY`}
         </h1>
 
         {loading ? (
@@ -80,8 +78,6 @@ const HistoryAgreement = ({ username, role }) => {
           </div>
         )}
       </main>
-
-      <Footer />
     </div>
   );
 };
