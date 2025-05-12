@@ -3,9 +3,15 @@ import Milestone from "../models/milestone.js";
 import MilestoneStatus from "../models/milestone_status.js";
 import Proposal from "../models/proposal.js";
 import ProposalStatus from "../models/proposal_status.js";
-import { v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import Sponsor from "../models/sponsor.js";
 import path from "path";
+import { fileURLToPath } from 'url';
+import sequelize, { Op } from "sequelize";
+import { promisify } from "util";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const createMilestones = async (req, res) => {
   try {
@@ -86,8 +92,8 @@ export const getStatusBySubmissionId = async (req, res) => {
 
   try {
     const status = await ProposalStatus.findOne({
-      where: { 
-        proposal_status_id: proposal_status_id 
+      where: {
+        proposal_status_id: proposal_status_id
       }
     });
 
@@ -95,8 +101,8 @@ export const getStatusBySubmissionId = async (req, res) => {
       return res.status(404).json({ message: "Proposal Status not found for this submission" });
     }
 
-    return res.status(200).json({ proposal_status_id: status.proposal_status_id });  
-  } 
+    return res.status(200).json({ proposal_status_id: status.proposal_status_id });
+  }
   catch (error) {
     console.error("Error fetching status:", error);
     return res.status(500).json({ message: "Internal Server Error", error: error.message });
@@ -125,7 +131,7 @@ export const getPendingMilestonesByUsername = async (req, res) => {
         {
           model: MilestoneStatus,
           as: 'status_milestones',
-          separate: true, 
+          separate: true,
           limit: 1,
           order: [['createdAt', 'DESC']]
         }
@@ -163,7 +169,7 @@ export const getMilestonesByProposalId = async (req, res) => {
 
   try {
     const milestones = await Milestone.findAll({
-      where: { proposal_id: proposal_id},
+      where: { proposal_id: proposal_id },
       include: [
         {
           model: MilestoneStatus,
@@ -201,4 +207,67 @@ export const updateMilestoneStatus = async (req, res) => {
   });
 
   res.json({ message: "Milestone status updated" });
+};
+
+export const addReplyMilestone = async (req, res) => {
+  const { milestone_id, milestone_reply } = req.body;
+  const milestone_reply_attachment = req.files?.milestone_reply_attachment;
+  console.log("file", milestone_reply_attachment)
+
+  try {
+    const milestone = await Milestone.findOne({
+      where: { milestone_id },
+      include: {
+        model: MilestoneStatus,
+        as: "status_milestones",
+        where: {
+          [Op.or]: [
+            { status_name: "Pending", endAt: null },
+            { status_name: "Revision Required", endAt: null }
+          ]
+        }
+      }
+    });
+
+    if (!milestone) {
+      return res.status(404).json({ message: "Milestone active not found." });
+    }
+
+    let fileName = "";
+    if (milestone_reply_attachment) {
+      console.log(milestone_reply_attachment)
+      const ext = path.extname(String(milestone_reply_attachment.name)).toLowerCase();
+      const allowedExtensions = [".pdf", ".xlsx", ".docs", ".jpg", ".png", ".zip"];
+
+      if (!allowedExtensions.includes(ext)) {
+        return res.status(400).json({ msg: `File type not allowed. Must be: ${allowedExtensions.join(", ")}` });
+      }
+
+      const fileSize = milestone_reply_attachment.data.length;
+      if (fileSize > 20000000) {
+        return res.status(400).json({ msg: `File ${milestone_reply_attachment.name} must be less than 20 MB.` });
+      }
+
+      const uniqueId = uuidv4();
+      fileName = uniqueId + "_" + String(milestone_reply_attachment.name);
+      const uploadPath = path.join(__dirname, "..", "..", "data", "milestone", fileName);
+
+      // Use promisify
+      const mv = promisify(milestone_reply_attachment.mv);
+      await mv(uploadPath);
+
+      milestone.milestone_reply = milestone_reply;
+      milestone.milestone_reply_attachment = fileName;
+      await milestone.save();
+    } else {
+      // Jika tidak ada attachment, tetap update reply saja
+      milestone.milestone_reply = milestone_reply;
+      await milestone.save();
+    }
+
+    return res.status(201).json({ msg: "Reply successfully created" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ msg: error.message });
+  }
 };

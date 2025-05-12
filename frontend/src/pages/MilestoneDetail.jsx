@@ -7,15 +7,20 @@ import Footer from "../components/Footer";
 import ModernLayout from "../components/Layout";
 import dayjs from "dayjs";
 import { useSelector } from "react-redux";
+import { Input, Upload, Button } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
 
 const MilestoneDetailPage = () => {
   const { milestone_id } = useParams();
+  const { TextArea } = Input;
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
 
   const [milestone, setMilestone] = useState(null);
   const [status, setStatus] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
+  const [replyMilestone, setReplyMilestone] = useState("");
+  const [milestoneReplyAttachment, setMilestoneReplyAttachment] = useState(null);
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -48,6 +53,45 @@ const MilestoneDetailPage = () => {
         icon: "error",
         title: "Error",
         text: "Failed to update status.",
+        confirmButtonColor: "#EF4444",
+      });
+    }
+  };
+
+  const handleReplyMilestone = async (e) => {
+    e.preventDefault();
+
+    try {
+      const formData = new FormData();
+      formData.append("milestone_reply", replyMilestone);
+      formData.append("milestone_id", milestone_id);
+      if (milestoneReplyAttachment?.originFileObj || milestoneReplyAttachment !== null) {
+        console.log(milestoneReplyAttachment)
+        formData.append("milestone_reply_attachment", milestoneReplyAttachment?.originFileObj);
+      }
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
+
+
+      await axios.patch("/api/milestones/reply", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
+
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Reply milestone success!",
+        confirmButtonColor: "#6366F1",
+      }).then(() => navigate("/milestones"));
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Reply milestone failed.",
         confirmButtonColor: "#EF4444",
       });
     }
@@ -106,6 +150,48 @@ const MilestoneDetailPage = () => {
                 <p className="text-sm text-gray-500 mb-4">
                   Current Status: {renderStatusBadge(status)}
                 </p>
+
+                <div className="bg-white p-6 mt-6 rounded-xl shadow-sm border max-w-2xl mx-auto">
+                  <h2 className="text-xl font-semibold mb-4 text-gray-800">Fill the Milestone</h2>
+
+                  <div className="mb-4">
+                    <label className="block mb-1 font-medium text-gray-700">Reply the Sponsor</label>
+                    <TextArea
+                      rows={4}
+                      placeholder="Type your response here..."
+                      onChange={(e) => setReplyMilestone(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label className="block mb-1 font-medium text-gray-700">Attachment</label>
+                    <Upload
+                      beforeUpload={() => false}
+                      maxCount={1}
+                      onChange={({ fileList }) => {
+                        if (fileList.length > 0) {
+                          setMilestoneReplyAttachment(fileList[0]);
+                        } else {
+                          setMilestoneReplyAttachment(null);
+                        }
+                      }}
+
+                    >
+                      <Button icon={<UploadOutlined />}>Upload Attachment</Button>
+                    </Upload>
+                    {console.log(milestoneReplyAttachment)}
+                    <p className="text-xs text-gray-400 mt-1">Optional. PDF, DOCX, JPG, or PNG formats supported.</p>
+                  </div>
+
+                  <Button
+                    type="primary"
+                    className="bg-primary hover:bg-gray-700"
+                    onClick={handleReplyMilestone}
+                  >
+                    Submit
+                  </Button>
+
+                </div>
 
                 {user.role === "Sponsor" && (
                   <>

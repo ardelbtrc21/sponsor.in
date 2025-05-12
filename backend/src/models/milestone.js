@@ -27,6 +27,14 @@ const Milestone = db.define("milestone", {
         type: Sequelize.TEXT,
         allowNull: true
       },
+      milestone_reply: {
+        type: Sequelize.TEXT,
+        allowNull: true
+      },
+      milestone_reply_attachment: {
+        type: Sequelize.TEXT,
+        allowNull: true
+      },
       created_date: {
         type: Sequelize.DATE,
         allowNull: false
