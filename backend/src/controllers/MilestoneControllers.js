@@ -133,7 +133,7 @@ export const getPendingMilestonesByUsername = async (req, res) => {
 
     const filtered = milestones.filter(milestone => {
       const latestStatus = milestone.status_milestones[0];
-      return latestStatus?.status_name === 'Submitted';
+      return latestStatus?.status_name === 'Pending';
     });
     console.log("Result: ", filtered);
     res.json(filtered);
