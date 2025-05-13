@@ -60,8 +60,11 @@ const MyProfile = () => {
                             style={{ imageRendering: "auto" }}
                             alt="banner"
                         />
-                        <span className="absolute top-4 right-4 bg-green-500 text-white text-sm px-3 py-1 rounded-full shadow-md">
-                            {sponsor.user_sponsors.is_available ? "Available" : "Not Available"}
+                        <span
+                            className={`absolute top-4 right-20 px-4 py-1 rounded-full text-sm font-semibold shadow-lg transition-colors duration-300
+            ${sponsor.user_sponsors.is_available ? 'bg-hijau text-white' : 'bg-red-500 text-white'}`}
+                        >
+                            {sponsor.user_sponsors.is_available ? 'Available' : 'Not Available'}
                         </span>
 
                         {/* Foto Profil */}
@@ -78,11 +81,6 @@ const MyProfile = () => {
                     <div className="flex flex-col items-center mt-20 text-center px-4">
                         <h1 className="text-2xl font-bold text-[#031930]">{sponsor.name}</h1>
                         <p className="text-sm text-gray-500 mt-2">@{sponsor.username}</p>
-                        <div className="flex items-center gap-2 text-sm text-gray-600 mt-2">
-                            <span>⭐ {sponsor.rating || 4.5}</span>
-                            <span>• {sponsor.deals || "1K"} Deals</span>
-                            <span>• {sponsor.reports || 0} Reports</span>
-                        </div>
 
                         <div className="flex gap-3 mt-4">
                             <Link
@@ -185,7 +183,7 @@ const MyProfile = () => {
                                     />
                                 ))}
                         </div>
-                        <HistoryAgreement username={username} role={user.role} isMyProfile={true}/>
+                        <HistoryAgreement username={username} role={user.role} isMyProfile={true} />
                     </div>
                 </div>
             )}
@@ -216,11 +214,6 @@ const MyProfile = () => {
                     <div className="flex flex-col items-center mt-20 text-center px-4">
                         <h1 className="text-2xl font-bold text-[#031930]">{sponsoree.name}</h1>
                         <p className="text-sm text-gray-500 mt-2">@{sponsoree.username}</p>
-                        <div className="flex items-center gap-2 text-sm text-gray-600 mt-2">
-                            <span>⭐ {sponsoree.rating || 4.5}</span>
-                            <span>• {sponsoree.deals || "1K"} Deals</span>
-                            <span>• {sponsoree.reports || 0} Reports</span>
-                        </div>
 
                         <div className="flex gap-3 mt-4">
                             <Link
@@ -261,7 +254,7 @@ const MyProfile = () => {
                                 ))}
                         </div>
                     </div>
-                    <HistoryAgreement username={username} role={user.role} isMyProfile={true}/>
+                    <HistoryAgreement username={username} role={user.role} isMyProfile={true} />
                 </div>
             )}
         </ModernLayout>
