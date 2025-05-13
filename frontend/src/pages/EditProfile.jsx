@@ -35,12 +35,12 @@ const EditProfile = ({ sponsor: sponsoree }) => {
         name: "",
         background_photo: null,
         is_available: false,
-        category_provides: "",
+        category_provides: [],
         description: "",
         sponsorship_photos: [],
         tags: [],
         targets: [],
-        category: []
+        category: ""
     });
 
     useEffect(() => {
@@ -61,7 +61,7 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                 name: sponsorData.name,
                 background_photo: sponsorData.background_photo,
                 is_available: sponsorData.user_sponsors?.is_available || false,
-                category: sponsorData.user_sponsors?.category_provides.split(',') || [],
+                category_provides: sponsorData.user_sponsors?.category_provides.split(',') || [],
                 description: sponsorData.user_sponsors?.description || "",
                 sponsorship_photos: sponsorData.photo_sponsorship_users || [],
                 tags: sponsorData.user_sponsors?.tags_sponsors || [],
@@ -199,7 +199,8 @@ const EditProfile = ({ sponsor: sponsoree }) => {
         data.append("name", formData.name);
         data.append("is_available", formData.is_available);
         data.append("description", formData.description);
-        data.append("category_provides", formData.category?.join(','));
+        data.append("category", formData.category);
+        data.append("category_provides", formData.category_provides?.join(','));
         data.append("removed_photos", JSON.stringify(removedPhotos))
 
         if (formData.background_photo instanceof File) {
@@ -250,7 +251,6 @@ const EditProfile = ({ sponsor: sponsoree }) => {
     }
 
     return (
-
         <ModernLayout>
             <div className="min-h-screen bg-white">
                 {/* Header Section */}
@@ -260,7 +260,6 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                         alt="Banner"
                         className="h-full w-full object-cover"
                     />
-                    {console.log(formData.category_provides)}
                     <div className="absolute bottom-2 right-2 bg-dropdown">
                         <button
                             onClick={() => setShowBgDropdown(!showBgDropdown)}
@@ -398,17 +397,17 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                                         mode="tags"
                                         style={{ width: '100%' }}
                                         placeholder="Add Category"
-                                        value={formData.category}
+                                        value={formData.category_provides}
                                         onChange={(values) =>
                                             setFormData({
                                                 ...formData,
-                                                category: values,
+                                                category_provides: values,
                                             })
                                         }
                                         options={[
                                             ...categories,
-                                            ...(Array.isArray(formData.category)
-                                                ? formData.category
+                                            ...(Array.isArray(formData.category_provides)
+                                                ? formData.category_provides
                                                     .filter(val => !categories.some(opt => opt.value === val))
                                                     .map(val => ({ value: val, label: val }))
                                                 : [])
