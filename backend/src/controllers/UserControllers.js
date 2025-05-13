@@ -681,13 +681,15 @@ export const banAccount = async (req, res) => {
         });
         if (!user) return res.status(404).json({ msg: "User Not Found" });
         if (user) {
-            await Report.update({
-                status: "approved"
-            }, {
-                where: {
-                    report_id: report_id
-                }
-            })
+            if (report_id) {
+                await Report.update({
+                    status: "approved"
+                }, {
+                    where: {
+                        report_id: report_id
+                    }
+                })
+            }
             await User.update({
                 is_banned: true
             }, {

@@ -34,7 +34,17 @@ const Login = () => {
         try {
             await dispatch(LoginUser({ username, password })).unwrap();
             const res = await dispatch(getMe()).unwrap();
+            console.log(res.is_banned)
     
+            if (res.is_banned) {
+                dispatch(reset());
+                Swal.fire({
+                    icon: "error",
+                    title: "Your account is banned.",
+                    text: "Please confirm to sponsorin.13@gmail.com if you think there's a misunderstanding.",
+                });
+                return;
+            }    
             if (res.role === "Sponsor") {
                 const sponsorRes = await axios.get(`/api/sponsors/${res.username}`);
                 const sponsorStatus = sponsorRes.data.status;

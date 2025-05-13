@@ -5,6 +5,8 @@ import defaultProfile from '../assets/profile_default.png';
 import { useSelector, useDispatch } from 'react-redux';
 import ModernLayout from "../components/Layout";
 import HistoryAgreement from "../components/HistoryAgreement";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 const SponsoreeDetail = () => {
     const { id } = useParams();
@@ -13,7 +15,6 @@ const SponsoreeDetail = () => {
     const username = user.username;
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const [sponsor, setSponsor] = useState(null);
     const [sponsoree, setSponsoree] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -34,6 +35,28 @@ const SponsoreeDetail = () => {
                 setLoading(false);
             });
     }, [id]);
+
+    const handleBanAccount = async () => {
+        try {
+            await axios.patch("/api/banAccount", {
+                username: "admin"
+            })
+            Swal.fire({
+                title: "Ban Account Successful!",
+                icon: "success",
+                confirmButtonColor: "#3085d6",
+                confirmButtonText: "OK",
+                text: "Your request has been successfully added"
+            });
+            navigate(-1);
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: error.response.data.msg,
+            });
+        }
+    }
 
     if (loading) return <div className="text-center mt-10">Loading...</div>;
     if (error) return <div className="text-center mt-10 text-red-500">Error: {error}</div>;
@@ -68,42 +91,76 @@ const SponsoreeDetail = () => {
                     </div>
                 </div>
 
-                <div className="flex flex-col items-center mt-20 text-center px-4">
-                    <h1 className="text-2xl font-bold text-[#031930]">{sponsoree.name}</h1>
-                    <p className="text-sm text-gray-500 mt-2">@{sponsoree.username}</p>
-                </div>
+                {!sponsoree.is_banned && (
+                    <div>
+                        <div className="flex flex-col items-center mt-20 text-center px-4">
+                            <h1 className="text-2xl font-bold text-[#031930]">{sponsoree.name}</h1>
+                            <p className="text-sm text-gray-500 mt-2">@{sponsoree.username}</p>
 
-                {/* Sponsorships */}
-                <div className="mt-16 px-6">
-                    <h2 className="text-2xl font-semibold text-center text-[#031930]">Our Sponsorships</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 max-w-6xl mx-auto">
-                        {sponsoree.photo_sponsorship_users.length > 0
-                            ? sponsoree.photo_sponsorship_users.map((img, idx) => (
-                                <img
-                                    key={idx}
-                                    src={`/api/sponsorship_photos/preview/${img.photo}`}
-                                    alt={`sponsorship-${idx}`}
-                                    className="rounded-xl w-full h-52 object-cover shadow-sm"
-                                />
-                            ))
-                            : [
-                                "https://i.pinimg.com/736x/75/bb/c1/75bbc141800fa53fb59c6a06bc2c27c3.jpg",
-                                "https://i.pinimg.com/474x/eb/fb/02/ebfb0275b4e79fcfb02928300e71bcf2.jpg",
-                                "https://i.pinimg.com/474x/c3/15/4e/c3154e3047a094b517dead55017adee0.jpg",
-                            ].map((url, idx) => (
-                                <img
-                                    key={idx}
-                                    src={url}
-                                    alt={`sponsorship-${idx}`}
-                                    className="rounded-xl w-full h-52 object-cover shadow-sm"
-                                />
-                            ))}
+                            <div className="flex gap-3 mt-4">
+                                {user.role === "Sponsor" && (
+                                    <Link
+                                        to={`/report/${sponsoree.username}`}
+                                        className="bg-primary text-white px-5 py-2 rounded-md text-sm hover:bg-gray-700 transition-opacity duration-200"
+                                    >
+                                        Report
+                                    </Link>
+                                )}
+                                {user && user.role === "Admin" && (
+                                    <Link
+                                        onClick={() => handleBanAccount()}
+                                        className="border text-white font-semibold text-xs px-3 py-1.5 rounded-lg transition bg-red-700 hover:bg-red-600 flex items-center justify-center">
+                                        Ban Account
+                                    </Link>
+                                )}
+                            </div>
+                        </div>
+
+
+                        {/* Sponsorships */}
+                        <div className="mt-16 px-6">
+                            <h2 className="text-2xl font-semibold text-center text-[#031930]">Our Sponsorships</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 max-w-6xl mx-auto">
+                                {sponsoree.photo_sponsorship_users.length > 0
+                                    ? sponsoree.photo_sponsorship_users.map((img, idx) => (
+                                        <img
+                                            key={idx}
+                                            src={`/api/sponsorship_photos/preview/${img.photo}`}
+                                            alt={`sponsorship-${idx}`}
+                                            className="rounded-xl w-full h-52 object-cover shadow-sm"
+                                        />
+                                    ))
+                                    : [
+                                        "https://i.pinimg.com/736x/75/bb/c1/75bbc141800fa53fb59c6a06bc2c27c3.jpg",
+                                        "https://i.pinimg.com/474x/eb/fb/02/ebfb0275b4e79fcfb02928300e71bcf2.jpg",
+                                        "https://i.pinimg.com/474x/c3/15/4e/c3154e3047a094b517dead55017adee0.jpg",
+                                    ].map((url, idx) => (
+                                        <img
+                                            key={idx}
+                                            src={url}
+                                            alt={`sponsorship-${idx}`}
+                                            className="rounded-xl w-full h-52 object-cover shadow-sm"
+                                        />
+                                    ))}
+                            </div>
+                        </div>
+
+                        <HistoryAgreement username={id} role={"Sponsoree"} isMyProfile={true} />
+                    </div>
+                )}
+            </div>
+            {sponsoree.is_banned && (
+                <div>
+                    <div className="flex flex-col items-center mt-20 text-center px-4">
+                        <h1 className="text-2xl font-bold text-[#031930]">{sponsoree.name}</h1>
+                        <p className="text-sm text-gray-500 mt-2">@{sponsoree.username}</p>
+                    </div>
+                    <div className="flex justify-center pt-10">
+                        <h2 className="text-xl font-semibold text-gray-800 mb-4">This account is already banned.</h2>
                     </div>
                 </div>
-                <HistoryAgreement username={id} role={"Sponsoree"} isMyProfile={true} />
-            </div>
+            )}
         </ModernLayout>
     );
-};
-
+}
 export default SponsoreeDetail;

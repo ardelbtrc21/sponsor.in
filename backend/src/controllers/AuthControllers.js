@@ -41,7 +41,7 @@ export const Me = async (req, res) => {
             return res.status(401).json();
         }
         const user = await User.findOne({
-            attributes: ["username", "name", "email", "role", "profile_photo", "background_photo"],
+            attributes: ["username", "name", "email", "role", "profile_photo", "background_photo", "is_banned"],
             where: {
                 username: req.session.username
             }
