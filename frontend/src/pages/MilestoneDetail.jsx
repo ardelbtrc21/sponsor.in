@@ -13,7 +13,6 @@ const MilestoneDetailPage = () => {
   const { TextArea } = Input;
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
-
   const [milestone, setMilestone] = useState(null);
   const [status, setStatus] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
@@ -34,6 +33,32 @@ const MilestoneDetailPage = () => {
     fetchDetail();
   }, [milestone_id]);
 
+  const fetchAndPreviewPDF = async () => {
+    try {
+      const res = await axios({
+        url: `/api/milestones/preview/${milestone.milestone_attachment}`,
+        method: "GET",
+        responseType: "blob",
+      });
+
+      const blob = new Blob([res.data], { type: "application/pdf" });
+      const blobUrl = URL.createObjectURL(blob);
+      window.open(blobUrl, "_blank");    
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text:
+          error.response?.status === 403
+            ? "Access Forbidden"
+            : error.response?.status === 404
+              ? "File Not Found"
+              : "Failed to preview file",
+      });
+      console.error(error);
+    }
+  };
+
   const handleSubmit = async () => {
     try {
       await axios.put(`/api/milestones/${milestone_id}/status`, {
@@ -46,7 +71,7 @@ const MilestoneDetailPage = () => {
         text: "Milestone status updated!",
         confirmButtonColor: "#6366F1",
       }).then(() => {
-        navigate(-1); 
+        navigate(-1);
       });
     } catch (err) {
       Swal.fire({
@@ -134,14 +159,11 @@ const MilestoneDetailPage = () => {
                 <p className="text-sm text-gray-500 mb-1">
                   Attachment:
                   {milestone.milestone_attachment ? (
-                    <a
-                      href={milestone.milestone_attachment}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 underline ml-2"
-                    >
-                      View Attachment
-                    </a>
+                    <button
+                    onClick={fetchAndPreviewPDF}
+                    className="text-blue-600 underline ml-2"
+                  > View Attachment 
+                  </button>
                   ) : (
                     <span className="italic text-gray-400 ml-2">No attachment uploaded</span>
                   )}

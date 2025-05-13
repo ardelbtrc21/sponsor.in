@@ -31,7 +31,7 @@ const LandingScreen = () => {
       {/* Hero Section */}
       <div className="flex flex-1 items-center justify-center px-4 mt-20 mb-8">
         <div className="text-center max-w-2xl">
-          <h1 className="text-primary text-2xl md:text-3xl font-bold tracking-wide">
+          <h1 className="text-primary text-2xl md:text-3xl font-bold tracking-wider pt-16">
             CONNECTING SPONSORS & SPONSOR SEEKERS
           </h1>
           <p className="text-primary text-base md:text-lg mt-4 mb-6 px-4">
@@ -55,13 +55,13 @@ const LandingScreen = () => {
       </div>
 
       {/* Carousel */}
-      <div className="w-full mb-10">
+      <div className="w-full mt-10 mb-10">
         <ImageCarousel />
       </div>
 
       {/* How it Works Title */}
       <div className="flex justify-center px-4 mt-4 mb-4">
-        <h1 className="text-white text-xl md:text-2xl font-bold tracking-wide">HOW IT WORKS?</h1>
+        <h1 className="text-white text-xl md:text-2xl font-bold tracking-wider">HOW IT WORKS?</h1>
       </div>
 
       {/* Steps */}

@@ -26,30 +26,23 @@ export const createMilestones = async (req, res) => {
     for (let i = 0; i < milestones.length; i++) {
       const milestone = milestones[i];
       let fileName = null;
-
       const document = req.files ? req.files[`document_${i}`] : null;
-
       if (document) {
-        const ext = path.extname(String(document.name)).toLowerCase();
+        const ext = path.extname(document.name).toLowerCase();
         if (ext !== ".pdf") {
           errors[`document_${i}`] = `File ${document.name} must be a PDF.`;
           continue;
         }
-        const fileSize = document.data.length;
-        if (fileSize > 10000000) {
+
+        if (document.size > 10 * 1024 * 1024) {
           errors[`document_${i}`] = `File ${document.name} must be less than 10MB.`;
           continue;
         }
 
         fileName = `${milestone.proposal_id}_${Date.now()}_${document.name}`;
-        const uploadPath = path.join(__dirname, "..", "..", "data", "milestones", fileName);
+        const uploadPath = path.join(__dirname, "..", "..", "data", "milestone", fileName);
 
-        await new Promise((resolve, reject) => {
-          document.mv(uploadPath, (err) => {
-            if (err) reject(err);
-            else resolve();
-          });
-        });
+        await document.mv(uploadPath);
       }
 
       const created = await Milestone.create({
@@ -73,7 +66,7 @@ export const createMilestones = async (req, res) => {
     }
 
     if (Object.keys(errors).length > 0) {
-      return res.status(400).json({ message: "Some milestones failed", errors });
+      return res.status(400).json({ message: "Some milestones failed.", errors });
     }
 
     return res.status(201).json({
@@ -82,11 +75,10 @@ export const createMilestones = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Milestone error:", error);
+    console.error("Milestone creation error:", error);
     return res.status(500).json({ message: "Server error while creating milestones." });
   }
 };
-
 export const getStatusBySubmissionId = async (req, res) => {
   const { proposal_status_id } = req.params;
 
