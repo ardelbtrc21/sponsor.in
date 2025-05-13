@@ -9,6 +9,7 @@ import path from "path";
 import { fileURLToPath } from 'url';
 import sequelize, { Op } from "sequelize";
 import { promisify } from "util";
+import { error } from "console";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,21 +30,28 @@ export const createMilestones = async (req, res) => {
       const milestone = milestones[i];
       let fileName = null;
       const document = req.files ? req.files[`document_${i}`] : null;
+
       if (document) {
         const ext = path.extname(document.name).toLowerCase();
-        if (ext !== ".pdf") {
-          errors[`document_${i}`] = `File ${document.name} must be a PDF.`;
+
+        if (
+          ext !== ".pdf" &&
+          ext !== ".jpg" &&
+          ext !== ".png" &&
+          ext !== ".jpeg" &&
+          ext !== ".csv"
+        ) {
+          errors[`document_${i}`] = `File "${document.name}" is not supported. Allowed formats: .pdf, .jpg, .jpeg, .png, .csv.`;
           continue;
         }
 
         if (document.size > 10 * 1024 * 1024) {
-          errors[`document_${i}`] = `File ${document.name} must be less than 10MB.`;
+          errors[`document_${i}`] = `File "${document.name}" is too large. Max allowed size is 10MB.`;
           continue;
         }
 
         fileName = `${milestone.proposal_id}_${Date.now()}_${document.name}`;
         const uploadPath = path.join(__dirname, "..", "..", "data", "milestone", fileName);
-
         await document.mv(uploadPath);
       }
 
@@ -61,34 +69,35 @@ export const createMilestones = async (req, res) => {
         status_id: uuidv4(),
         milestone_id: created.milestone_id,
         status_name: "Pending",
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
 
       createdMilestones.push(created);
     }
 
     if (Object.keys(errors).length > 0) {
-      return res.status(400).json({ message: "Some milestones failed.", errors });
+      return res.status(400).json({
+        message: "One or more files are invalid.",
+        errors,
+      });
     }
-    console.log("latestStatus: ", latestStatus);
-    if (latestStatus.status_name === 'Accepted') {
+
+    if (latestStatus.status_name === "Accepted") {
       await ProposalStatus.update(
         {
-          endAt: new Date()
+          endAt: new Date(),
         },
         {
           where: {
-            proposal_status_id: latestStatus.proposal_status_id
-          }
+            proposal_status_id: latestStatus.proposal_status_id,
+          },
         }
       );
 
-      await ProposalStatus.create(
-        { 
-          proposal_id: latestStatus.proposal_id,
-          status_name: "Processing Agreement" 
-        }     
-      );
+      await ProposalStatus.create({
+        proposal_id: latestStatus.proposal_id,
+        status_name: "Processing Agreement",
+      });
     }
 
     return res.status(201).json({
@@ -98,7 +107,9 @@ export const createMilestones = async (req, res) => {
 
   } catch (error) {
     console.error("Milestone creation error:", error);
-    return res.status(500).json({ message: "Server error while creating milestones." });
+    return res.status(500).json({
+      message: "Server error while creating milestones.",
+    });
   }
 };
 
