@@ -2,8 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import defaultProfile from '../assets/profile_default.png';
+import HistoryAgreement from "../components/HistoryAgreement";
+import { useSelector } from "react-redux";
 
 const SponsorDetail = () => {
+  const user = useSelector((state) => state.auth.user);
   const { id } = useParams();
   const navigate = useNavigate();
   const [sponsor, setSponsor] = useState(null);
@@ -56,7 +59,7 @@ const SponsorDetail = () => {
         {/* Foto Profil */}
         <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 z-10">
           <img
-              src={sponsor.profile_photo ? `/profile_photo/${sponsor.profile_photo}` : defaultProfile}
+            src={sponsor.profile_photo ? `/profile_photo/${sponsor.profile_photo}` : defaultProfile}
             alt="profile_photo"
             className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover bg-white"
           />
@@ -74,7 +77,7 @@ const SponsorDetail = () => {
         </div>
 
         <div className="flex gap-3 mt-4">
-        <Link
+          <Link
             to={`/proposal/create/${sponsor.sponsor_id}`}
             className="bg-blue-600 text-white px-5 py-2 rounded-md text-sm hover:bg-blue-700 transition-colors duration-200"
           >
@@ -115,6 +118,7 @@ const SponsorDetail = () => {
           ))}
         </div>
       </div>
+      <HistoryAgreement username={user.username} role={user.role} isMyProfile={false}/>
     </div>
   );
 };

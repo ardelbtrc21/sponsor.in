@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import HistoryAgreement from "../pages/HistoryAgreement";
+import HistoryAgreement from "./HistoryAgreement";
 
 const HistoryAgreementWrapper = () => {
   const { username } = useParams();

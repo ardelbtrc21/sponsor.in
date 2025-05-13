@@ -18,7 +18,7 @@ import ChangePassword from "./pages/ChangePassword";
 import ListApprovalProposal from "./pages/ListApprovalProposal";
 import LandingScreen from "./pages/LandingScreen";
 import AdminPendingSponsorsPage from "./pages/AdminSponsorApproval";
-import HistoryAgreement from "./pages/HistoryAgreement";
+import HistoryAgreement from "./components/HistoryAgreement";
 import Home from "./pages/Home";
 import AccountSetting from "./pages/AccountSettingForm";
 import ListReportedAccount from "./pages/ListReportedAccounts";
