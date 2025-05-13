@@ -26,6 +26,11 @@ const CreateMilestoneModal = ({ submission, onClose }) => {
     setMilestones(updated);
   };
 
+  const handleClose = () => {
+    onClose(); 
+    window.location.reload(); 
+  };
+
   const handleFileChange = (index, file) => {
     const updated = [...milestones];
     updated[index].milestone_attachment = file;
@@ -40,13 +45,13 @@ const CreateMilestoneModal = ({ submission, onClose }) => {
         proposal_id: proposalId,
         milestone_name: "",
         milestone_description: "",
-        milestone_attachment: null,
+        // milestone_attachment: null,
       },
     ]);
     setErrors([...errors, {}]);
   };
 
-  const removeMilestone = (index) => {
+  const removeMilestone = (index)    => {
     const updated = milestones.filter((_, i) => i !== index);
     const updatedErrors = errors.filter((_, i) => i !== index);
     setMilestones(updated);
@@ -143,7 +148,7 @@ const CreateMilestoneModal = ({ submission, onClose }) => {
               Your milestone has been saved and linked to this agreement.
             </p>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="btn btn-primary text-white px-6 py-2 rounded-full hover:opacity-80"
             >
               Close
