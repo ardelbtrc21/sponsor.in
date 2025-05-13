@@ -197,7 +197,7 @@ const MyProfile = () => {
                             style={{ imageRendering: "auto" }}
                             alt="banner"
                         />
-                        <span className="absolute top-4 right-4 bg-green-500 text-white text-sm px-3 py-1 rounded-full shadow-md">
+                        <span className="absolute top-4 right-4 bg-hijau text-white text-sm px-3 py-1 rounded-full shadow-md">
                             {sponsoree.user_sponsorees.category}
                         </span>
 
