@@ -27,6 +27,7 @@
     "express-fileupload": "^1.5.1",
     "express-session": "^1.18.1",
     "lucide-react": "^0.503.0",
+    "mime-types": "^3.0.1",
     "path": "^0.12.7",
     "pg": "^8.14.0",
     "prettier": "^3.5.3",
