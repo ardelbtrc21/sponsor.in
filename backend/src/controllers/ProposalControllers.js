@@ -655,6 +655,7 @@ export const getProposals = async (req, res) => {
     const sortBy = req?.body?.sortBy || "proposal_name";
     const order = req?.body?.order || "ASC";
     const keyword = req?.body?.keyword || "";
+    const username = req?.body?.username
 
     // pagination
     const page = parseInt(req?.body?.page) || 0;
@@ -712,7 +713,8 @@ export const getProposals = async (req, res) => {
         as: "status_proposals",
         required: true,
         attributes: ["proposal_id", "status_name"],
-        duplicating: false
+        duplicating: false,
+        where: {endAt: null}
       },
       {
         model: Milestone,
@@ -739,7 +741,8 @@ export const getProposals = async (req, res) => {
         as: "sponsor_proposals",
         required: true,
         attributes: ["username", "nib"],
-        duplicating: false
+        duplicating: false,
+        where: {username: username}
       },
       {
         model: Sponsoree,
@@ -779,9 +782,16 @@ export const getProposals = async (req, res) => {
         return tagNames.some(tag => filterTagRelated.includes(tag));
       });
     }
-    if (String(filterTargetParticipant) !== "") {
-      result = result.filter(item => filterTargetParticipant.includes(item.target_proposals));
+    if (filterTargetParticipant.length > 0) {
+      result = result.filter(item => {
+        console.log(item)
+        const targetCategory = item.target_proposals.map(target => target.target_participant_category);
+        return targetCategory.some(target => filterTargetParticipant.includes(target));
+      });
     }
+    // if (String(filterTargetParticipant) !== "") {
+    //   result = result.filter(item => filterTargetParticipant.includes(item.target_proposals));
+    // }
     if (String(filterStatus) !== "") {
       result = result.filter(item => filterStatus.includes(item.status_proposals));
     }

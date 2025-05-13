@@ -37,6 +37,8 @@ const ListApprovalProposal = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [tagsDB, SetTagsDB] = useState([]);
   const filteredTags = tagsDB.filter(o => !tagRelated.includes(o));
+  const [targetsDb, setTargetsDB] = useState([]);
+  const filteredTargets = targetsDb.filter(o => !targetParticipant.includes(o));
   //pagination
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(0);
@@ -74,7 +76,7 @@ const ListApprovalProposal = () => {
     getProposals()
   };
 
-  
+
   const getTags = async () => {
     try {
       const response = await axios.get("/api/tags");
@@ -85,8 +87,19 @@ const ListApprovalProposal = () => {
     }
   };
 
-  const handleFilterOpen = () =>{
-    getTags()
+  const getTargets = async () => {
+    try {
+      const response = await axios.get("/api/targets");
+      const targetCategory = response.data.map(item => item.target_participant_category);
+      setTargetsDB(targetCategory);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleFilterOpen = () => {
+    getTags();
+    getTargets();
     setIsFilterOpen(true)
   }
 
@@ -94,6 +107,7 @@ const ListApprovalProposal = () => {
     try {
       // const response = await axios.get(`/api/changes?sortBy=${sortBy}&order=${order}&keyword=${keyword}&page=${page}&limit=${limit}&startDate=${startDate}&endDate=${endDate}&filter=${filterCategory}`);
       const response = await axios.post("/api/proposals", {
+        username: username,
         sortBy: sortBy,
         order: order,
         keyword: keyword,
@@ -245,6 +259,24 @@ const ListApprovalProposal = () => {
                       </div>
                     </div>
 
+                    {/* Dropdown Target */}
+                    <div className="mb-4 w-full">
+                      <label className="block mb-2 text-sm font-medium text-gray-900">
+                        Targets Related Event
+                      </label>
+                      <div className="w-full">
+                        <Select
+                          mode="multiple"
+                          name="targets"
+                          placeholder="Search here"
+                          value={targetParticipant}
+                          onChange={(e) => setTargetParticipant(e)}
+                          options={filteredTargets.map(item => ({ value: item, label: item }))}
+                          style={{ width: '100%' }}
+                        />
+                      </div>
+                    </div>
+
                     {/* Date Range Filter */}
                     <div className="mb-4 w-full">
                       <label className="block mb-2 text-sm font-medium text-gray-900">
@@ -319,6 +351,7 @@ const ListApprovalProposal = () => {
                   </th>
                 );
               })}
+              <th className="px-4 py-2 text-center">Status</th>
               <th className="px-4 py-2 text-center">Event Date</th>
               <th className="px-4 py-2 text-center">Action</th>
             </tr>
@@ -335,15 +368,28 @@ const ListApprovalProposal = () => {
                     {proposal.tags_proposals?.map((tag, index) => (
                       <span
                         key={index}
-                        className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full"
+                        className="bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded-full"
                       >
                         {tag.tag_name}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex flex-wrap gap-1 pt-2">
+                    {proposal.target_proposals?.map((target, index) => (
+                      <span
+                        key={index}
+                        className="bg-blue-100 text-gray-700 text-xs px-2 py-0.5 rounded-full"
+                      >
+                        {target.target_participant_category}
                       </span>
                     ))}
                   </div>
                 </td>
                 <td className="px-4 py-2 text-gray-600 text-center">
                   {proposal.event_name}
+                </td>
+                <td className="px-4 py-2 text-gray-600 text-center">
+                  {proposal.status_proposals[0].status_name}
                 </td>
                 <td className="px-4 py-2 text-gray-600 text-center">
                   {new Date(proposal.event_date).toLocaleDateString(undefined, {
