@@ -1,22 +1,19 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { v4 as uuidv4 } from 'uuid';
-import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
 
 const CreateMilestoneModal = ({ submission, onClose, latestStatus }) => {
   const [milestones, setMilestones] = useState([]);
-  const navigate = useNavigate();
   const [errors, setErrors] = useState([]);
   const [generalError, setGeneralError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const proposalId = submission.proposal_id;
+  const proposalId = submission?.proposal_id;
 
   useEffect(() => {
     if (!proposalId) {
-      setGeneralError("Status ID is not available yet.");
+      setGeneralError("Proposal ID is not available.");
     }
   }, [proposalId]);
 
@@ -27,14 +24,46 @@ const CreateMilestoneModal = ({ submission, onClose, latestStatus }) => {
   };
 
   const handleClose = () => {
-    onClose(); 
-    window.location.reload(); 
+    onClose();
+    window.location.reload();
   };
 
   const handleFileChange = (index, file) => {
     const updated = [...milestones];
+    const updatedErrors = [...errors];
+
+    const ext = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
+    const allowedExtensions = [".pdf", ".jpg", ".jpeg", ".png", ".csv", ".xlsx"];
+    const maxSizeMB = 10;
+
+    if (!allowedExtensions.includes(ext)) {
+      updatedErrors[index] = {
+        ...updatedErrors[index],
+        milestone_attachment: `File "${file.name}" is not supported. Allowed formats: ${allowedExtensions.join(", ")}.`,
+      };
+      setErrors(updatedErrors);
+      return;
+    }
+
+    if (file.size > maxSizeMB * 1024 * 1024) {
+      updatedErrors[index] = {
+        ...updatedErrors[index],
+        milestone_attachment: `File "${file.name}" is too large. Max allowed size is ${maxSizeMB}MB.`,
+      };
+      setErrors(updatedErrors);
+      return;
+    }
+
     updated[index].milestone_attachment = file;
+    if (updatedErrors[index]) {
+      delete updatedErrors[index].milestone_attachment;
+      if (Object.keys(updatedErrors[index]).length === 0) {
+        updatedErrors[index] = undefined;
+      }
+    }
+
     setMilestones(updated);
+    setErrors(updatedErrors);
   };
 
   const addMilestone = () => {
@@ -45,13 +74,13 @@ const CreateMilestoneModal = ({ submission, onClose, latestStatus }) => {
         proposal_id: proposalId,
         milestone_name: "",
         milestone_description: "",
-        // milestone_attachment: null,
+        milestone_attachment: null,
       },
     ]);
     setErrors([...errors, {}]);
   };
 
-  const removeMilestone = (index)    => {
+  const removeMilestone = (index) => {
     const updated = milestones.filter((_, i) => i !== index);
     const updatedErrors = errors.filter((_, i) => i !== index);
     setMilestones(updated);
@@ -64,13 +93,13 @@ const CreateMilestoneModal = ({ submission, onClose, latestStatus }) => {
 
     milestones.forEach((milestone, index) => {
       const milestoneErrors = {};
-      
-      if (!milestone.milestone_name) {
+
+      if (!milestone.milestone_name?.trim()) {
         milestoneErrors.milestone_name = "Milestone name is required.";
         isValid = false;
       }
 
-      if (!milestone.milestone_description) {
+      if (!milestone.milestone_description?.trim()) {
         milestoneErrors.milestone_description = "Milestone description is required.";
         isValid = false;
       }
@@ -84,10 +113,9 @@ const CreateMilestoneModal = ({ submission, onClose, latestStatus }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setGeneralError("");
 
-    if (!validateMilestones()) {
-      return;
-    }
+    if (!validateMilestones()) return;
 
     const formData = new FormData();
     formData.append("milestones", JSON.stringify(milestones));
@@ -100,21 +128,16 @@ const CreateMilestoneModal = ({ submission, onClose, latestStatus }) => {
     });
 
     setLoading(true);
-
     try {
-      const res = await axios.post('/api/milestones/create', formData, {
+      await axios.post('/api/milestones/create', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      setSuccess(true); 
+      setSuccess(true);
     } catch (err) {
-      const msg = err.response?.data?.message || 'Failed to create milestones';
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: msg,
-      });
+      const msg = err.response?.data?.message || 'Failed to create milestones.';
+      setGeneralError(msg);
     } finally {
       setLoading(false);
     }
@@ -171,7 +194,6 @@ const CreateMilestoneModal = ({ submission, onClose, latestStatus }) => {
                       placeholder="Milestone name"
                       value={milestone.milestone_name}
                       onChange={(e) => handleMilestoneChange(index, "milestone_name", e.target.value)}
-                      required
                     />
                     {errors[index]?.milestone_name && (
                       <p className="text-red-500 text-sm mb-1">{errors[index].milestone_name}</p>
@@ -182,7 +204,6 @@ const CreateMilestoneModal = ({ submission, onClose, latestStatus }) => {
                       placeholder="Milestone description"
                       value={milestone.milestone_description}
                       onChange={(e) => handleMilestoneChange(index, "milestone_description", e.target.value)}
-                      required
                     />
                     {errors[index]?.milestone_description && (
                       <p className="text-red-500 text-sm mb-1">{errors[index].milestone_description}</p>
@@ -190,13 +211,21 @@ const CreateMilestoneModal = ({ submission, onClose, latestStatus }) => {
 
                     <input
                       type="file"
-                      className="w-full border p-3 rounded-xl mb-2 focus:ring-primary focus:border-primary"
+                      accept=".pdf,.jpg,.jpeg,.png,.csv,.xlsx"
+                      name={`document_${index}`}
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/80"
                       onChange={(e) => handleFileChange(index, e.target.files[0])}
                     />
+                    {errors[index]?.milestone_attachment && (
+                      <p className="text-red-500 text-sm">{errors[index].milestone_attachment}</p>
+                    )}
+                    <p className="text-xs text-gray-500 mt-1">
+                      Accepted file types: .pdf, .jpg, .jpeg, .png, .csv, .xlsx. Max size: 10MB
+                    </p>
 
                     <button
                       onClick={() => removeMilestone(index)}
-                      className="text-red-600 hover:underline text-sm"
+                      className="text-red-600 hover:underline text-sm mt-2"
                     >
                       Remove
                     </button>
@@ -205,8 +234,7 @@ const CreateMilestoneModal = ({ submission, onClose, latestStatus }) => {
               </div>
             )}
 
-            {generalError && <p className="text-red-500 mt-4">{generalError}</p>}
-
+            {generalError && <p className="text-red-600 font-medium text-sm mt-4">{generalError}</p>}
             <div className="flex justify-between mt-6">
               <button
                 onClick={addMilestone}

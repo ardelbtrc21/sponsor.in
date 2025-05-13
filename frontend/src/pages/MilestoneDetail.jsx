@@ -35,7 +35,7 @@ const MilestoneDetailPage = () => {
     fetchDetail();
   }, [milestone_id]);
 
-  const fetchAndPreviewPDF = async () => {
+  const fetchAndPreviewFile = async () => {
     try {
       const res = await axios({
         url: `/api/milestones/preview/${milestone.milestone_attachment}`,
@@ -43,9 +43,35 @@ const MilestoneDetailPage = () => {
         responseType: "blob",
       });
 
-      const blob = new Blob([res.data], { type: "application/pdf" });
+      const extension = milestone.milestone_attachment.split('.').pop().toLowerCase();
+      const blob = new Blob([res.data], { type: res.headers["content-type"] });
       const blobUrl = URL.createObjectURL(blob);
-      window.open(blobUrl, "_blank");
+
+      if (extension === "csv" || extension === "xlsx") {
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = milestone.milestone_attachment;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else if (extension === "pdf") {
+        window.open(blobUrl, "_blank");
+      } else if (extension === "jpg" || extension === "jpeg" || extension === "png" || extension === "gif") {
+        const imgWindow = window.open("", "_blank");
+        const img = document.createElement("img");
+        img.src = blobUrl;
+        img.style.width = "50%";
+        img.style.height = "auto";
+        imgWindow.document.body.appendChild(img);
+        imgWindow.document.body.style.textAlign = "center";
+      } else {
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = milestone.milestone_attachment;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -162,7 +188,7 @@ const MilestoneDetailPage = () => {
                   Attachment:
                   {milestone.milestone_attachment ? (
                     <button
-                      onClick={fetchAndPreviewPDF}
+                      onClick={fetchAndPreviewFile}
                       className="text-blue-600 underline ml-2"
                     > View Attachment
                     </button>
