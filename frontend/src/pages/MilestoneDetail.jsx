@@ -34,16 +34,27 @@ const MilestoneDetailPage = () => {
 
     fetchDetail();
   }, [milestone_id]);
-
-  const fetchAndPreviewPDF = async () => {
+  const fetchAndPreviewPDF = async (file) => {
+    console.log(file);
     try {
       const res = await axios({
-        url: `/api/milestones/preview/${milestone.milestone_attachment}`,
+        url: `/api/milestones/preview/${file}`,
         method: "GET",
         responseType: "blob",
       });
+      console.log("Content-Type:", res);
 
-      const blob = new Blob([res.data], { type: "application/pdf" });
+      // Ambil MIME dari header jika tersedia
+      let mimeType = res.headers["Content-Type"] || "application/octet-stream";
+
+      // Atau fallback berdasarkan ekstensi
+      if (!res.headers["Content-Type"]) {
+        if (file.endsWith(".pdf")) mimeType = "application/pdf";
+        else if (file.endsWith(".png")) mimeType = "image/png";
+        else if (file.endsWith(".jpg") || file.endsWith(".jpeg")) mimeType = "image/jpeg";
+      }
+
+      const blob = new Blob([res.data], { type: mimeType });
       const blobUrl = URL.createObjectURL(blob);
       window.open(blobUrl, "_blank");
     } catch (error) {
@@ -162,7 +173,7 @@ const MilestoneDetailPage = () => {
                   Attachment:
                   {milestone.milestone_attachment ? (
                     <button
-                      onClick={fetchAndPreviewPDF}
+                      onClick={() => fetchAndPreviewPDF(milestone.milestone_attachment)}
                       className="text-blue-600 underline ml-2"
                     > View Attachment
                     </button>
@@ -199,10 +210,10 @@ const MilestoneDetailPage = () => {
                   <div className="mb-6">
                     <label className="block mb-1 font-medium text-gray-700">Attachment</label>
                     {isDisabled ? (
-                      milestoneReplyAttachment ? (
+                      milestone.milestone_reply_attachment ? (
                         <Button
                           icon={<UploadOutlined />}
-                          onClick={() => window.open(URL.createObjectURL(milestoneReplyAttachment.originFileObj), "_blank")}
+                          onClick={() => fetchAndPreviewPDF(milestone.milestone_reply_attachment)}
                         >
                           Preview Attachment
                         </Button>
