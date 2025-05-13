@@ -119,7 +119,7 @@ const AdminPendingSponsorsPage = () => {
     <ModernLayout>
       <div className="p-6 bg-white min-h-screen w-full mx-auto">
         <h2 className="text-xl font-bold text-center text-gray-800 mb-8 pt-2 uppercase">
-          Pending Sponsors Approvals
+          Sponsor Approval Request
         </h2>
 
         {loading ? (

@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
 import { Logout, reset } from "../features/authSlice";
 import defaultProfile from '../assets/profile_default.png';
+import sponsorinLogo from "../assets/sponsorin_logo.png";
 
 const Navbar = ({ onToggleSidebar }) => {
   const user = useSelector((state) => state.auth.user);
@@ -33,9 +34,13 @@ const Navbar = ({ onToggleSidebar }) => {
       </div>
 
       {/* Right Side */}
-      <div className="flex items-center gap-3">
-        <div className="w-7 h-7 bg-white rounded-full" />
-        <span className="text-xl font-bold tracking-wide">sponsor.in</span>
+      <div className="flex items-center gap-2">
+        <img
+          src={sponsorinLogo}
+          alt="Sponsor.in Logo"
+          className="h-8 w-8 object-cover rounded-full"
+        />
+        <span className="text-l font-bold tracking-wide">sponsor.in</span>
       </div>
     </nav>
   );
@@ -99,12 +104,12 @@ const Sidebar = ({ isOpen, onClose }) => {
         </div>
 
         <ul className="flex flex-col gap-2 p-6 text-base font-medium">
-          {user && user.role !== "Admin" &&(
+          {user && user.role !== "Admin" && (
             <li>
-            <Link to="/my-profile" onClick={onClose} className="w-full block py-2 rounded-md hover:bg-gray-100 transition">
-              My Profile
-            </Link>
-          </li>
+              <Link to="/my-profile" onClick={onClose} className="w-full block py-2 rounded-md hover:bg-gray-100 transition">
+                My Profile
+              </Link>
+            </li>
           )}
           {user && user.role === "Sponsoree" && (
             <>
@@ -122,16 +127,16 @@ const Sidebar = ({ isOpen, onClose }) => {
           )}
           {user && user.role === "Admin" && (
             <>
-            <li>
-              <Link to="/pending-sponsors" onClick={onClose} className="w-full block py-2 rounded-md hover:bg-gray-100 transition">
-                Sponsors Request Lists
-              </Link>
-            </li>
-            <li>
-              <Link to="/list-reported-account" onClick={onClose} className="w-full block py-2 rounded-md hover:bg-gray-100 transition">
-                Reported Account Lists
-              </Link>
-            </li>
+              <li>
+                <Link to="/pending-sponsors" onClick={onClose} className="w-full block py-2 rounded-md hover:bg-gray-100 transition">
+                  Sponsors Request Lists
+                </Link>
+              </li>
+              <li>
+                <Link to="/list-reported-account" onClick={onClose} className="w-full block py-2 rounded-md hover:bg-gray-100 transition">
+                  Reported Account Lists
+                </Link>
+              </li>
             </>
           )}
           {user && user.role === "Sponsor" && (
@@ -154,7 +159,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             onClick={handleLogout}
             className="w-full py-2 text-white bg-red-600 hover:bg-red-700 rounded-full font-semibold transition"
           >
-            Logout
+            Sign Out
           </button>
         </div>
       </div>

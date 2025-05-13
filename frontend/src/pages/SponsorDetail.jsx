@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import defaultProfile from '../assets/profile_default.png';
-import HistoryAgreement from "../components/HistoryAgreement";
-import { useSelector } from "react-redux";
+import ModernLayout from "../components/Layout";
 
 const SponsorDetail = () => {
   const user = useSelector((state) => state.auth.user);
@@ -34,16 +34,7 @@ const SponsorDetail = () => {
   if (!sponsor) return null;
 
   return (
-    <div className="w-screen min-h-screen bg-white relative overflow-x-hidden pb-12">
-      {/* Tombol back pojok kiri atas */}
-      <button
-        onClick={() => navigate(-1)}
-        className="fixed top-4 left-4 z-50 text-[#031930] flex items-center gap-1 text-sm font-medium hover:text-blue-600 transition-colors duration-200"
-      >
-        <ArrowLeft size={20} />
-        <span>Back</span>
-      </button>
-
+    <ModernLayout>
       {/* Banner */}
       <div className="relative w-full">
         <img
@@ -52,10 +43,12 @@ const SponsorDetail = () => {
           style={{ imageRendering: "auto" }}
           alt="banner"
         />
-        <span className="absolute top-4 right-4 bg-green-500 text-white text-sm px-3 py-1 rounded-full shadow-md">
-          {sponsor.status || "Available"}
+        <span
+          className={`absolute top-4 right-20 px-4 py-1 rounded-full text-sm font-semibold shadow-lg transition-colors duration-300
+            ${sponsor.is_available ? 'bg-hijau text-white' : 'bg-red-500 text-white'}`}
+        >
+          {sponsor.is_available ? 'Available' : 'Not Available'}
         </span>
-
         {/* Foto Profil */}
         <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 z-10">
           <img
@@ -70,16 +63,12 @@ const SponsorDetail = () => {
       <div className="flex flex-col items-center mt-20 text-center px-4">
         <h1 className="text-2xl font-bold text-[#031930]">{sponsor.name}</h1>
         <p className="text-sm text-gray-500 mt-2">@{sponsor.username}</p>
-        <div className="flex items-center gap-2 text-sm text-gray-600 mt-2">
-          <span>⭐ {sponsor.rating || 4.5}</span>
-          <span>• {sponsor.deals || "1K"} Deals</span>
-          <span>• {sponsor.reports || 0} Reports</span>
-        </div>
 
         <div className="flex gap-3 mt-4">
           <Link
             to={`/proposal/create/${sponsor.sponsor_id}`}
-            className="bg-blue-600 text-white px-5 py-2 rounded-md text-sm hover:bg-blue-700 transition-colors duration-200"
+            state={{ sponsor }}
+            className="border text-primary font-semibold text-xs px-3 py-1.5 rounded-lg transition border-primary bg-transparent hover:bg-primary hover:text-white flex items-center justify-center"
           >
             Submit a Proposal
           </Link>
@@ -90,36 +79,35 @@ const SponsorDetail = () => {
             Report
           </Link>
         </div>
-      </div>
 
-      {/* About */}
-      <div className="mt-20 text-center px-6">
-        <h2 className="text-2xl font-semibold text-[#031930]">About Us</h2>
-        <p className="mt-3 text-gray-700 max-w-4xl mx-auto leading-relaxed">
-          {sponsor.description || "Lorem ipsum dolor sit amet, consectetur adipiscing elit..."}
-        </p>
-      </div>
+        {/* About */}
+        <div className="mt-20 text-center px-6">
+          <h2 className="text-2xl font-semibold text-[#031930]">About Us</h2>
+          <p className="mt-3 text-gray-700 max-w-4xl mx-auto leading-relaxed">
+            {sponsor.description || "Lorem ipsum dolor sit amet, consectetur adipiscing elit..."}
+          </p>
+        </div>
 
-      {/* Sponsorships */}
-      <div className="mt-16 px-6">
-        <h2 className="text-2xl font-semibold text-center text-[#031930]">Our Sponsorships</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 max-w-6xl mx-auto">
-          {(sponsor.sponsorships_photo || [
-            "https://i.pinimg.com/736x/75/bb/c1/75bbc141800fa53fb59c6a06bc2c27c3.jpg",
-            "https://i.pinimg.com/474x/eb/fb/02/ebfb0275b4e79fcfb02928300e71bcf2.jpg",
-            "https://i.pinimg.com/474x/c3/15/4e/c3154e3047a094b517dead55017adee0.jpg",
-          ]).map((img, idx) => (
-            <img
-              key={idx}
-              src={img}
-              alt={`sponsorship-${idx}`}
-              className="rounded-xl w-full h-52 object-cover shadow-sm"
-            />
-          ))}
+        {/* Sponsorships */}
+        <div className="mt-16 px-6">
+          <h2 className="text-2xl font-semibold text-center text-[#031930]">Our Sponsorships</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 max-w-6xl mx-auto">
+            {(sponsor.sponsorships_photo || [
+              "https://i.pinimg.com/736x/75/bb/c1/75bbc141800fa53fb59c6a06bc2c27c3.jpg",
+              "https://i.pinimg.com/474x/eb/fb/02/ebfb0275b4e79fcfb02928300e71bcf2.jpg",
+              "https://i.pinimg.com/474x/c3/15/4e/c3154e3047a094b517dead55017adee0.jpg",
+            ]).map((img, idx) => (
+              <img
+                key={idx}
+                src={img}
+                alt={`sponsorship-${idx}`}
+                className="rounded-xl w-full h-52 object-cover shadow-sm"
+              />
+            ))}
+          </div>
         </div>
       </div>
-      <HistoryAgreement username={user.username} role={user.role} isMyProfile={false}/>
-    </div>
+    </ModernLayout>
   );
 };
 
