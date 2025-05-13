@@ -69,7 +69,7 @@ const ViewMySubmissions = () => {
                   <th key={value} className="p-3 border">
                     <button
                       onClick={() => setSelectedStatus(value)}
-                      className={`w-full text-left font-semibold ${selectedStatus === value
+                      className={`w-full text-center font-semibold ${selectedStatus === value
                         ? "text-primary underline"
                         : "hover:text-blue-600"
                         }`}
