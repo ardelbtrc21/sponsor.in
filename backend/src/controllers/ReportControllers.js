@@ -1,4 +1,5 @@
 import Report from "../models/report.js";
+import User from "../models/user.js";
 
 export const newReport = async (req, res) => {
   const { report_id, username, created_by, created_for, reason, description, status, createdAt } = req.body;
@@ -39,6 +40,22 @@ export const getListReports = async (req, res) => {
       where: where,
       order: [
         [`${sortBy}`, `${order}`]
+      ],
+      include: [
+        {
+          model: User,
+          as: "created_by_report",
+          required: true,
+          attributes: ["username", "name", "email", "role", "is_banned"],
+          duplicating: false
+        },
+        {
+          model: User,
+          as: "created_for_report",
+          required: true,
+          attributes: ["username", "name", "email", "role", "is_banned"],
+          duplicating: false
+        }
       ]
     });
 
