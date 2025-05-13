@@ -182,6 +182,62 @@ export const doProcessAgreement = async (req, res) => {
   }
 };
 
+export const doViewProposal = async (req, res) => {
+  const { proposal_status_id } = req.params;
+  console.log(req.params)
+
+  try {
+    const currentStatus = await ProposalStatus.findOne({
+      where: {
+        proposal_status_id: proposal_status_id,
+        status_name: "Submitted",
+        endAt: null
+      },
+    });
+    console.log(currentStatus)
+    if(!currentStatus){
+      return res.status(204)
+    }
+
+    if (!currentStatus.proposal_id) {
+      return res.status(400).json({
+        message: "Invalid proposal_id associated with the current status.",
+      });
+    }
+
+    const proposal = await Proposal.findOne({
+      where: { proposal_id: currentStatus.proposal_id },
+    });
+
+    if (!proposal) {
+      return res.status(404).json({
+        message: "Proposal not found with the given proposal_id.",
+      });
+    }
+
+    currentStatus.endAt = new Date();
+    await currentStatus.save();
+
+    const newStatus = await ProposalStatus.create({
+      proposal_id: currentStatus.proposal_id, 
+      status_name: "Under Review", 
+    });
+
+    return res.status(201).json({
+      message: "Proposal status successfully updated to Under Review.",
+      data: newStatus,
+    });
+
+  } catch (err) {
+    console.error("Error to change status", err);
+    return res.status(500).json({
+      message: "Internal Server Error",
+      error: err.message,
+    });
+  }
+};
+
+
 export const doRejectProposal = async (req, res) => {
   const { proposal_status_id } = req.params;
 
@@ -708,6 +764,7 @@ export const getProposals = async (req, res) => {
     const sortBy = req?.body?.sortBy || "proposal_name";
     const order = req?.body?.order || "ASC";
     const keyword = req?.body?.keyword || "";
+    const username = req?.body?.username
 
     // pagination
     const page = parseInt(req?.body?.page) || 0;
@@ -765,7 +822,8 @@ export const getProposals = async (req, res) => {
         as: "status_proposals",
         required: true,
         attributes: ["proposal_id", "status_name"],
-        duplicating: false
+        duplicating: false,
+        where: {endAt: null}
       },
       {
         model: Milestone,
@@ -792,7 +850,8 @@ export const getProposals = async (req, res) => {
         as: "sponsor_proposals",
         required: true,
         attributes: ["username", "nib"],
-        duplicating: false
+        duplicating: false,
+        where: {username: username}
       },
       {
         model: Sponsoree,
@@ -832,9 +891,16 @@ export const getProposals = async (req, res) => {
         return tagNames.some(tag => filterTagRelated.includes(tag));
       });
     }
-    if (String(filterTargetParticipant) !== "") {
-      result = result.filter(item => filterTargetParticipant.includes(item.target_proposals));
+    if (filterTargetParticipant.length > 0) {
+      result = result.filter(item => {
+        console.log(item)
+        const targetCategory = item.target_proposals.map(target => target.target_participant_category);
+        return targetCategory.some(target => filterTargetParticipant.includes(target));
+      });
     }
+    // if (String(filterTargetParticipant) !== "") {
+    //   result = result.filter(item => filterTargetParticipant.includes(item.target_proposals));
+    // }
     if (String(filterStatus) !== "") {
       result = result.filter(item => filterStatus.includes(item.status_proposals));
     }

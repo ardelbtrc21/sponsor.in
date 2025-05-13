@@ -8,6 +8,7 @@ import { Upload, Select } from "antd";
 import axios from "axios";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import Swal from "sweetalert2";
+import ModernLayout from "../components/Layout";
 const { Dragger } = Upload;
 
 const EditProfile = ({ sponsor: sponsoree }) => {
@@ -34,12 +35,12 @@ const EditProfile = ({ sponsor: sponsoree }) => {
         name: "",
         background_photo: null,
         is_available: false,
-        category_provides: "",
+        category_provides: [],
         description: "",
         sponsorship_photos: [],
         tags: [],
         targets: [],
-        category: []
+        category: ""
     });
 
     useEffect(() => {
@@ -60,7 +61,7 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                 name: sponsorData.name,
                 background_photo: sponsorData.background_photo,
                 is_available: sponsorData.user_sponsors?.is_available || false,
-                category: sponsorData.user_sponsors?.category_provides.split(',') || [],
+                category_provides: sponsorData.user_sponsors?.category_provides.split(',') || [],
                 description: sponsorData.user_sponsors?.description || "",
                 sponsorship_photos: sponsorData.photo_sponsorship_users || [],
                 tags: sponsorData.user_sponsors?.tags_sponsors || [],
@@ -198,7 +199,8 @@ const EditProfile = ({ sponsor: sponsoree }) => {
         data.append("name", formData.name);
         data.append("is_available", formData.is_available);
         data.append("description", formData.description);
-        data.append("category_provides", formData.category?.join(','));
+        data.append("category", formData.category);
+        data.append("category_provides", formData.category_provides?.join(','));
         data.append("removed_photos", JSON.stringify(removedPhotos))
 
         if (formData.background_photo instanceof File) {
@@ -249,66 +251,57 @@ const EditProfile = ({ sponsor: sponsoree }) => {
     }
 
     return (
-        <div className="min-h-screen bg-white">
-            {/* Header Section */}
-            <div className="relative h-60 w-full">
-                <img
-                    src={bannerPhoto}
-                    alt="Banner"
-                    className="h-full w-full object-cover"
-                />
-                {console.log(formData.category_provides)}
-                <div className="absolute bottom-2 right-2 bg-dropdown">
-                    <button
-                        onClick={() => setShowBgDropdown(!showBgDropdown)}
-                        className="bg-white text-black p-1 rounded-full hover:bg-gray-200"
-                        title="Edit background"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536M9 11l6-6m2 2L7 17H4v-3l11-11z" />
-                        </svg>
-                    </button>
+        <ModernLayout>
+            <div className="min-h-screen bg-white">
+                {/* Header Section */}
+                <div className="relative h-60 w-full">
+                    <img
+                        src={bannerPhoto}
+                        alt="Banner"
+                        className="h-full w-full object-cover"
+                    />
+                    <div className="absolute bottom-2 right-2 bg-dropdown">
+                        <button
+                            onClick={() => setShowBgDropdown(!showBgDropdown)}
+                            className="bg-white text-black p-1 rounded-full hover:bg-gray-200"
+                            title="Edit background"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536M9 11l6-6m2 2L7 17H4v-3l11-11z" />
+                            </svg>
+                        </button>
 
-                    {showBgDropdown && (
-                        <div className="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg z-50 py-1 text-sm">
-                            <button
-                                onClick={() => {
-                                    if ((user?.background_photo || formData.background_photo) && sponsorData) {
-                                        setFormData({ ...formData, background_photo: null });
-                                        setSponsorData({ ...sponsorData, background_photo: null });
-                                    } else {
-                                        setFormData({ ...formData, background_photo: null });
-                                        setSponsoree({ ...sponsoreeData, background_photo: null });
-                                    }
-                                    setShowBgDropdown(false);
-                                }}
-                                className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                            >
-                                Remove
-                            </button>
-                            <button
-                                onClick={() => {
-                                    document.getElementById('uploadBackgroundInput').click();
-                                    setShowBgDropdown(false);
-                                }}
-                                className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                            >
-                                Upload
-                            </button>
-                        </div>
-                    )}
-                </div>
+                        {showBgDropdown && (
+                            <div className="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg z-50 py-1 text-sm">
+                                <button
+                                    onClick={() => {
+                                        if ((user?.background_photo || formData.background_photo) && sponsorData) {
+                                            setFormData({ ...formData, background_photo: null });
+                                            setSponsorData({ ...sponsorData, background_photo: null });
+                                        } else {
+                                            setFormData({ ...formData, background_photo: null });
+                                            setSponsoree({ ...sponsoreeData, background_photo: null });
+                                        }
+                                        setShowBgDropdown(false);
+                                    }}
+                                    className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                                >
+                                    Remove
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        document.getElementById('uploadBackgroundInput').click();
+                                        setShowBgDropdown(false);
+                                    }}
+                                    className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                                >
+                                    Upload
+                                </button>
+                            </div>
+                        )}
+                    </div>
 
-                <div className="absolute top-4 left-4">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="text-white bg-black/40 hover:bg-black/60 px-3 py-1 rounded-full flex items-center gap-2"
-                    >
-                        <ArrowLeft size={18} />
-                        <span className="text-sm">Back</span>
-                    </button>
-                </div>
-                {/* <div className="absolute top-4 right-4">
+                    {/* <div className="absolute top-4 right-4">
                     <button
                         onClick={handleSave}
                         className="bg-primary hover:opacity-90 text-white px-6 py-2 rounded-xl text-sm font-semibold shadow"
@@ -316,115 +309,115 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                         Save Changes
                     </button>
                 </div> */}
-                <div className="absolute -bottom-12 left-6 flex items-center gap-4">
-                    <img
-                        src={profilePhoto}
-                        alt="Profile"
-                        className="w-24 h-24 rounded-full border-4 border-white object-cover"
-                    />
+                    <div className="absolute -bottom-12 left-6 flex items-center gap-4">
+                        <img
+                            src={profilePhoto}
+                            alt="Profile"
+                            className="w-24 h-24 rounded-full border-4 border-white object-cover"
+                        />
+                    </div>
                 </div>
-            </div>
 
-            {/* Form Section */}
-            <div className="mt-20 max-w-3xl mx-auto px-4 py-8 bg-white">
-                <div className="space-y-6">
-                    <input
-                        type="file"
-                        id="uploadBackgroundInput"
-                        name="background_photo"
-                        accept="image/*"
-                        onChange={handleChange}
-                        className="hidden"
-                    />
-                    {sponsorData && sponsorData !== null && (
-                        <div className="flex items-center gap-2">
-                            <input
-                                type="checkbox"
-                                name="is_available"
-                                checked={formData.is_available}
-                                onChange={handleChange}
-                                className="h-4 w-4 text-green-600 border-gray-300 rounded"
-                            />
-                            <label className="text-sm">Available for Sponsorship</label>
-                        </div>
-                    )}
-
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Name</label>
+                {/* Form Section */}
+                <div className="mt-20 max-w-3xl mx-auto px-4 py-8 bg-white">
+                    <div className="space-y-6">
                         <input
-                            type="text"
-                            name="name"
-                            value={formData.name}
+                            type="file"
+                            id="uploadBackgroundInput"
+                            name="background_photo"
+                            accept="image/*"
                             onChange={handleChange}
-                            className="w-full p-3 border rounded-xl"
+                            className="hidden"
                         />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Username</label>
-                        <input
-                            type="text"
-                            name="username"
-                            value={sponsorData ? sponsorData.username : sponsoreeData.username}
-                            disabled
-                            className="w-full p-3 border rounded-xl bg-gray-100 cursor-not-allowed"
-                        />
-                    </div>
-
-                    {sponsoreeData && sponsoreeData !== null && (
-                        <div className="relative w-full mb-4">
-                            <select
-                                name="category"
-                                value={formData.category}
-                                onChange={handleChange}
-                                className="w-full appearance-none p-3 pr-10 border rounded-xl bg-white"
-                            >
-                                <option value="">Select Category</option>
-                                <option value="school">School</option>
-                                <option value="university">University</option>
-                                <option value="social organization">Social Organization</option>
-                                <option value="religious organization">Religious Organization</option>
-                                <option value="art organization">Art Organization</option>
-                                <option value="environmental organization">Environmental Organization</option>
-                                <option value="personal">Personal</option>
-                                <option value="others">Others</option>
-                            </select>
-
-                            <div className="pointer-events-none absolute right-4 inset-y-0 flex items-center">
-                                <ChevronDownIcon className="w-5 h-5 text-gray-600" />
-                            </div>
-                        </div>
-                    )}
-
-                    {sponsorData && sponsorData !== null && (
-                        <div className="relative">
-                            <label className="block text-sm font-medium mb-1">Category Provides</label>
-                            <div className="relative">
-                                <Select
-                                    mode="tags"
-                                    style={{ width: '100%' }}
-                                    placeholder="Add Category"
-                                    value={formData.category}
-                                    onChange={(values) =>
-                                        setFormData({
-                                            ...formData,
-                                            category: values,
-                                        })
-                                    }
-                                    options={[
-                                        ...categories,
-                                        ...(Array.isArray(formData.category)
-                                            ? formData.category
-                                                .filter(val => !categories.some(opt => opt.value === val))
-                                                .map(val => ({ value: val, label: val }))
-                                            : [])
-                                    ]}
+                        {sponsorData && sponsorData !== null && (
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    name="is_available"
+                                    checked={formData.is_available}
+                                    onChange={handleChange}
+                                    className="h-4 w-4 text-green-600 border-gray-300 rounded"
                                 />
+                                <label className="text-sm">Available for Sponsorship</label>
                             </div>
-                        </div>
-                    )}
+                        )}
 
-                    {/* <div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Name</label>
+                            <input
+                                type="text"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                className="w-full p-3 border rounded-xl"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Username</label>
+                            <input
+                                type="text"
+                                name="username"
+                                value={sponsorData ? sponsorData.username : sponsoreeData.username}
+                                disabled
+                                className="w-full p-3 border rounded-xl bg-gray-100 cursor-not-allowed"
+                            />
+                        </div>
+
+                        {sponsoreeData && sponsoreeData !== null && (
+                            <div className="relative w-full mb-4">
+                                <select
+                                    name="category"
+                                    value={formData.category}
+                                    onChange={handleChange}
+                                    className="w-full appearance-none p-3 pr-10 border rounded-xl bg-white"
+                                >
+                                    <option value="">Select Category</option>
+                                    <option value="school">School</option>
+                                    <option value="university">University</option>
+                                    <option value="social organization">Social Organization</option>
+                                    <option value="religious organization">Religious Organization</option>
+                                    <option value="art organization">Art Organization</option>
+                                    <option value="environmental organization">Environmental Organization</option>
+                                    <option value="personal">Personal</option>
+                                    <option value="others">Others</option>
+                                </select>
+
+                                <div className="pointer-events-none absolute right-4 inset-y-0 flex items-center">
+                                    <ChevronDownIcon className="w-5 h-5 text-gray-600" />
+                                </div>
+                            </div>
+                        )}
+
+                        {sponsorData && sponsorData !== null && (
+                            <div className="relative">
+                                <label className="block text-sm font-medium mb-1">Category Provides</label>
+                                <div className="relative">
+                                    <Select
+                                        mode="tags"
+                                        style={{ width: '100%' }}
+                                        placeholder="Add Category"
+                                        value={formData.category_provides}
+                                        onChange={(values) =>
+                                            setFormData({
+                                                ...formData,
+                                                category_provides: values,
+                                            })
+                                        }
+                                        options={[
+                                            ...categories,
+                                            ...(Array.isArray(formData.category_provides)
+                                                ? formData.category_provides
+                                                    .filter(val => !categories.some(opt => opt.value === val))
+                                                    .map(val => ({ value: val, label: val }))
+                                                : [])
+                                        ]}
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* <div>
                         <label className="block text-sm font-medium mb-1">Category Provides</label>
                         <input
                             type="text"
@@ -435,116 +428,117 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                         />
                     </div>
                     {console.log(formData.sponsorship_photos.length)} */}
-                    {sponsorData && sponsorData !== null && (
-                        <div>
-                            <label className="block text-sm font-medium mb-1">About Us (Description)</label>
-                            <textarea
-                                name="description"
-                                value={formData.description}
-                                onChange={handleChange}
-                                className="w-full p-3 border rounded-xl min-h-[100px]"
-                            />
-                        </div>
-                    )}
-
-                    <div>
-                        <label className="block text-sm font-medium mb-2">Sponsorship Photos</label>
-
-                        <Dragger
-                            name="sponsorship_photos"
-                            multiple
-                            accept="image/*"
-                            beforeUpload={() => false}
-                            onChange={handleSponsorshipPhotoChange} // ✅ ganti function ini
-                            showUploadList={false}
-                            className="!border-dashed !border-gray-300 !bg-gray-50 !rounded-xl px-6 py-8"
-                            style={{ borderWidth: 1, overflow: 'hidden' }}
-                        >
-
-                            <p className="ant-upload-drag-icon mb-2">
-                                <InboxOutlined style={{ color: "#888" }} />
-                            </p>
-                            <p className="text-base font-semibold text-gray-700">Drop images here</p>
-                            <p className="text-sm text-gray-500">Drag or click to upload multiple sponsorship images, max 3 photos</p>
-                        </Dragger>
-
-                        <div className="flex flex-row flex-wrap gap-4 mt-4">
-                            {formData.sponsorship_photos.map((img, idx) => {
-                                const imgSrc =
-                                    img instanceof File
-                                        ? URL.createObjectURL(img)
-                                        : `/api/sponsorship_photos/preview/${img.photo}`;
-                                return (
-                                    <div key={idx} className="relative w-24 h-24">
-                                        <img
-                                            src={imgSrc}
-                                            alt={`preview-${idx}`}
-                                            className="w-full h-full object-cover rounded-lg shadow"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => handleRemoveSponsorshipPhoto(idx)}
-                                            className="absolute top-0 right-0 bg-white text-black rounded-full w-5 h-5 text-xs flex items-center justify-center transform translate-x-1/2 -translate-y-1/2 hover:bg-gray-300"
-                                            title="Remove"
-                                        >
-                                            &times;
-                                        </button>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                    {sponsorData && sponsorData !== null && (
-                        <div>
+                        {sponsorData && sponsorData !== null && (
                             <div>
-                                <label className="block text-sm font-medium mb-1">Tags</label>
-                                <Select
-                                    mode="tags"
-                                    style={{ width: '100%' }}
-                                    placeholder="Add tags"
-                                    value={formData.tags.map((tag) => tag.tag_name)}
-                                    onChange={(values) =>
-                                        setFormData({
-                                            ...formData,
-                                            tags: values.map((val) => ({ tag_name: val })),
-                                        })
-                                    }
-                                    options={filteredTags.map(item => ({ value: item, label: item }))}
+                                <label className="block text-sm font-medium mb-1">About Us (Description)</label>
+                                <textarea
+                                    name="description"
+                                    value={formData.description}
+                                    onChange={handleChange}
+                                    className="w-full p-3 border rounded-xl min-h-[100px]"
                                 />
                             </div>
+                        )}
 
-                            <div>
-                                <label className="block text-sm font-medium mb-1">Target Market</label>
-                                <Select
-                                    mode="tags"
-                                    style={{ width: '100%' }}
-                                    placeholder="Add target markets"
-                                    value={formData.targets.map((t) => t.target_participant_category)}
-                                    onChange={(values) =>
-                                        setFormData({
-                                            ...formData,
-                                            targets: values.map((val) => ({
-                                                target_participant_category: val,
-                                            })),
-                                        })
-                                    }
-                                    options={filteredTargets.map(item => ({ value: item, label: item }))}
-                                />
+                        <div>
+                            <label className="block text-sm font-medium mb-2">Sponsorship Photos</label>
+
+                            <Dragger
+                                name="sponsorship_photos"
+                                multiple
+                                accept="image/*"
+                                beforeUpload={() => false}
+                                onChange={handleSponsorshipPhotoChange} // ✅ ganti function ini
+                                showUploadList={false}
+                                className="!border-dashed !border-gray-300 !bg-gray-50 !rounded-xl px-6 py-8"
+                                style={{ borderWidth: 1, overflow: 'hidden' }}
+                            >
+
+                                <p className="ant-upload-drag-icon mb-2">
+                                    <InboxOutlined style={{ color: "#888" }} />
+                                </p>
+                                <p className="text-base font-semibold text-gray-700">Drop images here</p>
+                                <p className="text-sm text-gray-500">Drag or click to upload multiple sponsorship images, max 3 photos</p>
+                            </Dragger>
+
+                            <div className="flex flex-row flex-wrap gap-4 mt-4">
+                                {formData.sponsorship_photos.map((img, idx) => {
+                                    const imgSrc =
+                                        img instanceof File
+                                            ? URL.createObjectURL(img)
+                                            : `/api/sponsorship_photos/preview/${img.photo}`;
+                                    return (
+                                        <div key={idx} className="relative w-24 h-24">
+                                            <img
+                                                src={imgSrc}
+                                                alt={`preview-${idx}`}
+                                                className="w-full h-full object-cover rounded-lg shadow"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRemoveSponsorshipPhoto(idx)}
+                                                className="absolute top-0 right-0 bg-white text-black rounded-full w-5 h-5 text-xs flex items-center justify-center transform translate-x-1/2 -translate-y-1/2 hover:bg-gray-300"
+                                                title="Remove"
+                                            >
+                                                &times;
+                                            </button>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
-                    )}
-                    <div className="flex justify-center pt-8">
-                        <button
-                            onClick={handleSubmit}
-                            className="w-1/3 bg-primary h-1/2 text-white py-3 rounded-xl hover:opacity-90"
-                        >
-                            Edit Profile
-                        </button>
+
+                        {sponsorData && sponsorData !== null && (
+                            <div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Tags</label>
+                                    <Select
+                                        mode="tags"
+                                        style={{ width: '100%' }}
+                                        placeholder="Add tags"
+                                        value={formData.tags.map((tag) => tag.tag_name)}
+                                        onChange={(values) =>
+                                            setFormData({
+                                                ...formData,
+                                                tags: values.map((val) => ({ tag_name: val })),
+                                            })
+                                        }
+                                        options={filteredTags.map(item => ({ value: item, label: item }))}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Target Market</label>
+                                    <Select
+                                        mode="tags"
+                                        style={{ width: '100%' }}
+                                        placeholder="Add target markets"
+                                        value={formData.targets.map((t) => t.target_participant_category)}
+                                        onChange={(values) =>
+                                            setFormData({
+                                                ...formData,
+                                                targets: values.map((val) => ({
+                                                    target_participant_category: val,
+                                                })),
+                                            })
+                                        }
+                                        options={filteredTargets.map(item => ({ value: item, label: item }))}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                        <div className="flex justify-center pt-8">
+                            <button
+                                onClick={handleSubmit}
+                                className="w-1/3 bg-primary h-1/2 text-white py-3 rounded-xl hover:opacity-90"
+                            >
+                                Edit Profile
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </ModernLayout>
     );
 };
 

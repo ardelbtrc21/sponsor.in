@@ -427,7 +427,8 @@ export const editProfile = async (req, res) => {
             description,
             tags,
             targets,
-            name
+            name,
+            category
         } = req.body;
         console.log("disini", category_provides)
 
