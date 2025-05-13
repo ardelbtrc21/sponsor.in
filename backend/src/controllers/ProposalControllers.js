@@ -652,7 +652,7 @@ export const getProposals = async (req, res) => {
     // const sortBy = "proposal_name";
     // const order = "ASC";
     // const keyword = "";
-    const sortBy = req?.body?.sortBy || "proposal_name";
+    const sortBy = req?.body?.sortBy || "createdAt";
     const order = req?.body?.order || "ASC";
     const keyword = req?.body?.keyword || "";
     const username = req?.body?.username
@@ -669,11 +669,13 @@ export const getProposals = async (req, res) => {
     const filterTargetGender = req?.body?.filter?.targetGender || [];
     const filterTagRelated = req?.body?.filter?.tagRelated || [];
     const filterTargetParticipant = req?.body?.filter?.targetParticipant || [];
-    const filterStatus = req?.body?.filter?.status || [];
+    let filterStatus = req?.body?.filter?.status || [];
     const startDate = req?.body?.filter?.startDate || [];
     const endDate = req?.body?.filter?.endDate || [];
-
-    console.log(filterTagRelated)
+    
+    if(filterStatus == "Requested"){
+      filterStatus = "Submitted"
+    }
 
     let where = {
       [Op.or]: [
@@ -694,8 +696,6 @@ export const getProposals = async (req, res) => {
         [Op.between]: [startDate, endDate]
       };
     }
-    console.log(startDate)
-    console.log(endDate)
 
     let sort = "";
 
@@ -714,7 +714,7 @@ export const getProposals = async (req, res) => {
         required: true,
         attributes: ["proposal_id", "status_name"],
         duplicating: false,
-        where: {endAt: null}
+        where: {endAt: null, status_name: filterStatus}
       },
       {
         model: Milestone,
@@ -762,7 +762,7 @@ export const getProposals = async (req, res) => {
       ]
     });
 
-    console.log(result)
+    console.log("hasil",result)
 
     if (String(filterEventLocation) !== "") {
       result = result.filter(item => filterEventLocation.includes(item.event_location));
@@ -784,7 +784,6 @@ export const getProposals = async (req, res) => {
     }
     if (filterTargetParticipant.length > 0) {
       result = result.filter(item => {
-        console.log(item)
         const targetCategory = item.target_proposals.map(target => target.target_participant_category);
         return targetCategory.some(target => filterTargetParticipant.includes(target));
       });
@@ -792,9 +791,6 @@ export const getProposals = async (req, res) => {
     // if (String(filterTargetParticipant) !== "") {
     //   result = result.filter(item => filterTargetParticipant.includes(item.target_proposals));
     // }
-    if (String(filterStatus) !== "") {
-      result = result.filter(item => filterStatus.includes(item.status_proposals));
-    }
 
     const totalRows = Object.keys(result).length;
     const totalPage = Math.ceil(totalRows / limit);
