@@ -16,6 +16,8 @@ const __dirname = path.dirname(__filename);
 export const createMilestones = async (req, res) => {
   try {
     const milestones = JSON.parse(req.body.milestones);
+    const latestStatus = JSON.parse(req.body.latestStatus);
+
     if (!milestones || milestones.length === 0) {
       return res.status(400).json({ message: "No milestone data provided." });
     }
@@ -68,6 +70,26 @@ export const createMilestones = async (req, res) => {
     if (Object.keys(errors).length > 0) {
       return res.status(400).json({ message: "Some milestones failed.", errors });
     }
+    console.log("latestStatus: ", latestStatus);
+    if (latestStatus.status_name === 'Accepted') {
+      await ProposalStatus.update(
+        {
+          endAt: new Date()
+        },
+        {
+          where: {
+            proposal_status_id: latestStatus.proposal_status_id
+          }
+        }
+      );
+
+      await ProposalStatus.create(
+        { 
+          proposal_id: latestStatus.proposal_id,
+          status_name: "Processing Agreement" 
+        }     
+      );
+    }
 
     return res.status(201).json({
       message: "Milestones created successfully.",
@@ -79,6 +101,7 @@ export const createMilestones = async (req, res) => {
     return res.status(500).json({ message: "Server error while creating milestones." });
   }
 };
+
 export const getStatusBySubmissionId = async (req, res) => {
   const { proposal_status_id } = req.params;
 
@@ -165,19 +188,20 @@ export const getMilestonesByProposalId = async (req, res) => {
         {
           model: MilestoneStatus,
           as: "status_milestones",
-          separate: true, 
-          order: [["createdAt", "DESC"]], 
+          separate: true,
+          order: [["updatedAt", "DESC"]],
         },
       ],
-      order: [["createdAt", "DESC"]],
+      order: [["updatedAt", "DESC"]],
     });
 
     console.log("Fetched milestones: ", milestones);
 
-    const allCompleted = milestones.every(milestone => {
-      const latestStatus = milestone.status_milestones[0]; 
-      return latestStatus && latestStatus.status_name === "Completed"; 
-    });
+    const allCompleted = milestones.length === 0 ||
+      milestones.every(milestone => {
+        const latestStatus = milestone.status_milestones[0];
+        return latestStatus && latestStatus.status_name === "Completed";
+      });
 
     res.json({
       milestones,
