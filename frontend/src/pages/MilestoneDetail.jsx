@@ -18,13 +18,14 @@ const MilestoneDetailPage = () => {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [replyMilestone, setReplyMilestone] = useState("");
   const [milestoneReplyAttachment, setMilestoneReplyAttachment] = useState(null);
+  const isDisabled = user.role !== "Sponsoree";
 
   useEffect(() => {
     const fetchDetail = async () => {
       try {
         const response = await axios.get(`/api/milestones/${milestone_id}`);
         setMilestone(response.data.milestone);
-        setReplyMilestone(response.data.milestone.milestone_reply? response.data.milestone.milestone_reply : "")
+        setReplyMilestone(response.data.milestone.milestone_reply ? response.data.milestone.milestone_reply : "")
         setStatus(response.data.status?.status_name || "Not Set");
       } catch (err) {
         console.error("Failed to fetch milestone detail:", err);
@@ -174,48 +175,69 @@ const MilestoneDetailPage = () => {
                   Current Status: {renderStatusBadge(status)}
                 </p>
 
-                <div className="bg-white p-6 mt-6 rounded-xl shadow-sm border max-w-2xl mx-auto">
-                  <h2 className="text-xl font-semibold mb-4 text-gray-800">Fill the Milestone</h2>
+                <h2 className="text-lg pt-3 font-semibold text-gray-800">
+                  {isDisabled ? "Sponsoree Reply" : "Fill the Milestone"}
+                </h2>
+                <div className="bg-white p-6 my-6 rounded-xl shadow-sm border max-w-2xl mx-auto">
 
                   <div className="mb-4">
-                    <label className="block mb-1 font-medium text-gray-700">Reply the Sponsor</label>
-                    <TextArea
-                      rows={4}
-                      placeholder="Type your response here..."
-                      onChange={(e) => setReplyMilestone(e.target.value)}
-                      value={replyMilestone}
-                    />
+                    {!isDisabled && (
+                      <label className="block mb-1 font-medium text-gray-700">Reply the Sponsor</label>
+                    )}
+                    {isDisabled ? (
+                      <p className="text-gray-800 whitespace-pre-line">{replyMilestone || "-"}</p>
+                    ) : (
+                      <TextArea
+                        rows={4}
+                        placeholder="Type your response here..."
+                        onChange={(e) => setReplyMilestone(e.target.value)}
+                        value={replyMilestone}
+                      />
+                    )}
                   </div>
 
                   <div className="mb-6">
                     <label className="block mb-1 font-medium text-gray-700">Attachment</label>
-                    <Upload
-                      beforeUpload={() => false}
-                      maxCount={1}
-                      value={milestone}
-                      onChange={({ fileList }) => {
-                        if (fileList.length > 0) {
-                          setMilestoneReplyAttachment(fileList[0]);
-                        } else {
-                          setMilestoneReplyAttachment(null);
-                        }
-                      }}
-
-                    >
-                      <Button icon={<UploadOutlined />}>Upload Attachment</Button>
-                    </Upload>
-                    {console.log(milestoneReplyAttachment)}
-                    <p className="text-xs text-gray-400 mt-1">Optional. PDF, DOCX, JPG, or PNG formats supported.</p>
+                    {isDisabled ? (
+                      milestoneReplyAttachment ? (
+                        <Button
+                          icon={<UploadOutlined />}
+                          onClick={() => window.open(URL.createObjectURL(milestoneReplyAttachment.originFileObj), "_blank")}
+                        >
+                          Preview Attachment
+                        </Button>
+                      ) : (
+                        <p className="text-gray-400 text-sm">No attachment provided.</p>
+                      )
+                    ) : (
+                      <>
+                        <Upload
+                          beforeUpload={() => false}
+                          maxCount={1}
+                          onChange={({ fileList }) => {
+                            if (fileList.length > 0) {
+                              setMilestoneReplyAttachment(fileList[0]);
+                            } else {
+                              setMilestoneReplyAttachment(null);
+                            }
+                          }}
+                        >
+                          <Button icon={<UploadOutlined />}>Upload Attachment</Button>
+                        </Upload>
+                        <p className="text-xs text-gray-400 mt-1">Optional. PDF, DOCX, JPG, or PNG formats supported.</p>
+                      </>
+                    )}
                   </div>
 
-                  <Button
-                    type="primary"
-                    className="bg-primary hover:bg-gray-700"
-                    onClick={handleReplyMilestone}
-                  >
-                    Submit
-                  </Button>
-
+                  {!isDisabled && (
+                    <Button
+                      type="primary"
+                      className="bg-primary hover:bg-gray-700"
+                      onClick={handleReplyMilestone}
+                    >
+                      Submit
+                    </Button>
+                  )}
                 </div>
 
                 {user.role === "Sponsor" && status !== "Completed" && (
