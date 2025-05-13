@@ -5,7 +5,7 @@ import ListMilestone from "../components/ListMilestone";
 import ModernLayout from "../components/Layout";
 import { CalendarDaysIcon, MapPinIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import dayjs from "dayjs";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import defaultProfile from '../assets/profile_default.png';
@@ -179,7 +179,12 @@ const ViewDetailProposal = () => {
       console.error(error);
     }
   };
-
+  const navigate = useNavigate();
+  const handleProfileClick = () => {
+    if (user?.username) {
+      navigate(`/sponsorees/${proposals.user?.username}`);
+    }
+  };
   return (
     <ModernLayout>
       <div className="max-w-4xl mx-auto p-6 space-y-6">
@@ -188,9 +193,10 @@ const ViewDetailProposal = () => {
           <div className="space-y-1">
             <div className="flex flex-row items-center">
               <img
-                src={proposals.user?.profile_photo ? `/profile_photo/${proposals.user.profile_photo}` : defaultProfile}
+                src={proposals.user?.profile_photo ? `/profile_photo/${proposals.user?.profile_photo}` : defaultProfile}
                 alt="User Avatar"
-                className="w-10 h-10 rounded-full border-2 border-white"
+                onClick={handleProfileClick}
+                className="w-10 h-10 rounded-full border-2 border-white cursor-pointer"
               />
               <div className="pl-2">
                 <p className="text-gray-900 font-semibold text-base">{proposals.user?.name}</p>
