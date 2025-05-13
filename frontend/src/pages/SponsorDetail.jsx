@@ -76,8 +76,7 @@ const SponsorDetail = () => {
           <Link
             to={`/proposal/create/${sponsor.user_sponsors?.sponsor_id}`}
             state={{ sponsor }}
-            className="border text-primary font-semibold text-xs px-3 py-1.5 rounded-lg transition border-primary bg-transparent hover:bg-primary hover:text-white"
-          >
+            className="border text-primary font-semibold text-xs px-3 py-1.5 rounded-lg transition border-primary bg-transparent hover:bg-primary hover:text-white flex items-center justify-center"          >
             Submit a Proposal
           </Link>
           <Link
