@@ -100,7 +100,7 @@ const ViewDetailProposal = () => {
       Swal.fire({
         icon: "success",
         title: "Success",
-        text: "Successfully updated status."
+        text: "Proposal approved successfully."
       });
       getDetailProposal();
     } catch (error) {
@@ -273,7 +273,21 @@ const ViewDetailProposal = () => {
                 </button>
                 <button
                   className="bg-primary hover:bg-gray-700 tracking-wider text-white font-semibold py-2 px-6 rounded-lg shadow-md mx-2"
-                  onClick={handleApproveProposal}
+                  onClick={async () => {
+                    const result = await Swal.fire({
+                      title: 'Are you sure?',
+                      text: 'This will mark the proposal as approved.',
+                      icon: 'warning',
+                      showCancelButton: true,
+                      confirmButtonColor: '#16a34a',
+                      cancelButtonColor: '#d33',
+                      confirmButtonText: 'Yes, approve it!',
+                    });
+
+                    if (result.isConfirmed) {
+                      handleApproveProposal();
+                    }
+                  }}
                 >
                   APPROVE PROPOSAL
                 </button>
