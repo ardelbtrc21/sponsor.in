@@ -289,6 +289,7 @@ export const addReplyMilestone = async (req, res) => {
 
     await MilestoneStatus.upsert({
       milestone_status_id: milestone.milestone_status_id,
+      milestone_id: milestone_id,
       status_name: "Submitted",
       updatedAt: new Date()
     })
