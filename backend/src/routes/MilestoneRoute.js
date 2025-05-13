@@ -18,12 +18,28 @@ router.patch("/api/milestones/reply", addReplyMilestone);
 router.get("/api/milestones/preview/:filename", (req, res) => {
     const { filename } = req.params;
     const filePath = path.join(milestoneFolder, filename);
-
+  
     if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ message: "File not found" });
+      return res.status(404).json({ message: "File not found" });
     }
-
-    res.setHeader("Content-Type", "application/pdf");
+  
+    const extension = path.extname(filename).toLowerCase();
+    let contentType = "application/octet-stream"; 
+    let disposition = "inline";
+    
+    if (extension === ".pdf") {
+      contentType = "application/pdf";
+    } else if (extension === ".csv") {
+      contentType = "text/csv";
+      disposition = "attachment";
+    } else if (extension === ".xlsx") {
+      contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+      disposition = "attachment";
+    }
+    
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Content-Disposition", `${disposition}; filename="${filename}"`);
     res.sendFile(filePath);
-})
+  });
+  
 export default router;
