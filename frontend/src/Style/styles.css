@@ -114,3 +114,9 @@ root{
     object-fit: cover;
     border-radius: inherit;
 }
+
+.custom-tab-spacing .ant-tabs-nav-list {
+  display: flex !important;
+  justify-content: space-between;
+  width: 100%;
+}

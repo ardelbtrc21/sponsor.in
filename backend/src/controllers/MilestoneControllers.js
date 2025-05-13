@@ -287,7 +287,6 @@ export const addReplyMilestone = async (req, res) => {
       fileName = uniqueId + "_" + String(milestone_reply_attachment.name);
       const uploadPath = path.join(__dirname, "..", "..", "data", "milestone", fileName);
 
-      // Use promisify
       const mv = promisify(milestone_reply_attachment.mv);
       await mv(uploadPath);
 
@@ -295,10 +294,16 @@ export const addReplyMilestone = async (req, res) => {
       milestone.milestone_reply_attachment = fileName;
       await milestone.save();
     } else {
-      // Jika tidak ada attachment, tetap update reply saja
       milestone.milestone_reply = milestone_reply;
       await milestone.save();
     }
+
+    await MilestoneStatus.upsert({
+      milestone_status_id: milestone.milestone_status_id,
+      milestone_id: milestone_id,
+      status_name: "Submitted",
+      updatedAt: new Date()
+    })
 
     return res.status(201).json({ msg: "Reply successfully created" });
   } catch (error) {
