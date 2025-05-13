@@ -214,12 +214,14 @@ const MilestoneDetailPage = () => {
                     <label className="block mb-1 font-medium text-gray-700">Attachment</label>
                     {isDisabled ? (
                       milestone.milestone_reply_attachment ? (
-                        <Button
-                          icon={<UploadOutlined />}
-                          onClick={() => fetchAndPreviewPDF(milestone.milestone_reply_attachment)}
-                        >
-                          Preview Attachment
-                        </Button>
+                        <>
+                          <Button
+                            icon={<UploadOutlined />}
+                            onClick={() => fetchAndPreviewPDF(milestone.milestone_reply_attachment)}
+                          >
+                            Preview Attachment
+                          </Button>
+                        </>
                       ) : (
                         <p className="text-gray-400 text-sm">No attachment provided.</p>
                       )
@@ -239,6 +241,18 @@ const MilestoneDetailPage = () => {
                           <Button icon={<UploadOutlined />}>Upload Attachment</Button>
                         </Upload>
                         <p className="text-xs text-gray-400 mt-1">Optional. PDF, DOCX, JPG, or PNG formats supported.</p>
+                        {milestone.milestone_reply_attachment && (
+                          <a
+                            href="#"
+                            className="text-sm text-blue-500 underline mt-2 inline-block"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              fetchAndPreviewPDF(milestone.milestone_reply_attachment);
+                            }}
+                          >
+                            View your last attachment
+                          </a>
+                        )}
                       </>
                     )}
                   </div>
