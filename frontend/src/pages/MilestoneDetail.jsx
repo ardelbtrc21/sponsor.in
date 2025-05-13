@@ -24,6 +24,7 @@ const MilestoneDetailPage = () => {
       try {
         const response = await axios.get(`/api/milestones/${milestone_id}`);
         setMilestone(response.data.milestone);
+        setReplyMilestone(response.data.milestone.milestone_reply? response.data.milestone.milestone_reply : "")
         setStatus(response.data.status?.status_name || "Not Set");
       } catch (err) {
         console.error("Failed to fetch milestone detail:", err);
@@ -43,7 +44,7 @@ const MilestoneDetailPage = () => {
 
       const blob = new Blob([res.data], { type: "application/pdf" });
       const blobUrl = URL.createObjectURL(blob);
-      window.open(blobUrl, "_blank");    
+      window.open(blobUrl, "_blank");
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -111,7 +112,7 @@ const MilestoneDetailPage = () => {
         title: "Success",
         text: "Reply milestone success!",
         confirmButtonColor: "#6366F1",
-      }).then(() => navigate("/milestones"));
+      }).then(() => navigate(-1));
     } catch (err) {
       Swal.fire({
         icon: "error",
@@ -160,10 +161,10 @@ const MilestoneDetailPage = () => {
                   Attachment:
                   {milestone.milestone_attachment ? (
                     <button
-                    onClick={fetchAndPreviewPDF}
-                    className="text-blue-600 underline ml-2"
-                  > View Attachment 
-                  </button>
+                      onClick={fetchAndPreviewPDF}
+                      className="text-blue-600 underline ml-2"
+                    > View Attachment
+                    </button>
                   ) : (
                     <span className="italic text-gray-400 ml-2">No attachment uploaded</span>
                   )}
@@ -172,6 +173,50 @@ const MilestoneDetailPage = () => {
                 <p className="text-sm text-gray-500 mb-4">
                   Current Status: {renderStatusBadge(status)}
                 </p>
+
+                <div className="bg-white p-6 mt-6 rounded-xl shadow-sm border max-w-2xl mx-auto">
+                  <h2 className="text-xl font-semibold mb-4 text-gray-800">Fill the Milestone</h2>
+
+                  <div className="mb-4">
+                    <label className="block mb-1 font-medium text-gray-700">Reply the Sponsor</label>
+                    <TextArea
+                      rows={4}
+                      placeholder="Type your response here..."
+                      onChange={(e) => setReplyMilestone(e.target.value)}
+                      value={replyMilestone}
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label className="block mb-1 font-medium text-gray-700">Attachment</label>
+                    <Upload
+                      beforeUpload={() => false}
+                      maxCount={1}
+                      value={milestone}
+                      onChange={({ fileList }) => {
+                        if (fileList.length > 0) {
+                          setMilestoneReplyAttachment(fileList[0]);
+                        } else {
+                          setMilestoneReplyAttachment(null);
+                        }
+                      }}
+
+                    >
+                      <Button icon={<UploadOutlined />}>Upload Attachment</Button>
+                    </Upload>
+                    {console.log(milestoneReplyAttachment)}
+                    <p className="text-xs text-gray-400 mt-1">Optional. PDF, DOCX, JPG, or PNG formats supported.</p>
+                  </div>
+
+                  <Button
+                    type="primary"
+                    className="bg-primary hover:bg-gray-700"
+                    onClick={handleReplyMilestone}
+                  >
+                    Submit
+                  </Button>
+
+                </div>
 
                 {user.role === "Sponsor" && status !== "Completed" && (
                   <>
