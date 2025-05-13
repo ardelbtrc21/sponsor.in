@@ -7,7 +7,7 @@ import HistoryAgreement from "../components/HistoryAgreement";
 
 const SponsorDetail = () => {
   const authUser = useSelector((state) => state.auth.user);
-  const { id } = useParams(); // username sponsor dari URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
