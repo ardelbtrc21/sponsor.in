@@ -54,8 +54,8 @@ export const doApprovalProposal = async (req, res) => {
     await currentStatus.save();
 
     const newStatus = await ProposalStatus.create({
-      proposal_id: currentStatus.proposal_id, 
-      status_name: "Accepted", 
+      proposal_id: currentStatus.proposal_id,
+      status_name: "Accepted",
     });
 
     return res.status(201).json({
@@ -65,61 +65,6 @@ export const doApprovalProposal = async (req, res) => {
 
   } catch (err) {
     console.error("Error in doApprovalProposal:", err);
-    return res.status(500).json({
-      message: "Internal Server Error",
-      error: err.message,
-    });
-  }
-};
-
-export const doProcessAgreement = async (req, res) => {
-  const { proposal_status_id } = req.params;
-  console.log(req.params)
-
-  try {
-    const currentStatus = await ProposalStatus.findOne({
-      where: {
-        proposal_status_id: proposal_status_id,
-        status_name: "Accepted",
-        endAt: null
-      },
-    });
-    console.log(currentStatus)
-    if(!currentStatus){
-      return res.status(204)
-    }
-
-    if (!currentStatus.proposal_id) {
-      return res.status(400).json({
-        message: "Invalid proposal_id associated with the current status.",
-      });
-    }
-
-    const proposal = await Proposal.findOne({
-      where: { proposal_id: currentStatus.proposal_id },
-    });
-
-    if (!proposal) {
-      return res.status(404).json({
-        message: "Proposal not found with the given proposal_id.",
-      });
-    }
-
-    currentStatus.endAt = new Date();
-    await currentStatus.save();
-
-    const newStatus = await ProposalStatus.create({
-      proposal_id: currentStatus.proposal_id, 
-      status_name: "Processing Agreement", 
-    });
-
-    return res.status(201).json({
-      message: "Proposal status successfully updated to Processing Agreement.",
-      data: newStatus,
-    });
-
-  } catch (err) {
-    console.error("Error to change status", err);
     return res.status(500).json({
       message: "Internal Server Error",
       error: err.message,
@@ -140,7 +85,7 @@ export const doViewProposal = async (req, res) => {
       },
     });
     console.log(currentStatus)
-    if(!currentStatus){
+    if (!currentStatus) {
       return res.status(204)
     }
 
@@ -164,12 +109,67 @@ export const doViewProposal = async (req, res) => {
     await currentStatus.save();
 
     const newStatus = await ProposalStatus.create({
-      proposal_id: currentStatus.proposal_id, 
-      status_name: "Under Review", 
+      proposal_id: currentStatus.proposal_id,
+      status_name: "Under Review",
     });
 
     return res.status(201).json({
       message: "Proposal status successfully updated to Under Review.",
+      data: newStatus,
+    });
+
+  } catch (err) {
+    console.error("Error to change status", err);
+    return res.status(500).json({
+      message: "Internal Server Error",
+      error: err.message,
+    });
+  }
+};
+
+export const doProcessAgreement = async (req, res) => {
+  const { proposal_status_id } = req.params;
+  console.log(req.params)
+
+  try {
+    const currentStatus = await ProposalStatus.findOne({
+      where: {
+        proposal_status_id: proposal_status_id,
+        status_name: "Accepted",
+        endAt: null
+      },
+    });
+    console.log(currentStatus)
+    if (!currentStatus) {
+      return res.status(204)
+    }
+
+    if (!currentStatus.proposal_id) {
+      return res.status(400).json({
+        message: "Invalid proposal_id associated with the current status.",
+      });
+    }
+
+    const proposal = await Proposal.findOne({
+      where: { proposal_id: currentStatus.proposal_id },
+    });
+
+    if (!proposal) {
+      return res.status(404).json({
+        message: "Proposal not found with the given proposal_id.",
+      });
+    }
+
+    currentStatus.endAt = new Date();
+    await currentStatus.save();
+
+    const newStatus = await ProposalStatus.create({
+      proposal_id: currentStatus.proposal_id,
+      status_name: "Processing Agreement",
+    });
+
+    return res.status(201).json({
+      message: "Proposal status successfully updated to Processing Agreement.",
       data: newStatus,
     });
 
@@ -217,8 +217,8 @@ export const doRejectProposal = async (req, res) => {
     }
 
     const newStatus = await ProposalStatus.create({
-      proposal_id: currentStatus.proposal_id, 
-      status_name: "Rejected", 
+      proposal_id: currentStatus.proposal_id,
+      status_name: "Rejected",
     });
 
     return res.status(201).json({
@@ -262,7 +262,7 @@ export const getAllProposals = async (req, res) => {
         model: ProposalStatus,
         as: 'status_proposals'
       },
-      order: [["createdAt", "ASC"]], 
+      order: [["createdAt", "ASC"]],
       raw: true
     });
 
@@ -580,8 +580,8 @@ export const statusChangeProposal = async (req, res) => {
         proposal_id: proposal_id
       }
     })
-    for(const item of proposal_status){
-      
+    for (const item of proposal_status) {
+
     }
   } catch (error) {
     console.log(error)
@@ -706,7 +706,7 @@ export const getProposals = async (req, res) => {
     // const sortBy = "proposal_name";
     // const order = "ASC";
     // const keyword = "";
-    const sortBy = req?.body?.sortBy || "proposal_name";
+    const sortBy = req?.body?.sortBy || "createdAt";
     const order = req?.body?.order || "ASC";
     const keyword = req?.body?.keyword || "";
     const username = req?.body?.username
@@ -723,11 +723,13 @@ export const getProposals = async (req, res) => {
     const filterTargetGender = req?.body?.filter?.targetGender || [];
     const filterTagRelated = req?.body?.filter?.tagRelated || [];
     const filterTargetParticipant = req?.body?.filter?.targetParticipant || [];
-    const filterStatus = req?.body?.filter?.status || [];
+    let filterStatus = req?.body?.filter?.status || [];
     const startDate = req?.body?.filter?.startDate || [];
     const endDate = req?.body?.filter?.endDate || [];
 
-    console.log(filterTagRelated)
+    if (filterStatus == "Requested") {
+      filterStatus = "Submitted"
+    }
 
     let where = {
       [Op.or]: [
@@ -748,8 +750,6 @@ export const getProposals = async (req, res) => {
         [Op.between]: [startDate, endDate]
       };
     }
-    console.log(startDate)
-    console.log(endDate)
 
     let sort = "";
 
@@ -768,7 +768,7 @@ export const getProposals = async (req, res) => {
         required: true,
         attributes: ["proposal_id", "status_name"],
         duplicating: false,
-        where: {endAt: null}
+        where: { endAt: null, status_name: filterStatus }
       },
       {
         model: Milestone,
@@ -796,7 +796,7 @@ export const getProposals = async (req, res) => {
         required: true,
         attributes: ["username", "nib"],
         duplicating: false,
-        where: {username: username}
+        where: { username: username }
       },
       {
         model: Sponsoree,
@@ -816,7 +816,7 @@ export const getProposals = async (req, res) => {
       ]
     });
 
-    console.log(result)
+    console.log("hasil", result)
 
     if (String(filterEventLocation) !== "") {
       result = result.filter(item => filterEventLocation.includes(item.event_location));
@@ -838,7 +838,6 @@ export const getProposals = async (req, res) => {
     }
     if (filterTargetParticipant.length > 0) {
       result = result.filter(item => {
-        console.log(item)
         const targetCategory = item.target_proposals.map(target => target.target_participant_category);
         return targetCategory.some(target => filterTargetParticipant.includes(target));
       });
@@ -846,9 +845,6 @@ export const getProposals = async (req, res) => {
     // if (String(filterTargetParticipant) !== "") {
     //   result = result.filter(item => filterTargetParticipant.includes(item.target_proposals));
     // }
-    if (String(filterStatus) !== "") {
-      result = result.filter(item => filterStatus.includes(item.status_proposals));
-    }
 
     const totalRows = Object.keys(result).length;
     const totalPage = Math.ceil(totalRows / limit);
@@ -870,7 +866,7 @@ export const getProposals = async (req, res) => {
   }
 }
 
-export const doCompleteProposal = async ( req, res) => {
+export const doCompleteProposal = async (req, res) => {
   const { proposal_status_id } = req.params;
   console.log("incoming stat id: ", proposal_status_id);
   try {
@@ -908,8 +904,8 @@ export const doCompleteProposal = async ( req, res) => {
     await currentStatus.save();
 
     const newStatus = await ProposalStatus.create({
-      proposal_id: currentStatus.proposal_id, 
-      status_name: "Completed", 
+      proposal_id: currentStatus.proposal_id,
+      status_name: "Completed",
     });
 
     return res.status(201).json({

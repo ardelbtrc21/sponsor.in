@@ -2,13 +2,14 @@
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux"; // untuk ambil dari auth state
 import axios from "axios";
-import { DatePicker, Modal, Select, Space } from "antd";
+import { DatePicker, Modal, Select, Space, Tabs } from "antd";
 import { useParams } from "react-router-dom";
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { NavLink, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import ModernLayout from "../components/Layout";
 import { Dialog, Transition } from '@headlessui/react';
+import "../Style/styles.css";
 import { ChevronUpIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import dayjs from "dayjs";
@@ -39,23 +40,13 @@ const ListApprovalProposal = () => {
   const filteredTags = tagsDB.filter(o => !tagRelated.includes(o));
   const [targetsDb, setTargetsDB] = useState([]);
   const filteredTargets = targetsDb.filter(o => !targetParticipant.includes(o));
+  const [activeTab, setActiveTab] = useState("Requested");
+
   //pagination
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(0);
   const [pages, setPages] = useState(0);
   const [rows, setRows] = useState(0);
-
-  //filter tanggal dan kategori
-  // const [openFilterModal, setOpenFilterModal] = useState(false);
-  // const [confirmLoading, setConfirmLoading] = useState(false);
-  // const [filterEventDate, setFilterEventDate] = useState("");
-  // const [filterEventLocation, setFilterEventLocation] = useState([]);
-  // const [filterTargetAgeMin, setFilterTargetAgeMin] = useState([]);
-  // const [filterTargetAgeMax, setFilterTargetAgeMax] = useState([]);
-  // const [filterTargetGender, setFilterTargetGender] = useState([]);
-  // const [filterTagRelated, setFilterTagRelated] = useState([]);
-  // const [filterTargetParticipant, setFilterTargetParticipant] = useState("");
-  // const [filterStatus, setFilterStatus] = useState("");
 
   //urutan tabel
   const [sortBy, setSortBy] = useState("");
@@ -86,6 +77,15 @@ const ListApprovalProposal = () => {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      getProposals();
+    }, 500);
+
+    return () => clearTimeout(delayDebounce);
+  }, [keyword, sortBy, order, activeTab]);
+
 
   const getTargets = async () => {
     try {
@@ -122,11 +122,12 @@ const ListApprovalProposal = () => {
           targetGender: targetGender,
           tagRelated: tagRelated,
           targetParticipant: targetParticipant,
-          status: status
+          status: activeTab
         }
 
       });
       setProposals(response.data.result);
+      console.log(proposals)
       setPages(response.data.totalPage);
       setRows(response.data.totalRows);
     } catch (error) {
@@ -175,13 +176,6 @@ const ListApprovalProposal = () => {
 
     return () => clearTimeout(delayDebounce);
   }, [keyword, sortBy, order]);
-
-  // useEffect(() => {
-  //   const delayDebounce = setTimeout(() => {
-  //     getTags();
-  //   }, 1000);
-  //   return () => clearTimeout(delayDebounce);
-  // })
 
   const handleCancelModal = () => {
     setOpenFilterModal(false);
@@ -321,6 +315,24 @@ const ListApprovalProposal = () => {
           </Dialog>
         </Transition>
 
+        <div className="mb-6 w-full">
+          <Tabs
+            activeKey={activeTab}
+            onChange={(key) => setActiveTab(key)}
+            className="w-full custom-tab-spacing"
+            items={[
+              "Requested",
+              "Under Review",
+              "Accepted",
+              "Processing Agreement",
+              "Completed",
+            ].map((status) => ({
+              label: status,
+              key: status,
+            }))}
+          />
+        </div>
+
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead>
             <tr className="font-semibold text-xs text-primary uppercase">
@@ -406,9 +418,6 @@ const ListApprovalProposal = () => {
                     >
                       VIEW PROPOSAL DETAIL
                     </button>
-                    {/* <button className="text-gray-700 hover:text-gray-900">
-                      <ArrowDownTrayIcon className="h-4 w-4" />
-                    </button> */}
                   </div>
                 </td>
               </tr>
