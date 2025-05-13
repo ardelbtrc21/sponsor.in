@@ -35,22 +35,17 @@ const AdminPendingSponsorsPage = () => {
       .finally(() => setLoading(false));
   }, [navigate]);
 
-  useEffect(() => {
-    if (selectedDocument) {
-      fetchAndPreviewPDF(selectedDocument);
-    }
-  }, [selectedDocument]);
-
-  const fetchAndPreviewPDF = async (filename) => {
+  const fetchAndPreviewPDF = async (document) => {
     try {
+      console.log("Result: ", document);
       const res = await axios({
-        url: `/api/sponsors/document/${filename}`,
+        url: `/api/sponsors/preview/${document}`,
         method: "GET",
         responseType: "blob",
       });
       const blob = new Blob([res.data], { type: "application/pdf" });
       const blobUrl = URL.createObjectURL(blob);
-      setPdfBlobUrl(blobUrl);
+      window.open(blobUrl, "_blank");
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -59,8 +54,8 @@ const AdminPendingSponsorsPage = () => {
           error.response?.status === 403
             ? "Access Forbidden"
             : error.response?.status === 404
-            ? "File Not Found"
-            : "Failed to preview file",
+              ? "File Not Found"
+              : "Failed to preview file",
       });
       console.error(error);
     }
@@ -168,7 +163,7 @@ const AdminPendingSponsorsPage = () => {
                   <td className="px-4 py-2 text-center">
                     {sponsor.document ? (
                       <button
-                        onClick={() => setSelectedDocument(sponsor.document)}
+                        onClick={() => fetchAndPreviewPDF(sponsor.document)}
                         className="text-sm text-blue-600 underline hover:text-blue-800"
                       >
                         View Document
@@ -182,11 +177,10 @@ const AdminPendingSponsorsPage = () => {
                       <button
                         onClick={() => handleApprove(sponsor.user_sponsors.username)}
                         disabled={approving === sponsor.user_sponsors.username}
-                        className={`text-xs px-3 py-1.5 rounded-lg text-white font-semibold ${
-                          approving === sponsor.user_sponsors.username
+                        className={`text-xs px-3 py-1.5 rounded-lg text-white font-semibold ${approving === sponsor.user_sponsors.username
                             ? "bg-primary cursor-not-allowed"
                             : "bg-primary hover:opacity-80"
-                        }`}
+                          }`}
                       >
                         {approving === sponsor.user_sponsors.username
                           ? "APPROVING..."
@@ -195,11 +189,10 @@ const AdminPendingSponsorsPage = () => {
                       <button
                         onClick={() => handleReject(sponsor.user_sponsors.username)}
                         disabled={approving === sponsor.user_sponsors.username}
-                        className={`text-xs px-3 py-1.5 rounded-lg text-white font-semibold ${
-                          approving === sponsor.user_sponsors.username
+                        className={`text-xs px-3 py-1.5 rounded-lg text-white font-semibold ${approving === sponsor.user_sponsors.username
                             ? "bg-red-600 cursor-not-allowed"
                             : "bg-red-600 hover:opacity-80"
-                        }`}
+                          }`}
                       >
                         {approving === sponsor.user_sponsors.username
                           ? "REJECTING..."
