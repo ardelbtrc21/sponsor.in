@@ -60,8 +60,11 @@ const MyProfile = () => {
                             style={{ imageRendering: "auto" }}
                             alt="banner"
                         />
-                        <span className="absolute top-4 right-4 bg-green-500 text-white text-sm px-3 py-1 rounded-full shadow-md">
-                            {sponsor.user_sponsors.is_available ? "Available" : "Not Available"}
+                        <span
+                            className={`absolute top-4 right-20 px-4 py-1 rounded-full text-sm font-semibold shadow-lg transition-colors duration-300
+            ${sponsor.user_sponsors.is_available ? 'bg-hijau text-white' : 'bg-red-500 text-white'}`}
+                        >
+                            {sponsor.user_sponsors.is_available ? 'Available' : 'Not Available'}
                         </span>
 
                         {/* Foto Profil */}
@@ -180,7 +183,7 @@ const MyProfile = () => {
                                     />
                                 ))}
                         </div>
-                        <HistoryAgreement username={username} role={user.role} isMyProfile={true}/>
+                        <HistoryAgreement username={username} role={user.role} isMyProfile={true} />
                     </div>
                 </div>
             )}
@@ -251,7 +254,7 @@ const MyProfile = () => {
                                 ))}
                         </div>
                     </div>
-                    <HistoryAgreement username={username} role={user.role} isMyProfile={true}/>
+                    <HistoryAgreement username={username} role={user.role} isMyProfile={true} />
                 </div>
             )}
         </ModernLayout>

@@ -159,7 +159,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             onClick={handleLogout}
             className="w-full py-2 text-white bg-red-600 hover:bg-red-700 rounded-full font-semibold transition"
           >
-            Logout
+            Sign Out
           </button>
         </div>
       </div>
