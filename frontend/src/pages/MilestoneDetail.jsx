@@ -18,7 +18,7 @@ const MilestoneDetailPage = () => {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [replyMilestone, setReplyMilestone] = useState("");
   const [milestoneReplyAttachment, setMilestoneReplyAttachment] = useState(null);
-  const isDisabled = user.role !== "Sponsoree";
+  const [isDisabled, setIsDisabled] = useState(user.role !== "Sponsoree");
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -27,6 +27,9 @@ const MilestoneDetailPage = () => {
         setMilestone(response.data.milestone);
         setReplyMilestone(response.data.milestone.milestone_reply ? response.data.milestone.milestone_reply : "")
         setStatus(response.data.status?.status_name || "Not Set");
+        if (response.data.status?.status_name !== "Pending") {
+          setIsDisabled(true)
+        }
       } catch (err) {
         console.error("Failed to fetch milestone detail:", err);
       }
