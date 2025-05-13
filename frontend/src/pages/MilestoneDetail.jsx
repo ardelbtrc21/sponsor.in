@@ -27,7 +27,7 @@ const MilestoneDetailPage = () => {
         setMilestone(response.data.milestone);
         setReplyMilestone(response.data.milestone.milestone_reply ? response.data.milestone.milestone_reply : "")
         setStatus(response.data.status?.status_name || "Not Set");
-        if (response.data.status?.status_name !== "Pending" || response.data.status?.status_name !== "Revision Required") {
+        if (response.data.status?.status_name !== "Pending" && response.data.status?.status_name !== "Revision Required") {
           setIsDisabled(true)
         }
       } catch (err) {
