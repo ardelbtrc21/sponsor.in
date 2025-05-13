@@ -278,7 +278,7 @@ const ViewDetailProposal = () => {
                 </button>
               )}
 
-              {user.role === 'Sponsor' && latestStatus?.status_name === "Processing Agreement" && canComplete && (
+              {user.role === 'Sponsor' && (latestStatus?.status_name === "Processing Agreement" || latestStatus?.status_name === "Accepted") && canComplete && (
                 <button
                   className="bg-green-600 hover:bg-green-700 text-white font-semibold tracking-wider py-2 px-6 rounded-lg shadow-md"
                   onClick={async () => {
@@ -297,7 +297,7 @@ const ViewDetailProposal = () => {
                     }
                   }}
                 >
-                  COMPLETE MILESTONE
+                  COMPLETE PROPOSAL
                 </button>
               )}
             </div>
@@ -306,7 +306,7 @@ const ViewDetailProposal = () => {
       </div>
 
       {isModalOpen && (
-        <CreateMilestoneModal submission={selectedProposal} onClose={handleCloseModal} />
+        <CreateMilestoneModal submission={selectedProposal} onClose={handleCloseModal} latestStatus={latestStatus} />
       )}
     </ModernLayout>
   );

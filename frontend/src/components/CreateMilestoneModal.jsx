@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 
-const CreateMilestoneModal = ({ submission, onClose }) => {
+const CreateMilestoneModal = ({ submission, onClose, latestStatus }) => {
   const [milestones, setMilestones] = useState([]);
   const navigate = useNavigate();
   const [errors, setErrors] = useState([]);
@@ -91,6 +91,7 @@ const CreateMilestoneModal = ({ submission, onClose }) => {
 
     const formData = new FormData();
     formData.append("milestones", JSON.stringify(milestones));
+    formData.append("latestStatus", JSON.stringify(latestStatus));
 
     milestones.forEach((m, i) => {
       if (m.milestone_attachment instanceof File) {
