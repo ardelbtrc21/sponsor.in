@@ -99,7 +99,7 @@ const SponsoreeDetail = () => {
                         style={{ imageRendering: "auto" }}
                         alt="banner"
                     />
-                    <span className="absolute top-4 right-4 bg-green-500 text-white text-sm px-3 py-1 rounded-full shadow-md">
+                    <span className="absolute top-4 right-4 bg-hijau text-white text-sm px-3 py-1 rounded-full shadow-md">
                         {sponsoree.user_sponsorees.category}
                     </span>
 
@@ -138,25 +138,30 @@ const SponsoreeDetail = () => {
                             </div>
                         </div>
 
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 max-w-6xl mx-auto min-h-[13rem]">
-                            {sponsoree.photo_sponsorship_users.length > 0 ? (
-                                sponsoree.photo_sponsorship_users.map((img, idx) => (
-                                    <img
-                                        key={idx}
-                                        src={`/api/sponsorship_photos/preview/${img.photo}`}
-                                        alt={`sponsorship-${idx}`}
-                                        className="rounded-xl w-full h-52 object-cover shadow-sm"
-                                    />
-                                ))
-                            ) : (
-                                <div className="col-span-full flex justify-center items-center min-h-[13rem]">
-                                    <h2 className="text-lg font-semibold text-[#031930]">No photo uploaded.</h2>
-                                </div>
-                            )}
+                        <div className="mt-10 px-6 w-full">
+                            <h2 className="text-2xl font-semibold text-[#031930] text-center">Our Sponsorships</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 max-w-6xl mx-auto">
+                                {sponsoree.photo_sponsorship_users.length > 0 ? (
+                                    sponsoree.photo_sponsorship_users.map((img, idx) => (
+                                        <img
+                                            key={idx}
+                                            src={`/api/sponsorship_photos/preview/${img.photo}`}
+                                            alt={`sponsorship-${idx}`}
+                                            className="rounded-xl w-full h-52 object-cover shadow-sm"
+                                        />
+                                    ))
+                                ) : (
+                                    <div className="col-span-full flex justify-center items-center min-h-[13rem]">
+                                        <h2 className="text-normal text-gray-700 text-[#031930]">No photo uploaded.</h2>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
-                        <HistoryAgreement username={id} role={"Sponsoree"} isMyProfile={true} />
+                        {/* History Agreement */}
+                        <div className="mt-10 px-6 w-full">
+                            <HistoryAgreement username={id} role={"Sponsoree"} isMyProfile={true} />
+                        </div>
                     </div>
                 )}
             </div>
