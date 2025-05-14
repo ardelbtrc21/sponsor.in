@@ -8,7 +8,8 @@
     "start": "nodemon index.js",
     "migration:create": "npx sequelize-cli migration:create --name",
     "migrate": "npx sequelize-cli db:migrate",
-    "migrate:rollback": "npx sequelize-cli db:migrate:undo"
+    "migrate:rollback": "npx sequelize-cli db:migrate:undo",
+    "initiate_data": "node --env-file=.env src/scripts/initiate_data.js"
   },
   "keywords": [],
   "author": "",
