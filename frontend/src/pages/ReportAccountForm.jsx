@@ -40,7 +40,7 @@ const ReportAccountForm = () => {
 
       setTimeout(() => {
         setShowPopup(false);
-        navigate("/sponsors");
+        navigate("/");
       }, 3000);
     } catch (error) {
       setLoading(false);
