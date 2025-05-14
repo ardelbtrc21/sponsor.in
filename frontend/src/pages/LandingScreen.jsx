@@ -86,16 +86,6 @@ const LandingScreen = () => {
           <h3 className="text-white text-xs font-medium">Finish</h3>
         </div>
       </div>
-
-      {/* CTA Button */}
-      <div className="flex justify-center px-4 mt-2 mb-10">
-        <button
-          onClick={() => navigate("/")}
-          className="bg-white border-2 border-primary hover:opacity-80 text-primary font-semibold text-xs px-10 py-2 rounded-lg transition"
-        >
-          GET STARTED NOW
-        </button>
-      </div>
     </div>
   );
 };
