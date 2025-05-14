@@ -1,5 +1,5 @@
 import express from "express";
-import { createMilestones, getMilestoneById, getMilestonesByProposalId, getPendingMilestonesByUsername, getStatusBySubmissionId, updateMilestoneStatus, addReplyMilestone } from "../controllers/MilestoneControllers.js";
+import { createMilestones, getMilestoneById, getMilestonesByProposalId, getPendingMilestonesByUsername, getStatusBySubmissionId, updateMilestoneStatus, addReplyMilestone, patchMilestoneRevision } from "../controllers/MilestoneControllers.js";
 import { fileURLToPath } from "url";
 import path from "path";
 import fs from "fs";
@@ -16,6 +16,7 @@ router.get("/api/milestones/:milestone_id", getMilestoneById);
 router.get("/api/milestones/proposals/:proposal_id", getMilestonesByProposalId); 
 router.put("/api/milestones/:milestone_id/status", updateMilestoneStatus); 
 router.patch("/api/milestones/reply", addReplyMilestone); 
+router.patch("/api/milestones/update/:milestone_id", patchMilestoneRevision);
 router.get("/api/milestones/preview/:filename", (req, res) => {
   const { filename } = req.params;
   const filePath = path.join(milestoneFolder, filename);
@@ -24,7 +25,6 @@ router.get("/api/milestones/preview/:filename", (req, res) => {
     return res.status(404).json({ message: "File not found" });
   }
 
-  // Deteksi mime type berdasarkan ekstensi file
   const mimeType = mime.lookup(filename) || "application/octet-stream";
   console.log(mimeType)
   res.setHeader("Content-Type", mimeType);

@@ -311,3 +311,24 @@ export const addReplyMilestone = async (req, res) => {
     return res.status(500).json({ msg: error.message });
   }
 };
+
+export const patchMilestoneRevision = async (req, res) => {
+  const { milestone_id } = req.params;
+  const { milestone_description } = req.body;
+
+  try {
+    const [updatedCount] = await Milestone.update(
+      { milestone_description },
+      { where: { milestone_id } }
+    );
+
+    if (updatedCount === 0) {
+      return res.status(404).json({ message: "Milestone not found" });
+    }
+
+    return res.json({ message: "Revision sent successfully" });
+  } catch (error) {
+    console.error("patchMilestoneRevision error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
