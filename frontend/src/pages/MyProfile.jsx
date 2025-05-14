@@ -158,7 +158,7 @@ const MyProfile = () => {
                     </div>
 
                     {/* Sponsorships */}
-                    <div className="mt-16 px-6">
+                    <div className="mt-10 px-6">
                         <h2 className="text-2xl font-semibold text-center text-[#031930]">Our Sponsorships</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 max-w-6xl mx-auto">
                             {sponsor.photo_sponsorship_users.length > 0
@@ -170,20 +170,16 @@ const MyProfile = () => {
                                         className="rounded-xl w-full h-52 object-cover shadow-sm"
                                     />
                                 ))
-                                : [
-                                    "https://i.pinimg.com/736x/75/bb/c1/75bbc141800fa53fb59c6a06bc2c27c3.jpg",
-                                    "https://i.pinimg.com/474x/eb/fb/02/ebfb0275b4e79fcfb02928300e71bcf2.jpg",
-                                    "https://i.pinimg.com/474x/c3/15/4e/c3154e3047a094b517dead55017adee0.jpg",
-                                ].map((url, idx) => (
-                                    <img
-                                        key={idx}
-                                        src={url}
-                                        alt={`sponsorship-${idx}`}
-                                        className="rounded-xl w-full h-52 object-cover shadow-sm"
-                                    />
-                                ))}
+                                : <div className="col-span-3 flex items-center justify-center w-full">
+                                    <h2 className="text-lg text-center text-[#031930]">No photo uploaded.</h2>
+                                </div>
+                            }
                         </div>
-                        <HistoryAgreement username={username} role={user.role} isMyProfile={true} />
+
+
+                        <div className="mt-16 px-6 w-full">
+                            <HistoryAgreement username={username} role={user.role} isMyProfile={true} />
+                        </div>
                     </div>
                 </div>
             )}
@@ -240,12 +236,15 @@ const MyProfile = () => {
                                         className="rounded-xl w-full h-52 object-cover shadow-sm"
                                     />
                                 ))
-
-                                : <h2 className="text-lg font-semibold text-center text-[#031930]">No photo uploaded.</h2>
+                                : <div className="col-span-3 flex items-center justify-center w-full">
+                                    <h2 className="text-lg text-center text-[#031930]">No photo uploaded.</h2>
+                                </div>
                             }
                         </div>
                     </div>
-                    <HistoryAgreement username={username} role={user.role} isMyProfile={true} />
+                    <div className="mt-10 px-6 w-full">
+                        <HistoryAgreement username={username} role={user.role} isMyProfile={true} />
+                    </div>
                 </div>
             )}
         </ModernLayout>
