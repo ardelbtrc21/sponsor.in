@@ -66,7 +66,6 @@ const CreateProposalForm = () => {
 
   const getSponsor = async () => {
     try {
-      console.log(sponsorId);
       const response = await axios.get(`/api/sponsors/${sponsorId}`);
       setSponsor(response);
       setCategoryProvides(response.data.category_provides?.split(','))
@@ -182,7 +181,6 @@ const CreateProposalForm = () => {
       const file = info.file;
       const newFileList = info.fileList.slice(-1);
       setFileList(newFileList);
-      console.log(file)
       if (file) {
         setFileProposal(file)
       }
@@ -209,7 +207,6 @@ const CreateProposalForm = () => {
     try {
       const formData = new FormData();
       const tempSupport = supportNeeded.values;
-      console.log(tempSupport)
       formData.append("proposal_name", proposalName);
       formData.append("file_proposal", "file");
       formData.append("event_name", eventName);

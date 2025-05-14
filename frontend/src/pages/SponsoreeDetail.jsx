@@ -10,7 +10,6 @@ import Swal from "sweetalert2";
 
 const SponsoreeDetail = () => {
     const { id } = useParams();
-    console.log(id)
     const user = useSelector((state) => state.auth.user);
     const username = user.username;
     const navigate = useNavigate();

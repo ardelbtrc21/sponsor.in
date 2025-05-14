@@ -56,7 +56,6 @@ const EditProfile = ({ sponsor: sponsoree }) => {
 
     useEffect(() => {
         if (sponsorData) {
-            console.log(sponsorData)
             setFormData({
                 name: sponsorData.name,
                 background_photo: sponsorData.background_photo,
@@ -286,7 +285,6 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                     "Content-Type": "multipart/form-data",
                 },
             });
-            console.log("Profile updated:", response.data);
             navigate("/my-profile", { replace: true }); // ganti dengan path yang sesuai
             window.location.reload(); // paksa reload
         } catch (error) {
@@ -562,7 +560,7 @@ const EditProfile = ({ sponsor: sponsoree }) => {
 
                         {sponsorData && sponsorData !== null && (
                             <div>
-                                <div>
+                                <div className="pb-5">
                                     <label className="block text-sm font-medium mb-1">Tags</label>
                                     <Select
                                         mode="tags"

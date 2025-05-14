@@ -127,7 +127,6 @@ const ListApprovalProposal = () => {
 
       });
       setProposals(response.data.result);
-      console.log(proposals)
       setPages(response.data.totalPage);
       setRows(response.data.totalRows);
     } catch (error) {

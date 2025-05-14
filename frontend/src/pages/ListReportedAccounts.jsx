@@ -73,97 +73,142 @@ const ListReportedAccount = () => {
     };
 
     const handleBanAccount = async (username, report_id) => {
-        try {
-            await axios.patch("/api/banAccount", {
-                username: username,
-                report_id: report_id
-            })
-            Swal.fire({
-                title: "<strong>Ban Account Successful!</strong>",
-                html: "<p>Your request has been successfully added</p>",
-                icon: "success",
-                iconColor: "#22c55e", // green-500
-                showCancelButton: false,
-                confirmButtonText: "OK",
-                background: "#fff",
-                color: "#1f2937", // text-gray-800
-                buttonsStyling: false,
-                customClass: {
-                    popup: 'rounded-2xl shadow-md px-6 py-4',
-                    title: 'text-xl font-semibold mb-2',
-                    htmlContainer: 'text-sm text-gray-700',
-                    confirmButton: 'bg-green-600 text-white hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5',
-                },
-            });
-            window.location.reload();
-        } catch (error) {
-            Swal.fire({
-                title: "<strong>Oops...</strong>",
-                html: `<p>${error.response.data.msg}</p>`,
-                icon: "error",
-                iconColor: "#dc2626", // red-600
-                showCancelButton: false,
-                confirmButtonText: "OK",
-                background: "#fff",
-                color: "#1f2937",
-                buttonsStyling: false,
-                customClass: {
-                    popup: 'rounded-2xl shadow-md px-6 py-4',
-                    title: 'text-xl font-semibold mb-2',
-                    htmlContainer: 'text-sm text-gray-700',
-                    confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
-                },
-            });
+        const result = await Swal.fire({
+            title: "<strong>Your About to Ban Account</strong>",
+            html: `<p>Are you sure you want to ban account <strong>${username}</strong>?</p>`,
+            icon: "warning",
+            iconColor: "#f59e0b",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Ban",
+            cancelButtonText: "Cancel",
+            background: "#fff",
+            color: "#1f2937",
+            buttonsStyling: false,
+            customClass: {
+                popup: 'rounded-2xl shadow-md px-6 py-4',
+                title: 'text-xl font-semibold mb-2 text-black-600',
+                htmlContainer: 'text-sm text-gray-700',
+                confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                cancelButton: 'bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 ml-2',
+            },
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await axios.patch("/api/banAccount", {
+                    username: username,
+                    report_id: report_id
+                });
+                Swal.fire({
+                    title: "<strong>Success</strong>",
+                    html: `<p>Account <strong>${username}</strong> has been banned successfully.</p>`,
+                    icon: "success",
+                    iconColor: "#10b981",
+                    showCancelButton: false,
+                    confirmButtonText: "OK",
+                    background: "#fff",
+                    color: "#1f2937",
+                    buttonsStyling: false,
+                    customClass: {
+                        popup: 'rounded-2xl shadow-md px-6 py-4',
+                        title: 'text-xl font-semibold mb-2 text-green-600',
+                        htmlContainer: 'text-sm text-gray-700',
+                        confirmButton: 'bg-indigo-500 text-white hover:bg-indigo-600 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                    },
+                });
+                window.location.reload();
+            } catch (error) {
+                Swal.fire({
+                    title: "<strong>Oops...</strong>",
+                    html: `<p>${error.response?.data?.msg || error.message}</p>`,
+                    icon: "error",
+                    iconColor: "#dc2626",
+                    showCancelButton: false,
+                    confirmButtonText: "OK",
+                    background: "#fff",
+                    color: "#1f2937",
+                    buttonsStyling: false,
+                    customClass: {
+                        popup: 'rounded-2xl shadow-md px-6 py-4',
+                        title: 'text-xl font-semibold mb-2 text-red-600',
+                        htmlContainer: 'text-sm text-gray-700',
+                        confirmButton: 'bg-indigo-500 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                    },
+                });
+            }
         }
-    }
+    };
+
+
 
     const handleRejectReport = async (report_id) => {
-        try {
-            await axios.patch(`/api/reject-report/${report_id}`)
-            Swal.fire({
-                title: "<strong>Reject Account Successful!</strong>",
-                html: "<p>Your request has been successfully added</p>",
-                icon: "success",
-                iconColor: "#22c55e", // green-500
-                showCancelButton: false,
-                confirmButtonText: "OK",
-                background: "#fff",
-                color: "#1f2937", // text-gray-800
-                buttonsStyling: false,
-                customClass: {
-                    popup: 'rounded-2xl shadow-md px-6 py-4',
-                    title: 'text-xl font-semibold mb-2',
-                    htmlContainer: 'text-sm text-gray-700',
-                    confirmButton: 'bg-green-600 text-white hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5',
-                },
-            });
+        const result = await Swal.fire({
+            title: "<strong>Confirm Rejection</strong>",
+            html: "<p>Are you sure you want to reject this report?</p>",
+            icon: "warning",
+            iconColor: "#f59e0b",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Reject",
+            cancelButtonText: "Cancel",
+            background: "#fff",
+            color: "#1f2937",
+            buttonsStyling: false,
+            customClass: {
+                popup: 'rounded-2xl shadow-md px-6 py-4',
+                title: 'text-xl font-semibold mb-2 text-black-600',
+                htmlContainer: 'text-sm text-gray-700',
+                confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                cancelButton: 'bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 ml-2',
+            },
+        });
 
-            window.location.reload();
-        } catch (error) {
-            Swal.fire({
-                title: "<strong>Oops...</strong>",
-                html: `<p>${error.response.data.msg}</p>`,
-                icon: "error",
-                iconColor: "#dc2626", // red-600
-                showCancelButton: false,
-                confirmButtonText: "OK",
-                background: "#fff",
-                color: "#1f2937",
-                buttonsStyling: false,
-                customClass: {
-                    popup: 'rounded-2xl shadow-md px-6 py-4',
-                    title: 'text-xl font-semibold mb-2',
-                    htmlContainer: 'text-sm text-gray-700',
-                    confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
-                },
-            });
+        if (result.isConfirmed) {
+            try {
+                await axios.patch(`/api/reject-report/${report_id}`);
+                Swal.fire({
+                    title: "<strong>Success</strong>",
+                    html: "<p>Report has been rejected successfully.</p>",
+                    icon: "success",
+                    iconColor: "#10b981",
+                    showCancelButton: false,
+                    confirmButtonText: "OK",
+                    background: "#fff",
+                    color: "#1f2937",
+                    buttonsStyling: false,
+                    customClass: {
+                        popup: 'rounded-2xl shadow-md px-6 py-4',
+                        title: 'text-xl font-semibold mb-2 text-green-600',
+                        htmlContainer: 'text-sm text-gray-700',
+                        confirmButton: 'bg-indigo-500 text-white hover:bg-indigo-600 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                    },
+                });
+                window.location.reload();
+            } catch (error) {
+                Swal.fire({
+                    title: "<strong>Oops...</strong>",
+                    html: `<p>${error.response?.data?.msg || error.message}</p>`,
+                    icon: "error",
+                    iconColor: "#dc2626",
+                    showCancelButton: false,
+                    confirmButtonText: "OK",
+                    background: "#fff",
+                    color: "#1f2937",
+                    buttonsStyling: false,
+                    customClass: {
+                        popup: 'rounded-2xl shadow-md px-6 py-4',
+                        title: 'text-xl font-semibold mb-2 text-red-600',
+                        htmlContainer: 'text-sm text-gray-700',
+                        confirmButton: 'bg-indigo-500 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                    },
+                });
+            }
         }
-    }
+    };
+
 
     const handleViewAccount = async (username) => {
         try {
             const response = await axios.get(`/api/user/${username}`)
-            console.log(response.data)
             if (response.data.user_sponsors) {
                 navigate(`/sponsors/${username}`)
             }
