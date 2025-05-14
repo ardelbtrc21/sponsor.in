@@ -9,7 +9,8 @@ const ListMilestone = ({ milestones }) => {
 
   const renderStatusBadge = (status) => {
     let bgColor = "bg-gray-400";
-    if (status === "Completed") bgColor = "bg-green-500";
+    if (status === "Completed") bgColor = "bg-hijau";
+    else if (status === "Submitted") bgColor = "bg-blue-500";
     else if (status === "Revision Required") bgColor = "bg-yellow-500";
 
     return (
