@@ -196,18 +196,11 @@ const SponsorDetail = () => {
                     className="rounded-xl w-full h-52 object-cover shadow-sm"
                   />
                 ))
-                : [
-                  "https://i.pinimg.com/736x/75/bb/c1/75bbc141800fa53fb59c6a06bc2c27c3.jpg",
-                  "https://i.pinimg.com/474x/eb/fb/02/ebfb0275b4e79fcfb02928300e71bcf2.jpg",
-                  "https://i.pinimg.com/474x/c3/15/4e/c3154e3047a094b517dead55017adee0.jpg",
-                ].map((url, idx) => (
-                  <img
-                    key={idx}
-                    src={url}
-                    alt={`sponsorship-${idx}`}
-                    className="rounded-xl w-full h-52 object-cover shadow-sm"
-                  />
-                ))}
+                :
+                <div className="col-span-full flex justify-center items-center min-h-[13rem]">
+                  <h2 className="text-normal text-gray-700 text-[#031930]">No photo uploaded.</h2>
+                </div>
+              }
             </div>
             <HistoryAgreement username={id} role={sponsor.role} isMyProfile={true} />
           </div>
