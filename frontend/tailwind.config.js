@@ -27,7 +27,8 @@ module.exports = {
         lightblue: '#D1DDED',
         darkblue: '#213A59',        
         white: '#FFFFFF',
-        hijau: '#51b330'
+        hijau: '#51b330',
+        gradient: '#D1DDED 17%'
       },
       backgroundImage: {
         'custom-gradient': 'linear-gradient(to bottom, #D1DDED 17%, #758AA5 36%, #213A59 59%, #031930 90%)',

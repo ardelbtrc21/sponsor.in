@@ -1,7 +1,7 @@
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
-import { Autoplay } from 'swiper/modules'; 
+import { Autoplay } from 'swiper/modules';
 import Image1 from "../assets/landing_page_1.jpg";
 import Image2 from "../assets/landing_page_2.jpg";
 import Image3 from "../assets/landing_page_3.jpg";
@@ -31,8 +31,12 @@ const ImageCarousel = () => {
       >
         {images.map((src, index) => (
           <SwiperSlide key={index}>
-            <div className="carousel-slide">
-              <img src={src} alt={`Image ${index + 1}`} className="w-full h-auto object-cover" />
+            <div className="p-1 h-40">
+              <img
+                src={src}
+                alt={`Image ${index + 1}`}
+                className="w-full h-full object-cover rounded-xl shadow-md"
+              />
             </div>
           </SwiperSlide>
         ))}
