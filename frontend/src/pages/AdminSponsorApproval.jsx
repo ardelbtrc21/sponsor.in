@@ -82,101 +82,148 @@ const AdminPendingSponsorsPage = () => {
     }
   };
 
-  const handleApprove = (username) => {
-    setApproving(username);
-    axios
-      .put(`/api/approve-sponsor/${username}`)
-      .then(() => {
-        Swal.fire({
-          icon: "success",
-          iconColor: "#22c55e", // Tailwind green-500
-          title: "<strong>Success</strong>",
-          html: `<p>Sponsor approved successfully</p>`,
-          background: "#fff",
-          color: "#1f2937",
-          showConfirmButton: false,
-          timer: 3000,
-          buttonsStyling: false,
-          customClass: {
-            popup: 'rounded-2xl shadow-md px-6 py-4',
-            title: 'text-xl font-semibold mb-2 text-green-600',
-            htmlContainer: 'text-sm text-gray-700',
-          }
-        });
-        setPendingSponsors((prev) =>
-          prev.filter((s) => s.user_sponsors.username !== username)
-        );
-      })
-      .catch((err) => {
-        console.error("Error approving sponsor:", err);
-        Swal.fire({
-          icon: "error",
-          iconColor: "#ef4444", // Tailwind red-500
-          title: "<strong>Oops...</strong>",
-          html: `<p>Failed to approve sponsor</p>`,
-          background: "#fff",
-          color: "#1f2937",
-          showConfirmButton: true,
-          confirmButtonText: "OK",
-          buttonsStyling: false,
-          customClass: {
-            popup: 'rounded-2xl shadow-md px-6 py-4',
-            title: 'text-xl font-semibold mb-2 text-red-600',
-            htmlContainer: 'text-sm text-gray-700',
-            confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5'
-          }
-        });
-      })
-      .finally(() => setApproving(null));
-  };
+const handleApprove = (username) => {
+  Swal.fire({
+    title: 'Are you sure?',
+    html: `<p class="text-gray-700">This sponsor will be <strong class="text-green-600">approved</strong>.</p>`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, Approve',
+    cancelButtonText: 'Cancel',
+    buttonsStyling: false,
+    iconColor: '#22c55e',
+    background: '#fff',
+    color: '#1f2937',
+    customClass: {
+      popup: 'rounded-2xl shadow-md px-6 py-4',
+      title: 'text-lg font-semibold mb-2 text-green-700',
+      htmlContainer: 'text-sm',
+      confirmButton: 'bg-green-600 text-white hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5',
+      cancelButton: 'bg-gray-400 text-white hover:bg-gray-500 font-medium rounded-lg text-sm px-5 py-2.5 ml-2'
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      setApproving(username);
+      axios
+        .put(`/api/approve-sponsor/${username}`)
+        .then(() => {
+          Swal.fire({
+            icon: "success",
+            iconColor: "#22c55e",
+            title: "<strong>Success</strong>",
+            html: `<p>Sponsor approved successfully</p>`,
+            background: "#fff",
+            color: "#1f2937",
+            showConfirmButton: false,
+            timer: 3000,
+            buttonsStyling: false,
+            customClass: {
+              popup: 'rounded-2xl shadow-md px-6 py-4',
+              title: 'text-xl font-semibold mb-2 text-green-600',
+              htmlContainer: 'text-sm text-gray-700',
+            }
+          });
+          setPendingSponsors((prev) =>
+            prev.filter((s) => s.user_sponsors.username !== username)
+          );
+        })
+        .catch((err) => {
+          console.error("Error approving sponsor:", err);
+          Swal.fire({
+            icon: "error",
+            iconColor: "#ef4444",
+            title: "<strong>Oops...</strong>",
+            html: `<p>Failed to approve sponsor</p>`,
+            background: "#fff",
+            color: "#1f2937",
+            showConfirmButton: true,
+            confirmButtonText: "OK",
+            buttonsStyling: false,
+            customClass: {
+              popup: 'rounded-2xl shadow-md px-6 py-4',
+              title: 'text-xl font-semibold mb-2 text-red-600',
+              htmlContainer: 'text-sm text-gray-700',
+              confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5'
+            }
+          });
+        })
+        .finally(() => setApproving(null));
+    }
+  });
+};
 
-  const handleReject = (username) => {
-    setApproving(username);
-    axios
-      .put(`/api/reject-sponsor/${username}`)
-      .then(() => {
-        Swal.fire({
-          icon: "success",
-          iconColor: "#22c55e", // Tailwind green-500
-          title: "<strong>Success</strong>",
-          html: `<p>Sponsor rejected successfully</p>`,
-          background: "#fff",
-          color: "#1f2937",
-          showConfirmButton: false,
-          timer: 3000,
-          buttonsStyling: false,
-          customClass: {
-            popup: 'rounded-2xl shadow-md px-6 py-4',
-            title: 'text-xl font-semibold mb-2 text-green-600',
-            htmlContainer: 'text-sm text-gray-700'
-          }
-        });
-        setPendingSponsors((prev) =>
-          prev.filter((s) => s.user_sponsors.username !== username)
-        );
-      })
-      .catch((err) => {
-        console.error("Error rejecting sponsor:", err);
-        Swal.fire({
-          icon: "error",
-          iconColor: "#dc2626", // Tailwind red-600
-          title: "<strong>Oops...</strong>",
-          html: `<p>Failed to reject sponsor</p>`,
-          background: "#fff",
-          color: "#1f2937",
-          showConfirmButton: true,
-          confirmButtonText: "OK",
-          buttonsStyling: false,
-          customClass: {
-            popup: 'rounded-2xl shadow-md px-6 py-4',
-            title: 'text-xl font-semibold mb-2 text-red-600',
-            htmlContainer: 'text-sm text-gray-700',
-            confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5'
-          }
-        });
-      })
-      .finally(() => setApproving(null));
-  };
+
+const handleReject = (username) => {
+  Swal.fire({
+    title: 'Are you sure?',
+    html: `<p class="text-gray-700">This sponsor will be <strong class="text-red-600">rejected</strong>.</p>`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, Reject',
+    cancelButtonText: 'Cancel',
+    buttonsStyling: false,
+    iconColor: '#dc2626',
+    background: '#fff',
+    color: '#1f2937',
+    customClass: {
+      popup: 'rounded-2xl shadow-md px-6 py-4',
+      title: 'text-lg font-semibold mb-2 text-red-700',
+      htmlContainer: 'text-sm',
+      confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+      cancelButton: 'bg-gray-400 text-white hover:bg-gray-500 font-medium rounded-lg text-sm px-5 py-2.5 ml-2'
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      setApproving(username);
+      axios
+        .put(`/api/reject-sponsor/${username}`)
+        .then(() => {
+          Swal.fire({
+            icon: "success",
+            iconColor: "#22c55e",
+            title: "<strong>Success</strong>",
+            html: `<p>Sponsor rejected successfully</p>`,
+            background: "#fff",
+            color: "#1f2937",
+            showConfirmButton: false,
+            timer: 3000,
+            buttonsStyling: false,
+            customClass: {
+              popup: 'rounded-2xl shadow-md px-6 py-4',
+              title: 'text-xl font-semibold mb-2 text-green-600',
+              htmlContainer: 'text-sm text-gray-700'
+            }
+          });
+          setPendingSponsors((prev) =>
+            prev.filter((s) => s.user_sponsors.username !== username)
+          );
+        })
+        .catch((err) => {
+          console.error("Error rejecting sponsor:", err);
+          Swal.fire({
+            icon: "error",
+            iconColor: "#dc2626",
+            title: "<strong>Oops...</strong>",
+            html: `<p>Failed to reject sponsor</p>`,
+            background: "#fff",
+            color: "#1f2937",
+            showConfirmButton: true,
+            confirmButtonText: "OK",
+            buttonsStyling: false,
+            customClass: {
+              popup: 'rounded-2xl shadow-md px-6 py-4',
+              title: 'text-xl font-semibold mb-2 text-red-600',
+              htmlContainer: 'text-sm text-gray-700',
+              confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5'
+            }
+          });
+        })
+        .finally(() => setApproving(null));
+    }
+  });
+};
+
+
 
   return (
     <ModernLayout>
