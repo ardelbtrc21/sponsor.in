@@ -1,33 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
-import { Check, ArrowLeft } from "lucide-react";
-import { useEffect } from "react";
-
+import { ArrowLeft } from "lucide-react";
+import Swal from "sweetalert2";
 
 const ReportAccountForm = () => {
-  useEffect(() => {
-    console.log("User from Redux:", user);
-  }, []);
-
   const { id: reportedUsername } = useParams();
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
   const [reason, setReason] = useState("");
   const [description, setDescription] = useState("");
-  const [showPopup, setShowPopup] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    console.log("User from Redux:", user);
+  }, [user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       await axios.post("/api/report", {
         report_id: uuidv4(),
-        created_by: (user && user.username),
+        created_by: user?.username,
         created_for: reportedUsername,
         reason: reason,
         description: description,
@@ -35,17 +34,45 @@ const ReportAccountForm = () => {
         createdAt: new Date(),
       });
 
-      setShowPopup(true);
       setLoading(false);
-
-      setTimeout(() => {
-        setShowPopup(false);
+      Swal.fire({
+        title: "<strong>Report Submitted</strong>",
+        html: `<p>Your report to account <b>${reportedUsername}</b> has been submitted and will be reviewed by our admin.</p>`,
+        icon: "success",
+        iconColor: "#10b981",
+        confirmButtonText: "OK",
+        background: "#fff",
+        color: "#1f2937",
+        buttonsStyling: false,
+        customClass: {
+          popup: 'rounded-2xl shadow-md px-6 py-4',
+          title: 'text-xl font-semibold mb-2 text-green-600',
+          htmlContainer: 'text-sm text-gray-700',
+          confirmButton: 'bg-indigo-500 text-white hover:bg-indigo-600 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5',
+        },
+      }).then(() => {
         navigate("/");
-      }, 3000);
+      });
+
     } catch (error) {
       setLoading(false);
       console.error("Error submitting report:", error);
-      alert("Failed to submit report. Please try again.");
+      Swal.fire({
+        title: "<strong>Submission Failed</strong>",
+        html: "<p>Failed to submit report. Please try again later.</p>",
+        icon: "error",
+        iconColor: "#dc2626",
+        confirmButtonText: "OK",
+        background: "#fff",
+        color: "#1f2937",
+        buttonsStyling: false,
+        customClass: {
+          popup: "rounded-2xl shadow-md px-6 py-4",
+          title: "text-xl font-semibold mb-2",
+          htmlContainer: "text-sm text-gray-700",
+          confirmButton: "bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5",
+        },
+      });
     }
   };
 
@@ -91,23 +118,13 @@ const ReportAccountForm = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full bg-primary text-white py-3 rounded-md text-sm font-medium transition duration-200 ${loading ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"
-              }`}
+            className={`w-full bg-primary text-white py-3 rounded-md text-sm font-medium transition duration-200 ${
+              loading ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"
+            }`}
           >
             {loading ? "Submitting..." : "Submit"}
           </button>
         </form>
-
-        {showPopup && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg text-center max-w-sm">
-              <Check size={48} className="text-green-600 mx-auto mb-2" />
-              <p className="text-black font-medium">
-                Your report to account <span className="font-bold">{reportedUsername}</span> has been submitted and will be reviewed by our admin.
-              </p>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
