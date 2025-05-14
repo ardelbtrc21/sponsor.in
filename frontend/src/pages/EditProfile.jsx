@@ -562,7 +562,7 @@ const EditProfile = ({ sponsor: sponsoree }) => {
 
                         {sponsorData && sponsorData !== null && (
                             <div>
-                                <div>
+                                <div className="pb-5">
                                     <label className="block text-sm font-medium mb-1">Tags</label>
                                     <Select
                                         mode="tags"
