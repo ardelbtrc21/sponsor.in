@@ -119,7 +119,7 @@ const MilestoneDetailPage = () => {
       }).then(() => {
         if (selectedStatus === "Revision Required") {
           setIsEditingDescription(true);
-          setIsDisabled(false);
+          setIsDisabled(true);
           setStatus("Revision Required");
         } else {
           navigate(-1);
