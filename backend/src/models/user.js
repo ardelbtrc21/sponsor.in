@@ -3,6 +3,7 @@ import db from "../../config/Database.js";
 import Sponsor from "./sponsor.js";
 import Sponsoree from "./sponsoree.js";
 import SponsorshipPhotos from "./sponsorship_photos.js";
+import Report from "./report.js";
 
 const User = db.define("user", {
     username: {
@@ -89,6 +90,26 @@ User.hasMany(SponsorshipPhotos, {
 SponsorshipPhotos.belongsTo(User, {
     foreignKey: "username",
     as: "photo_sponsorship_users"
+});
+User.hasMany(Report, {
+    foreignKey: "created_for",
+    as: "created_for_report",
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE"
+});
+Report.belongsTo(User, {
+    foreignKey: "created_for",
+    as: "created_for_report"
+});
+User.hasMany(Report, {
+    foreignKey: "created_by",
+    as: "created_by_report",
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE"
+});
+Report.belongsTo(User, {
+    foreignKey: "created_by",
+    as: "created_by_report"
 });
 
 export default User;

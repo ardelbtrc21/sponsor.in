@@ -1,4 +1,5 @@
 import Report from "../models/report.js";
+import User from "../models/user.js";
 
 export const newReport = async (req, res) => {
   const { report_id, username, created_by, created_for, reason, description, status, createdAt } = req.body;
@@ -25,22 +26,37 @@ export const getListReports = async (req, res) => {
   try {
     const sortBy = "createdAt";
     const order = req?.body?.order || "DESC";
+    const filterReason = req?.body?.filter?.reason || []
 
     // pagination
     const page = parseInt(req?.body?.page) || 0;
     const limit = parseInt(req?.body?.limit) || 10;
-    let where;
-    if (req.body.filter.reason) {
-      where = {
-        reason: req.body.filter.reason
-      }
-    }
     let result = await Report.findAll({
-      where: where,
       order: [
         [`${sortBy}`, `${order}`]
+      ],
+      include: [
+        {
+          model: User,
+          as: "created_by_report",
+          required: true,
+          attributes: ["username", "name", "email", "role", "is_banned"],
+          duplicating: false
+        },
+        {
+          model: User,
+          as: "created_for_report",
+          required: true,
+          attributes: ["username", "name", "email", "role", "is_banned"],
+          duplicating: false
+        }
       ]
     });
+
+    if (filterReason.length > 0) {
+      result = result.filter(item =>
+        filterReason.includes(item.reason));
+    }
 
     const totalRows = Object.keys(result).length;
     const totalPage = Math.ceil(totalRows / limit);

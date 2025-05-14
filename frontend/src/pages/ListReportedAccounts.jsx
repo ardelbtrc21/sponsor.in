@@ -21,7 +21,7 @@ const ListReportedAccount = () => {
     const [eventDate, setEventDate] = useState([]);
     const [tagRelated, setTagRelated] = useState([]);
     const [openFilterModal, setOpenFilterModal] = useState(false);
-    const [reason, setReason] = useState("")
+    const [reason, setReason] = useState([])
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [tagsDB, SetTagsDB] = useState([]);
     const filteredTags = tagsDB.filter(o => !tagRelated.includes(o));
@@ -46,6 +46,15 @@ const ListReportedAccount = () => {
     if (user && user.username) {
         username = user.username
     }
+
+    const reasonOption = [
+        { value: "Your Reason", label: "Your Reason" },
+        { value: "Fraud", label: "Fraud" },
+        { value: "Inappropriate Content", label: "Inappropriate Content" },
+        { value: "Scam", label: "Scam" },
+        { value: "Harassment", label: "Harassment" },
+        { value: "Other", label: "Other" },
+    ];
 
     const applyFilter = () => {
         setIsFilterOpen(false);
@@ -112,6 +121,9 @@ const ListReportedAccount = () => {
             console.log(response.data)
             if (response.data.user_sponsors) {
                 navigate(`/sponsors/${username}`)
+            }
+            if (response.data.user_sponsorees) {
+                navigate(`/sponsorees/${username}`)
             }
         } catch (error) {
             console.log(error)
@@ -232,19 +244,19 @@ const ListReportedAccount = () => {
                                         {/* Dropdown Tag */}
                                         <div className="mb-4 w-full">
                                             <label className="block mb-2 text-sm font-medium text-gray-900">
-                                                Tags Related Event
+                                                Reason
                                             </label>
-                                            {/* <div className="w-full">
-                        <Select
-                          mode="multiple"
-                          name="tags"
-                          placeholder="Search here"
-                          value={tagRelated}
-                          onChange={(e) => setTagRelated(e)}
-                          options={filteredTags.map(item => ({ value: item, label: item }))}
-                          style={{ width: '100%' }}
-                        />
-                      </div> */}
+                                            <div className="w-full">
+                                                <Select
+                                                    mode="multiple"
+                                                    name="tags"
+                                                    placeholder="Search here"
+                                                    value={reason}
+                                                    onChange={(e) => setReason(e)}
+                                                    options={reasonOption.map(item => ({ value: item.value, label: item.value }))}
+                                                    style={{ width: '100%' }}
+                                                />
+                                            </div>
                                         </div>
 
                                         {/* Date Range Filter */}
@@ -382,10 +394,11 @@ const ListReportedAccount = () => {
                                         >
                                             REJECT REPORT
                                         </button>
+                                        {console.log(report.created_for_report.is_banned + report.description)}
                                         <button
                                             disabled={report.status !== "submitted"}
                                             className={`text-white text-xs px-3 py-1.5 rounded-lg transition 
-                                            ${report.status !== "submitted"
+                                            ${report.status !== "submitted" || report.created_for_report.is_banned
                                                     ? "bg-gray-300 cursor-not-allowed"
                                                     : "bg-red-800 hover:bg-red-700"}
                                         `}

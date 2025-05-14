@@ -18,7 +18,7 @@ const MilestoneDetailPage = () => {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [replyMilestone, setReplyMilestone] = useState("");
   const [milestoneReplyAttachment, setMilestoneReplyAttachment] = useState(null);
-  const isDisabled = user.role !== "Sponsoree";
+  const [isDisabled, setIsDisabled] = useState(user.role !== "Sponsoree");
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -27,6 +27,9 @@ const MilestoneDetailPage = () => {
         setMilestone(response.data.milestone);
         setReplyMilestone(response.data.milestone.milestone_reply ? response.data.milestone.milestone_reply : "")
         setStatus(response.data.status?.status_name || "Not Set");
+        if (response.data.status?.status_name !== "Pending" && response.data.status?.status_name !== "Revision Required") {
+          setIsDisabled(true)
+        }
       } catch (err) {
         console.error("Failed to fetch milestone detail:", err);
       }
@@ -34,44 +37,29 @@ const MilestoneDetailPage = () => {
 
     fetchDetail();
   }, [milestone_id]);
-
-  const fetchAndPreviewFile = async () => {
+  const fetchAndPreviewPDF = async (file) => {
+    console.log(file);
     try {
       const res = await axios({
-        url: `/api/milestones/preview/${milestone.milestone_attachment}`,
+        url: `/api/milestones/preview/${file}`,
         method: "GET",
         responseType: "blob",
       });
+      console.log("Content-Type:", res);
 
-      const extension = milestone.milestone_attachment.split('.').pop().toLowerCase();
-      const blob = new Blob([res.data], { type: res.headers["content-type"] });
-      const blobUrl = URL.createObjectURL(blob);
+      // Ambil MIME dari header jika tersedia
+      let mimeType = res.headers["Content-Type"] || "application/octet-stream";
 
-      if (extension === "csv" || extension === "xlsx") {
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = milestone.milestone_attachment;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else if (extension === "pdf") {
-        window.open(blobUrl, "_blank");
-      } else if (extension === "jpg" || extension === "jpeg" || extension === "png" || extension === "gif") {
-        const imgWindow = window.open("", "_blank");
-        const img = document.createElement("img");
-        img.src = blobUrl;
-        img.style.width = "50%";
-        img.style.height = "auto";
-        imgWindow.document.body.appendChild(img);
-        imgWindow.document.body.style.textAlign = "center";
-      } else {
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = milestone.milestone_attachment;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+      // Atau fallback berdasarkan ekstensi
+      if (!res.headers["Content-Type"]) {
+        if (file.endsWith(".pdf")) mimeType = "application/pdf";
+        else if (file.endsWith(".png")) mimeType = "image/png";
+        else if (file.endsWith(".jpg") || file.endsWith(".jpeg")) mimeType = "image/jpeg";
       }
+
+      const blob = new Blob([res.data], { type: mimeType });
+      const blobUrl = URL.createObjectURL(blob);
+      window.open(blobUrl, "_blank");
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -188,7 +176,7 @@ const MilestoneDetailPage = () => {
                   Attachment:
                   {milestone.milestone_attachment ? (
                     <button
-                      onClick={fetchAndPreviewFile}
+                      onClick={() => fetchAndPreviewPDF(milestone.milestone_attachment)}
                       className="text-blue-600 underline ml-2"
                     > View Attachment
                     </button>
@@ -225,13 +213,15 @@ const MilestoneDetailPage = () => {
                   <div className="mb-6">
                     <label className="block mb-1 font-medium text-gray-700">Attachment</label>
                     {isDisabled ? (
-                      milestoneReplyAttachment ? (
-                        <Button
-                          icon={<UploadOutlined />}
-                          onClick={() => window.open(URL.createObjectURL(milestoneReplyAttachment.originFileObj), "_blank")}
-                        >
-                          Preview Attachment
-                        </Button>
+                      milestone.milestone_reply_attachment ? (
+                        <>
+                          <Button
+                            icon={<UploadOutlined />}
+                            onClick={() => fetchAndPreviewPDF(milestone.milestone_reply_attachment)}
+                          >
+                            Preview Attachment
+                          </Button>
+                        </>
                       ) : (
                         <p className="text-gray-400 text-sm">No attachment provided.</p>
                       )
@@ -251,6 +241,18 @@ const MilestoneDetailPage = () => {
                           <Button icon={<UploadOutlined />}>Upload Attachment</Button>
                         </Upload>
                         <p className="text-xs text-gray-400 mt-1">Optional. PDF, DOCX, JPG, or PNG formats supported.</p>
+                        {milestone.milestone_reply_attachment && (
+                          <a
+                            href="#"
+                            className="text-sm text-blue-500 underline mt-2 inline-block"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              fetchAndPreviewPDF(milestone.milestone_reply_attachment);
+                            }}
+                          >
+                            View your last attachment
+                          </a>
+                        )}
                       </>
                     )}
                   </div>
