@@ -38,14 +38,12 @@ const MilestoneDetailPage = () => {
     fetchDetail();
   }, [milestone_id]);
   const fetchAndPreviewPDF = async (file) => {
-    console.log(file);
     try {
       const res = await axios({
         url: `/api/milestones/preview/${file}`,
         method: "GET",
         responseType: "blob",
       });
-      console.log("Content-Type:", res);
 
       // Ambil MIME dari header jika tersedia
       let mimeType = res.headers["Content-Type"] || "application/octet-stream";
@@ -141,12 +139,11 @@ const MilestoneDetailPage = () => {
       formData.append("milestone_reply", replyMilestone);
       formData.append("milestone_id", milestone_id);
       if (milestoneReplyAttachment?.originFileObj || milestoneReplyAttachment !== null) {
-        console.log(milestoneReplyAttachment)
         formData.append("milestone_reply_attachment", milestoneReplyAttachment?.originFileObj);
       }
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-      }
+      // for (let [key, value] of formData.entries()) {
+      //   console.log(`${key}:`, value);
+      // }
 
 
       await axios.patch("/api/milestones/reply", formData, {

@@ -92,7 +92,6 @@ const ViewDetailProposal = () => {
 
   const changeToUnderReview = async () => {
     try {
-      console.log(latestStatus)
       await axios.put(`/api/proposals/${latestStatus.proposal_status_id}/view`);
       getDetailProposal();
     } catch (error) {

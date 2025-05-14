@@ -4,7 +4,6 @@ import defaultProfile from '../assets/profile_default.png';
 
 const SponsorCard = ({ sponsor }) => {
   const navigate = useNavigate();
-  console.log(sponsor.is_available);
   return (
     <div
       onClick={() => navigate(`/sponsors/${sponsor.username}`)}

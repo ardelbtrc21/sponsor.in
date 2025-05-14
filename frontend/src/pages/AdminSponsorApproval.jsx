@@ -49,7 +49,6 @@ const AdminPendingSponsorsPage = () => {
 
   const fetchAndPreviewPDF = async (document) => {
     try {
-      console.log("Result: ", document);
       const res = await axios({
         url: `/api/sponsors/preview/${document}`,
         method: "GET",

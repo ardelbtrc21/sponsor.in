@@ -18,7 +18,6 @@ const ChangePassword = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSubmit = async (e) => {
-    console.log(confirmPassword);
     e.preventDefault();
     setErrorMsg("");
     setSuccessMsg("");
@@ -35,7 +34,6 @@ const ChangePassword = () => {
       setNewPassword('');
       setConfirmPassword('');
     } catch (err) {
-      console.log(err + "disini");
       if (err.response?.status === 400) {
         setErrors(err.response.data);
       } else if (err.response?.status === 502){

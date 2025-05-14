@@ -34,7 +34,6 @@ const Login = () => {
         try {
             await dispatch(LoginUser({ username, password })).unwrap();
             const res = await dispatch(getMe()).unwrap();
-            console.log(res.is_banned)
 
             if (res.is_banned) {
                 dispatch(reset());

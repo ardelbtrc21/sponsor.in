@@ -623,7 +623,7 @@ export const editProfile = async (req, res) => {
 }
 
 export const changePassword = async (req, res) => {
-    const { currentPassword, newPassword, } = req.body;
+    const { currentPassword, newPassword, confPassword} = req.body;
     if (!currentPassword) return res.status(404).json({ msg: "Current Password must be filled in !" });
     if (!newPassword) return res.status(404).json({ msg: "New Password must be filled in !" });
     if (!confPassword) return res.status(404).json({ msg: "Confirm Password must be filled in !" });
@@ -639,6 +639,8 @@ export const changePassword = async (req, res) => {
 
     const match = await bcrypt.compare(currentPassword, user.password);
     if (!match) return res.status(400).json({ msg: "Current password is incorrect !" });
+    const notChangePwd = await bcrypt.compare(newPassword, user.password);
+    if(notChangePwd) return res.status(502).json({msg: "Password can't be same!"})
 
     try {
         const hashPassword = await bcrypt.hash(newPassword, 10);
