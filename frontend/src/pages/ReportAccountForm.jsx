@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
-import { Check, ArrowLeft} from "lucide-react";
+import { Check, ArrowLeft } from "lucide-react";
 import { useEffect } from "react";
 
 
@@ -11,7 +11,7 @@ const ReportAccountForm = () => {
   useEffect(() => {
     console.log("User from Redux:", user);
   }, []);
-  
+
   const { id: reportedUsername } = useParams();
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
@@ -91,9 +91,8 @@ const ReportAccountForm = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full bg-primary text-white py-3 rounded-md text-sm font-medium transition duration-200 ${
-              loading ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"
-            }`}
+            className={`w-full bg-primary text-white py-3 rounded-md text-sm font-medium transition duration-200 ${loading ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"
+              }`}
           >
             {loading ? "Submitting..." : "Submit"}
           </button>
