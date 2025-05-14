@@ -103,10 +103,10 @@ const Login = () => {
     };
 
     return (
-        <div className="w-full h-full flex items-center justify-center bg-white text-black">
-            <div className="flex w-5/6 h-screen overflow-hidden shadow-lg">
+        <div className="w-full min-h-screen flex items-center justify-center bg-white text-black">
+            <div className="flex flex-col md:flex-row w-full md:w-5/6 min-h-screen shadow-lg overflow-hidden rounded-none md:rounded-3xl">
                 {/* Left Panel */}
-                <div className="w-1/2 flex-1 bg-gradient-to-b from-secondary via-primary to-black p-10 md:p-16 flex flex-col justify-center rounded-r-3xl">
+                <div className="md:w-1/2 flex-1 bg-gradient-to-b from-secondary via-primary to-black p-10 md:p-16 flex flex-col justify-center">
                     <div className="text-center text-white">
                         <h2 className="text-3xl font-bold mb-2">Get Started with Us</h2>
                         <p className="text-sm mb-8">Complete these easy steps to register your account.</p>
@@ -128,7 +128,7 @@ const Login = () => {
                 </div>
 
                 {/* Right Panel */}
-                <div className="flex flex-col justify-center w-3/5 bg-white p-10 text-black mt-4">
+                <div className="flex flex-col justify-center md:w-3/5 w-full bg-white p-10 text-black">
                     <h2 className="text-2xl font-bold mb-6 text-center">Log In Account</h2>
 
                     <form onSubmit={Auth} className="space-y-4">
@@ -166,14 +166,17 @@ const Login = () => {
                         <div className="flex justify-center">
                             <button
                                 type="submit"
-                                className="w-1/2 justify-center items-center bg-primary text-white py-3 rounded-xl hover:opacity-90"
+                                className="w-1/2 bg-primary text-white py-3 rounded-xl hover:opacity-90"
                             >
                                 Sign In
                             </button>
                         </div>
 
                         <p className="text-center text-sm mt-4">
-                            Don't have an account? <a href="/signUp" className="font-semibold hover:underline">Register</a>
+                            Don't have an account?{" "}
+                            <a href="/signUp" className="font-semibold hover:underline">
+                                Register
+                            </a>
                         </p>
                     </form>
                 </div>

@@ -13,30 +13,39 @@ const MilestoneDetailPage = () => {
   const { TextArea } = Input;
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
+
+  // States
   const [milestone, setMilestone] = useState(null);
   const [status, setStatus] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [replyMilestone, setReplyMilestone] = useState("");
   const [milestoneReplyAttachment, setMilestoneReplyAttachment] = useState(null);
   const [isDisabled, setIsDisabled] = useState(user.role !== "Sponsoree");
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [editableDescription, setEditableDescription] = useState("");
 
   useEffect(() => {
     const fetchDetail = async () => {
       try {
         const response = await axios.get(`/api/milestones/${milestone_id}`);
-        setMilestone(response.data.milestone);
-        setReplyMilestone(response.data.milestone.milestone_reply ? response.data.milestone.milestone_reply : "")
-        setStatus(response.data.status?.status_name || "Not Set");
+        const data = response.data;
+        setMilestone(data.milestone);
+        setReplyMilestone(data.milestone.milestone_reply || "");
+        setStatus(data.status?.status_name || "Not Set");
+        setEditableDescription(data.milestone.milestone_description);
         if (response.data.status?.status_name !== "Pending" && response.data.status?.status_name !== "Revision Required") {
           setIsDisabled(true)
+        }
+        if (user.role === "Sponsor" && data.status?.status_name === "Revision Required") {
+          setIsEditingDescription(true);
         }
       } catch (err) {
         console.error("Failed to fetch milestone detail:", err);
       }
     };
-
     fetchDetail();
-  }, [milestone_id]);
+  }, [milestone_id, user.role]);
+
   const fetchAndPreviewPDF = async (file) => {
     try {
       const res = await axios({
@@ -45,10 +54,8 @@ const MilestoneDetailPage = () => {
         responseType: "blob",
       });
 
-      // Ambil MIME dari header jika tersedia
       let mimeType = res.headers["Content-Type"] || "application/octet-stream";
 
-      // Atau fallback berdasarkan ekstensi
       if (!res.headers["Content-Type"]) {
         if (file.endsWith(".pdf")) mimeType = "application/pdf";
         else if (file.endsWith(".png")) mimeType = "image/png";
@@ -86,6 +93,7 @@ const MilestoneDetailPage = () => {
   };
 
   const handleSubmit = async () => {
+    if (!selectedStatus) return;
     try {
       await axios.put(`/api/milestones/${milestone_id}/status`, {
         status_name: selectedStatus,
@@ -108,7 +116,13 @@ const MilestoneDetailPage = () => {
           confirmButton: 'bg-indigo-500 text-white hover:bg-indigo-600 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5',
         },
       }).then(() => {
-        navigate(-1);
+        if (selectedStatus === "Revision Required") {
+          setIsEditingDescription(true);
+          setIsDisabled(false);
+          setStatus("Revision Required");
+        } else {
+          navigate(-1);
+        }
       });
     } catch (err) {
       Swal.fire({
@@ -130,6 +144,27 @@ const MilestoneDetailPage = () => {
       });
     }
   };
+
+  const handleSendRevision = async () => {
+    try {
+      await axios.patch(`/api/milestones/update/${milestone_id}`, {
+        milestone_description: editableDescription
+      });
+      Swal.fire({
+        title: "<strong>Success</strong>",
+        html: "<p>Revised description sent to sponsoree!</p>",
+        icon: "success"
+      })
+        .then(() => navigate(-1));
+    } catch (err) {
+      Swal.fire({
+        title: "<strong>Error</strong>",
+        html: "<p>Failed to send revision</p>",
+        icon: "error"
+      });
+    }
+  };
+
 
   const handleReplyMilestone = async (e) => {
     e.preventDefault();
@@ -215,39 +250,46 @@ const MilestoneDetailPage = () => {
               <h1 className="text-2xl font-bold text-primary mb-6 text-center tracking-wider">
                 MILESTONE DETAIL
               </h1>
-
               <div className="bg-white border rounded-xl p-6 shadow">
-                <p className="text-xl text-primary font-semibold">
-                  {milestone.milestone_name}
-                </p>
-                <p className="text-secondary mb-2">{milestone.milestone_description}</p>
-
+                <p className="text-xl text-primary font-semibold mb-2">{milestone.milestone_name}</p>
+                {user.role === "Sponsor" && isEditingDescription ? (
+                  <TextArea
+                    rows={4}
+                    value={editableDescription}
+                    onChange={(e) => setEditableDescription(e.target.value)}
+                    className="border mb-4"
+                  />
+                ) : (
+                  <p className="text-secondary mb-4">{milestone.milestone_description}</p>
+                )}
+                {user.role === "Sponsor" && isEditingDescription && (
+                  <div className="mb-4">
+                    <Button type="primary" onClick={handleSendRevision}>Send Revision</Button>
+                  </div>
+                )}
                 <p className="text-sm text-gray-500 mb-1">
                   Created: {dayjs(milestone.createdAt).format("DD MMMM YYYY, HH:mm")}
                 </p>
-
                 <p className="text-sm text-gray-500 mb-1">
                   Attachment:
                   {milestone.milestone_attachment ? (
                     <button
                       onClick={() => fetchAndPreviewPDF(milestone.milestone_attachment)}
                       className="text-blue-600 underline ml-2"
-                    > View Attachment
+                    >
+                      View Attachment
                     </button>
                   ) : (
                     <span className="italic text-gray-400 ml-2">No attachment uploaded</span>
                   )}
                 </p>
-
                 <p className="text-sm text-gray-500 mb-4">
                   Current Status: {renderStatusBadge(status)}
                 </p>
-
                 <h2 className="text-lg pt-3 font-semibold text-gray-800">
                   {isDisabled ? "Sponsoree Reply" : "Fill the Milestone"}
                 </h2>
                 <div className="bg-white p-6 my-6 rounded-xl shadow-sm border max-w-2xl mx-auto">
-
                   <div className="mb-4">
                     {!isDisabled && (
                       <label className="block mb-1 font-medium text-gray-700">Reply the Sponsor</label>
@@ -263,19 +305,16 @@ const MilestoneDetailPage = () => {
                       />
                     )}
                   </div>
-
                   <div className="mb-6">
                     <label className="block mb-1 font-medium text-gray-700">Attachment</label>
                     {isDisabled ? (
                       milestone.milestone_reply_attachment ? (
-                        <>
-                          <Button
-                            icon={<UploadOutlined />}
-                            onClick={() => fetchAndPreviewPDF(milestone.milestone_reply_attachment)}
-                          >
-                            Preview Attachment
-                          </Button>
-                        </>
+                        <Button
+                          icon={<UploadOutlined />}
+                          onClick={() => fetchAndPreviewPDF(milestone.milestone_reply_attachment)}
+                        >
+                          Preview Attachment
+                        </Button>
                       ) : (
                         <p className="text-gray-400 text-sm">No attachment provided.</p>
                       )
@@ -285,52 +324,31 @@ const MilestoneDetailPage = () => {
                           beforeUpload={() => false}
                           maxCount={1}
                           onChange={({ fileList }) => {
-                            if (fileList.length > 0) {
-                              setMilestoneReplyAttachment(fileList[0]);
-                            } else {
-                              setMilestoneReplyAttachment(null);
-                            }
+                            if (fileList.length > 0) setMilestoneReplyAttachment(fileList[0]);
+                            else setMilestoneReplyAttachment(null);
                           }}
                         >
                           <Button icon={<UploadOutlined />}>Upload Attachment</Button>
                         </Upload>
                         <p className="text-xs text-gray-400 mt-1">Optional. PDF, DOCX, JPG, or PNG formats supported.</p>
                         {milestone.milestone_reply_attachment && (
-                          <a
-                            href="#"
-                            className="text-sm text-blue-500 underline mt-2 inline-block"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              fetchAndPreviewPDF(milestone.milestone_reply_attachment);
-                            }}
-                          >
+                          <a href="#" className="text-sm text-blue-500 underline mt-2 inline-block" onClick={(e) => { e.preventDefault(); fetchAndPreviewPDF(milestone.milestone_reply_attachment); }}>
                             View your last attachment
                           </a>
                         )}
                       </>
                     )}
                   </div>
-
                   {!isDisabled && (
-                    <Button
-                      type="primary"
-                      className="bg-primary hover:bg-gray-700"
-                      onClick={handleReplyMilestone}
-                    >
+                    <Button type="primary" className="bg-primary hover:bg-gray-700" onClick={handleReplyMilestone}>
                       Submit
                     </Button>
                   )}
                 </div>
-
-                {user.role === "Sponsor" && status !== "Completed" && (
+                {user.role === "Sponsor" && status !== "Completed" && !isEditingDescription && (
                   <>
                     <div className="mb-6">
-                      <label
-                        htmlFor="statusSelect"
-                        className="block text-sm font-medium text-gray-700 mb-2"
-                      >
-                        Update Status
-                      </label>
+                      <label htmlFor="statusSelect" className="block text-sm font-medium text-gray-700 mb-2">Update Status</label>
                       <select
                         id="statusSelect"
                         value={selectedStatus}
@@ -342,13 +360,11 @@ const MilestoneDetailPage = () => {
                         <option value="Revision Required">Revision Required</option>
                       </select>
                     </div>
-
                     <div className="flex justify-end">
                       <button
                         onClick={handleSubmit}
                         disabled={!selectedStatus}
-                        className={`px-6 py-2 rounded-md text-white btn-primary ${selectedStatus ? "hover:opacity-90" : "bg-gray-300 cursor-not-allowed"
-                          }`}
+                        className={`px-6 py-2 rounded-md text-white btn-primary ${selectedStatus ? "hover:opacity-90" : "bg-gray-300 cursor-not-allowed"}`}
                       >
                         Submit
                       </button>
