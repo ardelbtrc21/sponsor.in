@@ -169,14 +169,6 @@ const ListApprovalProposal = () => {
     }, 0);
   };
 
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      getProposals();
-    }, 500);
-
-    return () => clearTimeout(delayDebounce);
-  }, [keyword, sortBy, order]);
-
   const handleCancelModal = () => {
     setOpenFilterModal(false);
   };
