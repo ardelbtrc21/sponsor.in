@@ -125,27 +125,22 @@ const EditProfile = ({ sponsor: sponsoree }) => {
     };
 
     const handleSponsorshipPhotoChange = (info) => {
-        const maxFile = 5
-        if (formData.sponsorship_photos.length <= maxFile) {
-            const newFiles = info.fileList.slice(-1)
-                .map((file) => file.originFileObj)
-                .filter((file) => !!file); // pastikan bukan undefined/null
+        const maxFileCount = 3;
+        const maxFileSizeMB = 5;
+        const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
 
-            setFileList(newFiles);
-            setFormData((prevData) => ({
-                ...prevData,
-                sponsorship_photos: [...prevData.sponsorship_photos, ...newFiles],
-            }));
-        } else {
+        const file = info.file;
+
+        // Validasi format dan ukuran
+        if (!allowedTypes.includes(file.type)) {
             Swal.fire({
-                title: "<strong>Oops...</strong>",
-                html: "<p>You can upload max 3 photos.</p>",
+                title: "<strong>Invalid File Type</strong>",
+                html: "<p>Only JPG, JPEG, and PNG files are allowed.</p>",
                 icon: "error",
-                iconColor: "#dc2626", // warna merah (red-600)
-                showCancelButton: false,
+                iconColor: "#dc2626",
                 confirmButtonText: "OK",
                 background: "#fff",
-                color: "#1f2937", // text-gray-800
+                color: "#1f2937",
                 buttonsStyling: false,
                 customClass: {
                     popup: 'rounded-2xl shadow-md px-6 py-4',
@@ -154,7 +149,54 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                     confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
                 },
             });
+            return;
         }
+
+        if (file.size / 1024 / 1024 > maxFileSizeMB) {
+            Swal.fire({
+                title: "<strong>File Too Large</strong>",
+                html: `<p>Each file must be less than ${maxFileSizeMB}MB.</p>`,
+                icon: "error",
+                iconColor: "#dc2626",
+                confirmButtonText: "OK",
+                background: "#fff",
+                color: "#1f2937",
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-2xl shadow-md px-6 py-4',
+                    title: 'text-xl font-semibold mb-2',
+                    htmlContainer: 'text-sm text-gray-700',
+                    confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                },
+            });
+            return;
+        }
+
+        // Cek jumlah maksimal
+        if (formData.sponsorship_photos.length >= maxFileCount) {
+            Swal.fire({
+                title: "<strong>Oops...</strong>",
+                html: `<p>You can upload max ${maxFileCount} photos.</p>`,
+                icon: "error",
+                iconColor: "#dc2626",
+                confirmButtonText: "OK",
+                background: "#fff",
+                color: "#1f2937",
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-2xl shadow-md px-6 py-4',
+                    title: 'text-xl font-semibold mb-2',
+                    htmlContainer: 'text-sm text-gray-700',
+                    confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                },
+            });
+            return;
+        }
+        setFileList([file]);
+        setFormData((prevData) => ({
+            ...prevData,
+            sponsorship_photos: [...prevData.sponsorship_photos, file],
+        }));
     };
 
     const handleRemoveSponsorshipPhoto = (idx) => {
@@ -460,7 +502,7 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                                 multiple
                                 accept="image/*"
                                 beforeUpload={() => false}
-                                onChange={handleSponsorshipPhotoChange} // ✅ ganti function ini
+                                onChange={handleSponsorshipPhotoChange}
                                 showUploadList={false}
                                 className="!border-dashed !border-gray-300 !bg-gray-50 !rounded-xl px-6 py-8"
                                 style={{ borderWidth: 1, overflow: 'hidden' }}

@@ -40,7 +40,7 @@ const Login = () => {
                 dispatch(reset());
                 Swal.fire({
                     title: "<strong>Your account is banned.</strong>",
-                    html: "<p>Please confirm to sponsorin.13@gmail.com if you think there's a misunderstanding.</p>",
+                    html: "<p>Please confirm to sponsorin13@gmail.com if you think there's a misunderstanding.</p>",
                     icon: "error",
                     iconColor: "#dc2626", // red-600
                     showCancelButton: false,
