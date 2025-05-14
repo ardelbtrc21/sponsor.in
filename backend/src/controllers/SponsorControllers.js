@@ -30,7 +30,8 @@ export const getAllSponsors = async (req, res) => {
       username: sponsor.username,
       name: sponsor.user_sponsors?.name || null,
       nib: sponsor.nib,
-      profile_photo: sponsor.user_sponsors?.profile_photo
+      profile_photo: sponsor.user_sponsors?.profile_photo,
+      is_available: sponsor.is_available
     }));
 
     res.json(result);
