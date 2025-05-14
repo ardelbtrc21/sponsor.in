@@ -158,7 +158,7 @@ const MyProfile = () => {
                     </div>
 
                     {/* Sponsorships */}
-                    <div className="mt-16 px-6">
+                    <div className="mt-10 px-6">
                         <h2 className="text-2xl font-semibold text-center text-[#031930]">Our Sponsorships</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 max-w-6xl mx-auto">
                             {sponsor.photo_sponsorship_users.length > 0
