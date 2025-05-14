@@ -134,7 +134,10 @@ const SponsoreeDetail = () => {
                             )}
                         </div>
 
-                        <HistoryAgreement username={id} role={"Sponsoree"} isMyProfile={true} />
+                        {/* History Agreement */}
+                        <div className="mt-10 px-6 w-full">
+                            <HistoryAgreement username={id} role={"Sponsoree"} isMyProfile={true} />
+                        </div>
                     </div>
                 )}
             </div>

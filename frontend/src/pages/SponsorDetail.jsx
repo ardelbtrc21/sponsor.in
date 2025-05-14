@@ -73,12 +73,11 @@ const SponsorDetail = () => {
         <img
           src={photoPreviewBanner}
           className="w-screen h-72 object-cover"
-          style={{ imageRendering: "auto" }}
           alt="banner"
         />
         <span
           className={`absolute top-4 right-20 px-4 py-1 rounded-full text-sm font-semibold shadow-lg transition-colors duration-300
-            ${sponsor.user_sponsors?.is_available ? 'bg-hijau text-white' : 'bg-red-500 text-white'}`}
+        ${sponsor.user_sponsors?.is_available ? 'bg-hijau text-white' : 'bg-red-500 text-white'}`}
         >
           {sponsor.user_sponsors?.is_available ? 'Available' : 'Not Available'}
         </span>
@@ -91,44 +90,48 @@ const SponsorDetail = () => {
         </div>
       </div>
 
-      {/* Info Sponsor */}
-      {!sponsor.is_banned && (
-        <div className="flex flex-col items-center mt-20 text-center px-4">
-          <h1 className="text-2xl font-bold text-[#031930]">{sponsor.name}</h1>
-          <p className="text-sm text-gray-500 mt-2">@{sponsor.username}</p>
+      {/* Konten */}
+      <div className="flex flex-col items-center mt-20 text-center px-4">
+        {/* Nama dan Username */}
+        <h1 className="text-2xl font-bold text-[#031930]">{sponsor.name}</h1>
+        <p className="text-sm text-gray-500 mt-1">@{sponsor.username}</p>
 
-          {user && user.role === "Sponsoree" && (
-            <div className="flex gap-3 mt-4">
+        {/* Tombol Aksi */}
+        <div className="flex gap-3 mt-4 justify-center">
+          {user?.role === "Sponsoree" && (
+            <>
               <Link
                 to={`/proposal/create/${sponsor.user_sponsors?.sponsor_id}`}
                 state={{ sponsor }}
-                className="border text-primary font-semibold text-xs px-3 py-1.5 rounded-lg transition border-primary bg-transparent hover:bg-primary hover:text-white flex items-center justify-center"          >
+                className="border text-primary font-semibold text-xs px-4 py-2 rounded-lg transition border-primary bg-transparent hover:bg-primary hover:text-white"
+              >
                 Submit a Proposal
               </Link>
               <Link
                 to={`/report/${sponsor.username}`}
-                className="bg-black text-white px-5 py-2 rounded-md text-sm hover:opacity-90 transition-opacity duration-200"
+                className="bg-black text-white px-5 py-2 rounded-md text-sm hover:opacity-90 transition"
               >
                 Report
               </Link>
-            </div>
+            </>
           )}
-          {user && user.role === "Admin" && (
-            <div className="flex gap-3 mt-4">
-              <Link
-                onClick={() => handleBanAccount()}
-                className="border text-white font-semibold text-xs px-3 py-1.5 rounded-lg transition bg-red-700 hover:bg-red-600 flex items-center justify-center">
-                Ban Account
-              </Link>
-            </div>
+          {user?.role === "Admin" && (
+            <button
+              onClick={handleBanAccount}
+              className="bg-red-700 hover:bg-red-600 text-white px-5 py-2 rounded-md text-sm"
+            >
+              Ban Account
+            </button>
           )}
+        </div>
 
-          {/* Info Box */}
-          <div className="max-w-xl mx-auto bg-white rounded-2xl shadow p-6 mt-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Sponsor Info</h2>
+        {/* Info Box */}
+        <div className="max-w-xl w-full bg-white rounded-2xl shadow p-6 mt-8 text-left">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Sponsor Info</h2>
 
-            <p className="text-sm text-gray-700 mb-2">
-              <span className="font-semibold">Category Provides:</span>{" "}
+          <div className="mb-3">
+            <span className="font-semibold">Category Provides:</span>
+            <div className="mt-1">
               {sponsor.user_sponsors?.category_provides?.length > 0 ? (
                 sponsor.user_sponsors.category_provides.split(',').map((cat, idx) => (
                   <span
@@ -141,10 +144,12 @@ const SponsorDetail = () => {
               ) : (
                 <span className="ml-1">-</span>
               )}
-            </p>
+            </div>
+          </div>
 
-            <div className="text-sm text-gray-700 mb-2">
-              <span className="font-semibold">Tag Related:</span>{" "}
+          <div className="mb-3">
+            <span className="font-semibold">Tag Related:</span>
+            <div className="mt-1">
               {sponsor.user_sponsors?.tags_sponsors?.length > 0 ? (
                 sponsor.user_sponsors.tags_sponsors.map((tag, idx) => (
                   <span
@@ -158,9 +163,11 @@ const SponsorDetail = () => {
                 <span className="ml-1">-</span>
               )}
             </div>
+          </div>
 
-            <div className="text-sm text-gray-700">
-              <span className="font-semibold">Target Market:</span>{" "}
+          <div>
+            <span className="font-semibold">Target Market:</span>
+            <div className="mt-1">
               {sponsor.user_sponsors?.target_sponsors?.length > 0 ? (
                 sponsor.user_sponsors.target_sponsors.map((target, idx) => (
                   <span
@@ -175,49 +182,44 @@ const SponsorDetail = () => {
               )}
             </div>
           </div>
+        </div>
 
-          {/* About */}
-          <div className="mt-20 text-center px-6">
-            <h2 className="text-2xl font-semibold text-[#031930]">About Us</h2>
-            <p className="mt-3 text-gray-700 max-w-4xl mx-auto leading-relaxed">
-              {sponsor.user_sponsors?.description || "No description provided."}
-            </p>
-          </div>
-          {/* Sponsorships */}
-          <div className="mt-16 px-6">
-            <h2 className="text-2xl font-semibold text-center text-[#031930]">Our Sponsorships</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 max-w-6xl mx-auto">
-              {sponsor.photo_sponsorship_users.length > 0
-                ? sponsor.photo_sponsorship_users.map((img, idx) => (
-                  <img
-                    key={idx}
-                    src={`/api/sponsorship_photos/preview/${img.photo}`}
-                    alt={`sponsorship-${idx}`}
-                    className="rounded-xl w-full h-52 object-cover shadow-sm"
-                  />
-                ))
-                :
-                <div className="col-span-full flex justify-center items-center min-h-[13rem]">
-                  <h2 className="text-normal text-gray-700 text-[#031930]">No photo uploaded.</h2>
-                </div>
-              }
-            </div>
-            <HistoryAgreement username={id} role={sponsor.role} isMyProfile={true} />
+        {/* About */}
+        <div className="mt-16 max-w-4xl w-full text-center px-6">
+          <h2 className="text-2xl font-semibold text-[#031930]">About Us</h2>
+          <p className="mt-3 text-gray-700 leading-relaxed">
+            {sponsor.user_sponsors?.description || "No description provided."}
+          </p>
+        </div>
+
+        {/* Sponsorship Photos */}
+        <div className="mt-16 px-6 w-full">
+          <h2 className="text-2xl font-semibold text-[#031930] text-center">Our Sponsorships</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 max-w-6xl mx-auto">
+            {sponsor.photo_sponsorship_users.length > 0 ? (
+              sponsor.photo_sponsorship_users.map((img, idx) => (
+                <img
+                  key={idx}
+                  src={`/api/sponsorship_photos/preview/${img.photo}`}
+                  alt={`sponsorship-${idx}`}
+                  className="rounded-xl w-full h-52 object-cover shadow-sm"
+                />
+              ))
+            ) : (
+              <div className="col-span-full flex justify-center items-center min-h-[13rem]">
+                <h2 className="text-normal text-gray-700 text-[#031930]">No photo uploaded.</h2>
+              </div>
+            )}
           </div>
         </div>
-      )}
-      {sponsor.is_banned && (
-        <div>
-          <div className="flex flex-col items-center mt-20 text-center px-4">
-            <h1 className="text-2xl font-bold text-[#031930]">{sponsor.name}</h1>
-            <p className="text-sm text-gray-500 mt-2">@{sponsor.username}</p>
-          </div>
-          <div className="flex justify-center pt-10">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">This account is already banned.</h2>
-          </div>
+
+        {/* History Agreement */}
+        <div className="mt-10 px-6 w-full">
+          <HistoryAgreement username={id} role={sponsor.role} isMyProfile={true} />
         </div>
-      )}
+      </div>
     </ModernLayout>
+
   );
 };
 
