@@ -53,7 +53,7 @@ const ViewDetailProposal = () => {
       Swal.fire({
         icon: "success",
         title: "Success",
-        text: "Milestones marked as completed!"
+        text: "Agreement marked as completed!"
       });
       getDetailProposal();
     } catch (error) {
@@ -313,7 +313,7 @@ const ViewDetailProposal = () => {
                   onClick={async () => {
                     const result = await Swal.fire({
                       title: 'Are you sure?',
-                      text: 'This will mark the milestone as complete.',
+                      text: 'This will mark the agreement as complete.',
                       icon: 'warning',
                       showCancelButton: true,
                       confirmButtonColor: '#16a34a',
