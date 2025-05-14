@@ -138,17 +138,41 @@ const CreateProposalForm = () => {
       if (file.type !== "application/pdf") {
         Swal.fire({
           icon: "error",
-          title: "Oops...",
-          text: "Only PDF files are allowed.",
+          iconColor: "#dc2626", // merah untuk error
+          title: "<strong>Oops...</strong>",
+          html: `<p>Only PDF files are allowed.</p>`,
+          background: "#fff",
+          color: "#1f2937",
+          showConfirmButton: true,
+          confirmButtonText: "OK",
+          buttonsStyling: false,
+          customClass: {
+            popup: 'rounded-2xl shadow-md px-6 py-4',
+            title: 'text-xl font-semibold mb-2 text-red-600',
+            htmlContainer: 'text-sm text-gray-700',
+            confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5'
+          }
         });
         return Upload.LIST_IGNORE;
       }
       // Validasi ukuran file
       if (file.size > 20 * 1024 * 1024) {
         Swal.fire({
+          title: "<strong>Oops...</strong>",
+          html: "<p>File must be smaller than 10MB.</p>",
           icon: "error",
-          title: "Oops...",
-          text: "File must be smaller than 10MB.",
+          iconColor: "#dc2626", // warna merah (red-600)
+          showCancelButton: false,
+          confirmButtonText: "OK",
+          background: "#fff",
+          color: "#1f2937", // text-gray-800
+          buttonsStyling: false,
+          customClass: {
+            popup: 'rounded-2xl shadow-md px-6 py-4',
+            title: 'text-xl font-semibold mb-2',
+            htmlContainer: 'text-sm text-gray-700',
+            confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+          },
         });
         return Upload.LIST_IGNORE;
       }
@@ -209,11 +233,21 @@ const CreateProposalForm = () => {
       });
 
       Swal.fire({
-        title: "Proposal successfully created!",
+        title: "<strong>Proposal successfully created!</strong>",
+        html: "<p>Your request has been successfully added</p>",
         icon: "success",
-        confirmButtonColor: "#3085d6",
+        iconColor: "#22c55e", // green-500
+        showCancelButton: false,
         confirmButtonText: "OK",
-        text: "Your request has been successfully added"
+        background: "#fff",
+        color: "#1f2937", // text-gray-800
+        buttonsStyling: false,
+        customClass: {
+          popup: 'rounded-2xl shadow-md px-6 py-4',
+          title: 'text-xl font-semibold mb-2',
+          htmlContainer: 'text-sm text-gray-700',
+          confirmButton: 'bg-green-600 text-white hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5',
+        },
       });
       navigate(-1);
     } catch (error) {
@@ -221,21 +255,57 @@ const CreateProposalForm = () => {
       setFormErrors(error.response.data);
       if (error.response.data.msg) {
         Swal.fire({
+          title: "<strong>Oops...</strong>",
+          html: `<p>${error.response.data.msg}</p>`,
           icon: "error",
-          title: "Oops...",
-          text: error.response.data.msg,
+          iconColor: "#dc2626", // red-600
+          showCancelButton: false,
+          confirmButtonText: "OK",
+          background: "#fff",
+          color: "#1f2937",
+          buttonsStyling: false,
+          customClass: {
+            popup: 'rounded-2xl shadow-md px-6 py-4',
+            title: 'text-xl font-semibold mb-2',
+            htmlContainer: 'text-sm text-gray-700',
+            confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+          },
         });
       } else if (error.response.data.sponsoree_id) {
         Swal.fire({
+          title: "<strong>Oops...</strong>",
+          html: `<p>${error.response.data.sponsoree_id}</p>`,
           icon: "error",
-          title: "Oops...",
-          text: error.response.data.sponsoree_id,
+          iconColor: "#dc2626", // red-600
+          showCancelButton: false,
+          confirmButtonText: "OK",
+          background: "#fff",
+          color: "#1f2937",
+          buttonsStyling: false,
+          customClass: {
+            popup: 'rounded-2xl shadow-md px-6 py-4',
+            title: 'text-xl font-semibold mb-2',
+            htmlContainer: 'text-sm text-gray-700',
+            confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+          },
         });
       } else if (error.response.data.sponsor_id) {
         Swal.fire({
+          title: "<strong>Oops...</strong>",
+          html: `<p>${error.response.data.sponsor_id}</p>`,
           icon: "error",
-          title: "Oops...",
-          text: error.response.data.sponsor_id,
+          iconColor: "#dc2626", // red-600
+          showCancelButton: false,
+          confirmButtonText: "OK",
+          background: "#fff",
+          color: "#1f2937",
+          buttonsStyling: false,
+          customClass: {
+            popup: 'rounded-2xl shadow-md px-6 py-4',
+            title: 'text-xl font-semibold mb-2',
+            htmlContainer: 'text-sm text-gray-700',
+            confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+          },
         });
       }
     }
@@ -373,9 +443,9 @@ const CreateProposalForm = () => {
                       ...supportNeeded,
                       values,
                     })
-                  } 
+                  }
                   options={categories}
-                  />
+                />
                 <span className="text-sm text-red-800 mt-2 block">
                   {formErrors.support_needed}
                 </span>

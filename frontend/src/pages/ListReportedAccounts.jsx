@@ -79,18 +79,40 @@ const ListReportedAccount = () => {
                 report_id: report_id
             })
             Swal.fire({
-                title: "Ban Account Successful!",
+                title: "<strong>Ban Account Successful!</strong>",
+                html: "<p>Your request has been successfully added</p>",
                 icon: "success",
-                confirmButtonColor: "#3085d6",
+                iconColor: "#22c55e", // green-500
+                showCancelButton: false,
                 confirmButtonText: "OK",
-                text: "Your request has been successfully added"
+                background: "#fff",
+                color: "#1f2937", // text-gray-800
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-2xl shadow-md px-6 py-4',
+                    title: 'text-xl font-semibold mb-2',
+                    htmlContainer: 'text-sm text-gray-700',
+                    confirmButton: 'bg-green-600 text-white hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                },
             });
             window.location.reload();
         } catch (error) {
             Swal.fire({
+                title: "<strong>Oops...</strong>",
+                html: `<p>${error.response.data.msg}</p>`,
                 icon: "error",
-                title: "Oops...",
-                text: error.response.data.msg,
+                iconColor: "#dc2626", // red-600
+                showCancelButton: false,
+                confirmButtonText: "OK",
+                background: "#fff",
+                color: "#1f2937",
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-2xl shadow-md px-6 py-4',
+                    title: 'text-xl font-semibold mb-2',
+                    htmlContainer: 'text-sm text-gray-700',
+                    confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                },
             });
         }
     }
@@ -99,18 +121,41 @@ const ListReportedAccount = () => {
         try {
             await axios.patch(`/api/reject-report/${report_id}`)
             Swal.fire({
-                title: "Reject Account Successful!",
+                title: "<strong>Reject Account Successful!</strong>",
+                html: "<p>Your request has been successfully added</p>",
                 icon: "success",
-                confirmButtonColor: "#3085d6",
+                iconColor: "#22c55e", // green-500
+                showCancelButton: false,
                 confirmButtonText: "OK",
-                text: "Your request has been successfully added"
+                background: "#fff",
+                color: "#1f2937", // text-gray-800
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-2xl shadow-md px-6 py-4',
+                    title: 'text-xl font-semibold mb-2',
+                    htmlContainer: 'text-sm text-gray-700',
+                    confirmButton: 'bg-green-600 text-white hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                },
             });
+
             window.location.reload();
         } catch (error) {
             Swal.fire({
+                title: "<strong>Oops...</strong>",
+                html: `<p>${error.response.data.msg}</p>`,
                 icon: "error",
-                title: "Oops...",
-                text: error.response.data.msg,
+                iconColor: "#dc2626", // red-600
+                showCancelButton: false,
+                confirmButtonText: "OK",
+                background: "#fff",
+                color: "#1f2937",
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-2xl shadow-md px-6 py-4',
+                    title: 'text-xl font-semibold mb-2',
+                    htmlContainer: 'text-sm text-gray-700',
+                    confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                },
             });
         }
     }
@@ -148,9 +193,21 @@ const ListReportedAccount = () => {
         } catch (error) {
             navigate("/home");
             Swal.fire({
+                title: "<strong>Oops...</strong>",
+                html: `<p>${error.response.data.msg}</p>`,
                 icon: "error",
-                title: "Oops...",
-                text: error.response.data.msg,
+                iconColor: "#dc2626", // red-600
+                showCancelButton: false,
+                confirmButtonText: "OK",
+                background: "#fff",
+                color: "#1f2937",
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-2xl shadow-md px-6 py-4',
+                    title: 'text-xl font-semibold mb-2',
+                    htmlContainer: 'text-sm text-gray-700',
+                    confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                },
             });
         }
     };

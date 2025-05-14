@@ -138,9 +138,21 @@ const EditProfile = ({ sponsor: sponsoree }) => {
             }));
         } else {
             Swal.fire({
+                title: "<strong>Oops...</strong>",
+                html: "<p>You can upload max 3 photos.</p>",
                 icon: "error",
-                title: "Oops...",
-                text: "You can upload max 3 photos",
+                iconColor: "#dc2626", // warna merah (red-600)
+                showCancelButton: false,
+                confirmButtonText: "OK",
+                background: "#fff",
+                color: "#1f2937", // text-gray-800
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-2xl shadow-md px-6 py-4',
+                    title: 'text-xl font-semibold mb-2',
+                    htmlContainer: 'text-sm text-gray-700',
+                    confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                },
             });
         }
     };
