@@ -36,7 +36,7 @@ const SponsorDetail = () => {
   const handleBanAccount = async () => {
     try {
       await axios.patch("/api/banAccount", {
-        username: "admin"
+        username: sponsor.username
       })
       Swal.fire({
         title: "Ban Account Successful!",
