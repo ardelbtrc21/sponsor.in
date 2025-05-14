@@ -11,22 +11,32 @@ const initialState = {
 
 export const LoginUser = createAsyncThunk("user/LoginUser", async (user, thunkAPI) => {
     try {
-        const response =await axios({
-            method:"post",
-            url:"/api/login",
-            timeout:5000,
-            data:{
+        const response = await axios({
+            method: "post",
+            url: "/api/login",
+            timeout: 5000,
+            data: {
                 username: user.username,
                 password: user.password
             }
         });
         return response.data;
     } catch (error) {
-        if(error.response.status===500){
+        if (error.response.status === 500) {
             Swal.fire({
                 icon: "error",
                 title: "Oops...",
-                text: error.response.statusText??"Something went wrong",
+                text: error.response.statusText ?? "Something went wrong",
+                iconColor: "#dc2626", // merah terang (tailwind: red-600)
+                background: "#fff",
+                color: "#1f2937",
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-2xl shadow-md px-6 py-4',
+                    title: 'text-xl font-semibold mb-2 text-red-700',
+                    htmlContainer: 'text-sm text-gray-700',
+                    confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5'
+                }
             });
         }
         if (error.response) {
@@ -55,12 +65,32 @@ export const Logout = createAsyncThunk("user/Logout", async () => {
             icon: "success",
             title: "Logout Success !",
             text: res.data.msg,
+            iconColor: "#22c55e", // hijau (tailwind: green-500)
+            background: "#fff",
+            color: "#1f2937",
+            buttonsStyling: false,
+            customClass: {
+                popup: 'rounded-2xl shadow-md px-6 py-4',
+                title: 'text-xl font-semibold mb-2 text-green-700',
+                htmlContainer: 'text-sm text-gray-700',
+                confirmButton: 'bg-green-600 text-white hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5'
+            }
         });
     } catch (error) {
         Swal.fire({
             icon: "error",
             title: "Oops...",
             text: error.response.data.msg,
+            iconColor: "#dc2626",
+            background: "#fff",
+            color: "#1f2937",
+            buttonsStyling: false,
+            customClass: {
+                popup: 'rounded-2xl shadow-md px-6 py-4',
+                title: 'text-xl font-semibold mb-2 text-red-700',
+                htmlContainer: 'text-sm text-gray-700',
+                confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5'
+            }
         });
     }
 });

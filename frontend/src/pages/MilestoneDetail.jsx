@@ -62,14 +62,26 @@ const MilestoneDetailPage = () => {
       window.open(blobUrl, "_blank");
     } catch (error) {
       Swal.fire({
+        title: "<strong>Oops...</strong>",
+        html: `<p>${error.response?.status === 403
+          ? "Access Forbidden"
+          : error.response?.status === 404
+            ? "File Not Found"
+            : "Failed to preview file"
+          }</p>`,
         icon: "error",
-        title: "Oops...",
-        text:
-          error.response?.status === 403
-            ? "Access Forbidden"
-            : error.response?.status === 404
-              ? "File Not Found"
-              : "Failed to preview file",
+        iconColor: "#dc2626", // red-600
+        showCancelButton: false,
+        confirmButtonText: "OK",
+        background: "#fff",
+        color: "#1f2937",
+        buttonsStyling: false,
+        customClass: {
+          popup: 'rounded-2xl shadow-md px-6 py-4',
+          title: 'text-xl font-semibold mb-2',
+          htmlContainer: 'text-sm text-gray-700',
+          confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+        },
       });
       console.error(error);
     }
@@ -82,19 +94,41 @@ const MilestoneDetailPage = () => {
       });
 
       Swal.fire({
+        title: "<strong>Success</strong>",
+        html: "<p>Milestone status updated!</p>",
         icon: "success",
-        title: "Success",
-        text: "Milestone status updated!",
-        confirmButtonColor: "#6366F1",
+        iconColor: "#10b981", // green-500 (success tone)
+        showCancelButton: false,
+        confirmButtonText: "OK",
+        background: "#fff",
+        color: "#1f2937",
+        buttonsStyling: false,
+        customClass: {
+          popup: 'rounded-2xl shadow-md px-6 py-4',
+          title: 'text-xl font-semibold mb-2',
+          htmlContainer: 'text-sm text-gray-700',
+          confirmButton: 'bg-indigo-500 text-white hover:bg-indigo-600 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5',
+        },
       }).then(() => {
         navigate(-1);
       });
     } catch (err) {
       Swal.fire({
+        title: "<strong>Error</strong>",
+        html: "<p>Failed to update status.</p>",
         icon: "error",
-        title: "Error",
-        text: "Failed to update status.",
-        confirmButtonColor: "#EF4444",
+        iconColor: "#dc2626", // red-600
+        showCancelButton: false,
+        confirmButtonText: "OK",
+        background: "#fff",
+        color: "#1f2937",
+        buttonsStyling: false,
+        customClass: {
+          popup: 'rounded-2xl shadow-md px-6 py-4',
+          title: 'text-xl font-semibold mb-2',
+          htmlContainer: 'text-sm text-gray-700',
+          confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+        },
       });
     }
   };
@@ -123,18 +157,40 @@ const MilestoneDetailPage = () => {
       });
 
       Swal.fire({
+        title: "<strong>Success</strong>",
+        html: "<p>Reply milestone success!</p>",
         icon: "success",
-        title: "Success",
-        text: "Reply milestone success!",
-        confirmButtonColor: "#6366F1",
+        iconColor: "#10b981", // green-500 untuk ikon success
+        showCancelButton: false,
+        confirmButtonText: "OK",
+        background: "#fff",
+        color: "#1f2937",
+        buttonsStyling: false,
+        customClass: {
+          popup: 'rounded-2xl shadow-md px-6 py-4',
+          title: 'text-xl font-semibold mb-2',
+          htmlContainer: 'text-sm text-gray-700',
+          confirmButton: 'bg-indigo-500 text-white hover:bg-indigo-600 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5',
+        },
       }).then(() => navigate(-1));
     } catch (err) {
       Swal.fire({
+        title: "<strong>Error</strong>",
+        html: "<p>Reply milestone failed.</p>",
         icon: "error",
-        title: "Error",
-        text: "Reply milestone failed.",
-        confirmButtonColor: "#EF4444",
-      });
+        iconColor: "#ef4444", // red-500 untuk error
+        showCancelButton: false,
+        confirmButtonText: "OK",
+        background: "#fff",
+        color: "#1f2937",
+        buttonsStyling: false,
+        customClass: {
+          popup: 'rounded-2xl shadow-md px-6 py-4',
+          title: 'text-xl font-semibold mb-2 text-red-600',
+          htmlContainer: 'text-sm text-gray-700',
+          confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+        },
+      })
     }
   };
 

@@ -43,26 +43,42 @@ const AccountSettingForm = () => {
 
   const handleDeleteAccount = async () => {
     Swal.fire({
-      title: `Are you sure to delete account "${user.username}" ?`,
-      text: "Deleting your account is permanent and cannot be undone.",
+      title: `<strong>Are you sure to delete account "${user.username}" ?</strong>`,
+      html: `<p>Deleting your account is permanent and cannot be undone.</p>`,
       icon: "warning",
+      iconColor: "#fbbf24", // warna kuning untuk ikon warning
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Delete!"
+      confirmButtonText: "Delete!",
+      cancelButtonText: "Cancel",
+      background: "#fff",
+      color: "#1f2937",
+      buttonsStyling: false,
+      customClass: {
+        popup: 'rounded-2xl shadow-md px-6 py-4',
+        title: 'text-xl font-semibold mb-2',
+        htmlContainer: 'text-sm text-gray-700',
+        confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2',
+        cancelButton: 'bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5'
+      }
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           await axios.delete("/api/user");
           await axios.delete("/api/logout");
-
           Swal.fire({
+            icon: "success",
             title: "User Deleted!",
             text: "Redirecting to...",
-            icon: "success",
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
+            iconColor: "#22c55e", // hijau (tailwind: green-500)
+            background: "#fff",
+            color: "#1f2937",
+            buttonsStyling: false,
+            customClass: {
+              popup: 'rounded-2xl shadow-md px-6 py-4',
+              title: 'text-xl font-semibold mb-2 text-green-700',
+              htmlContainer: 'text-sm text-gray-700',
+              confirmButton: 'bg-green-600 text-white hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5'
+            }
           });
 
           dispatch(reset());
@@ -74,7 +90,17 @@ const AccountSettingForm = () => {
           Swal.fire({
             icon: "error",
             title: "Oops...",
-            text: error.response?.data?.msg || "Something went wrong",
+            ext: error.response?.data?.msg || "Something went wrong",
+            iconColor: "#dc2626",
+            background: "#fff",
+            color: "#1f2937",
+            buttonsStyling: false,
+            customClass: {
+              popup: 'rounded-2xl shadow-md px-6 py-4',
+              title: 'text-xl font-semibold mb-2 text-red-700',
+              htmlContainer: 'text-sm text-gray-700',
+              confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5'
+            }
           });
         }
       }

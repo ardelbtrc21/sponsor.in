@@ -27,8 +27,20 @@ const AdminPendingSponsorsPage = () => {
         if (err.response?.status === 403) {
           Swal.fire({
             icon: "error",
-            title: "Access Denied",
-            text: "You do not have permission to view this page.",
+            iconColor: "#ef4444", // merah terang (tailwind: red-500)
+            title: "<strong>Access Denied</strong>",
+            html: `<p>You do not have permission to view this page.</p>`,
+            background: "#fff",
+            color: "#1f2937",
+            buttonsStyling: false,
+            showConfirmButton: true,
+            confirmButtonText: "OK",
+            customClass: {
+              popup: 'rounded-2xl shadow-md px-6 py-4',
+              title: 'text-xl font-semibold mb-2 text-red-600',
+              htmlContainer: 'text-sm text-gray-700',
+              confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+            }
           }).then(() => navigate("/"));
         }
       })
@@ -56,6 +68,16 @@ const AdminPendingSponsorsPage = () => {
             : error.response?.status === 404
               ? "File Not Found"
               : "Failed to preview file",
+        iconColor: "#dc2626",
+        background: "#fff",
+        color: "#1f2937",
+        buttonsStyling: false,
+        customClass: {
+          popup: 'rounded-2xl shadow-md px-6 py-4',
+          title: 'text-xl font-semibold mb-2 text-red-700',
+          htmlContainer: 'text-sm text-gray-700',
+          confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5'
+        }
       });
       console.error(error);
     }
@@ -68,10 +90,19 @@ const AdminPendingSponsorsPage = () => {
       .then(() => {
         Swal.fire({
           icon: "success",
-          title: "Success",
-          text: "Sponsor approved successfully",
-          timer: 3000,
+          iconColor: "#22c55e", // Tailwind green-500
+          title: "<strong>Success</strong>",
+          html: `<p>Sponsor approved successfully</p>`,
+          background: "#fff",
+          color: "#1f2937",
           showConfirmButton: false,
+          timer: 3000,
+          buttonsStyling: false,
+          customClass: {
+            popup: 'rounded-2xl shadow-md px-6 py-4',
+            title: 'text-xl font-semibold mb-2 text-green-600',
+            htmlContainer: 'text-sm text-gray-700',
+          }
         });
         setPendingSponsors((prev) =>
           prev.filter((s) => s.user_sponsors.username !== username)
@@ -81,8 +112,20 @@ const AdminPendingSponsorsPage = () => {
         console.error("Error approving sponsor:", err);
         Swal.fire({
           icon: "error",
-          title: "Oops...",
-          text: "Failed to approve sponsor",
+          iconColor: "#ef4444", // Tailwind red-500
+          title: "<strong>Oops...</strong>",
+          html: `<p>Failed to approve sponsor</p>`,
+          background: "#fff",
+          color: "#1f2937",
+          showConfirmButton: true,
+          confirmButtonText: "OK",
+          buttonsStyling: false,
+          customClass: {
+            popup: 'rounded-2xl shadow-md px-6 py-4',
+            title: 'text-xl font-semibold mb-2 text-red-600',
+            htmlContainer: 'text-sm text-gray-700',
+            confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5'
+          }
         });
       })
       .finally(() => setApproving(null));
@@ -95,10 +138,19 @@ const AdminPendingSponsorsPage = () => {
       .then(() => {
         Swal.fire({
           icon: "success",
-          title: "Success",
-          text: "Sponsor rejected successfully",
-          timer: 3000,
+          iconColor: "#22c55e", // Tailwind green-500
+          title: "<strong>Success</strong>",
+          html: `<p>Sponsor rejected successfully</p>`,
+          background: "#fff",
+          color: "#1f2937",
           showConfirmButton: false,
+          timer: 3000,
+          buttonsStyling: false,
+          customClass: {
+            popup: 'rounded-2xl shadow-md px-6 py-4',
+            title: 'text-xl font-semibold mb-2 text-green-600',
+            htmlContainer: 'text-sm text-gray-700'
+          }
         });
         setPendingSponsors((prev) =>
           prev.filter((s) => s.user_sponsors.username !== username)
@@ -108,8 +160,20 @@ const AdminPendingSponsorsPage = () => {
         console.error("Error rejecting sponsor:", err);
         Swal.fire({
           icon: "error",
-          title: "Oops...",
-          text: "Failed to reject sponsor",
+          iconColor: "#dc2626", // Tailwind red-600
+          title: "<strong>Oops...</strong>",
+          html: `<p>Failed to reject sponsor</p>`,
+          background: "#fff",
+          color: "#1f2937",
+          showConfirmButton: true,
+          confirmButtonText: "OK",
+          buttonsStyling: false,
+          customClass: {
+            popup: 'rounded-2xl shadow-md px-6 py-4',
+            title: 'text-xl font-semibold mb-2 text-red-600',
+            htmlContainer: 'text-sm text-gray-700',
+            confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5'
+          }
         });
       })
       .finally(() => setApproving(null));
@@ -178,8 +242,8 @@ const AdminPendingSponsorsPage = () => {
                         onClick={() => handleApprove(sponsor.user_sponsors.username)}
                         disabled={approving === sponsor.user_sponsors.username}
                         className={`text-xs px-3 py-1.5 rounded-lg text-white font-semibold ${approving === sponsor.user_sponsors.username
-                            ? "bg-primary cursor-not-allowed"
-                            : "bg-primary hover:opacity-80"
+                          ? "bg-primary cursor-not-allowed"
+                          : "bg-primary hover:opacity-80"
                           }`}
                       >
                         {approving === sponsor.user_sponsors.username
@@ -190,8 +254,8 @@ const AdminPendingSponsorsPage = () => {
                         onClick={() => handleReject(sponsor.user_sponsors.username)}
                         disabled={approving === sponsor.user_sponsors.username}
                         className={`text-xs px-3 py-1.5 rounded-lg text-white font-semibold ${approving === sponsor.user_sponsors.username
-                            ? "bg-red-600 cursor-not-allowed"
-                            : "bg-red-600 hover:opacity-80"
+                          ? "bg-red-600 cursor-not-allowed"
+                          : "bg-red-600 hover:opacity-80"
                           }`}
                       >
                         {approving === sponsor.user_sponsors.username

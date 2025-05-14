@@ -48,19 +48,44 @@ export default function RegisterPage() {
             // Validasi tipe file
             if (file.type !== "application/pdf") {
                 Swal.fire({
+                    title: "<strong>Oops...</strong>",
+                    html: "<p>Only PDF files are allowed.</p>",
                     icon: "error",
-                    title: "Oops...",
-                    text: "Only PDF files are allowed.",
+                    iconColor: "#dc2626", // merah untuk error
+                    showCancelButton: false,
+                    confirmButtonText: "OK",
+                    background: "#fff",
+                    color: "#1f2937",
+                    buttonsStyling: false,
+                    customClass: {
+                        popup: 'rounded-2xl shadow-md px-6 py-4',
+                        title: 'text-xl font-semibold mb-2 text-red-600',
+                        htmlContainer: 'text-sm text-gray-700',
+                        confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                    },
                 });
                 return Upload.LIST_IGNORE;
             }
             // Validasi ukuran file
             if (file.size > 10 * 1024 * 1024) {
                 Swal.fire({
+                    title: "<strong>Oops...</strong>",
+                    html: "<p>File must be smaller than 10MB.</p>",
                     icon: "error",
-                    title: "Oops...",
-                    text: "File must be smaller than 10MB.",
+                    iconColor: "#dc2626",
+                    showCancelButton: false,
+                    confirmButtonText: "OK",
+                    background: "#fff",
+                    color: "#1f2937",
+                    buttonsStyling: false,
+                    customClass: {
+                        popup: 'rounded-2xl shadow-md px-6 py-4',
+                        title: 'text-xl font-semibold mb-2 text-red-600',
+                        htmlContainer: 'text-sm text-gray-700',
+                        confirmButton: 'bg-[#dc2626] text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                    },
                 });
+
                 return Upload.LIST_IGNORE;
             }
             return false; // mencegah auto upload
@@ -112,11 +137,21 @@ export default function RegisterPage() {
             });
             navigate("/");
             Swal.fire({
-                title: "Create User Successful!",
+                title: "<strong>Create User Successful!</strong>",
+                html: "<p>Your request has been successfully added</p>",
                 icon: "success",
-                confirmButtonColor: "#3085d6",
+                iconColor: "#10b981",
+                showCancelButton: false,
                 confirmButtonText: "OK",
-                text: "Your request has been successfully added"
+                background: "#fff",
+                color: "#1f2937",
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-2xl shadow-md px-6 py-4',
+                    title: 'text-xl font-semibold mb-2 text-green-600',
+                    htmlContainer: 'text-sm text-gray-700',
+                    confirmButton: 'bg-indigo-500 text-white hover:bg-indigo-600 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                },
             });
 
         } catch (error) {
@@ -124,9 +159,21 @@ export default function RegisterPage() {
                 setFormErrors(error.response.data);
                 if (error.response.data.msg) {
                     Swal.fire({
+                        title: "<strong>Oops...</strong>",
+                        html: `<p>${error.response.data.msg}</p>`,
                         icon: "error",
-                        title: "Oops...",
-                        text: error.response.data.msg,
+                        iconColor: "#dc2626", 
+                        showCancelButton: false,
+                        confirmButtonText: "OK",
+                        background: "#fff",
+                        color: "#1f2937",
+                        buttonsStyling: false,
+                        customClass: {
+                            popup: 'rounded-2xl shadow-md px-6 py-4',
+                            title: 'text-xl font-semibold mb-2 text-red-600',
+                            htmlContainer: 'text-sm text-gray-700',
+                            confirmButton: 'bg-[#dc2626] text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                        },
                     });
                 }
             }

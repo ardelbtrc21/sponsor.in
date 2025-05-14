@@ -12,7 +12,7 @@ const Login = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
-    
+
     const { user, isError, isSuccess, isLoading, message } = useSelector(
         (state) => state.auth
     );
@@ -35,34 +35,70 @@ const Login = () => {
             await dispatch(LoginUser({ username, password })).unwrap();
             const res = await dispatch(getMe()).unwrap();
             console.log(res.is_banned)
-    
+
             if (res.is_banned) {
                 dispatch(reset());
                 Swal.fire({
+                    title: "<strong>Your account is banned.</strong>",
+                    html: "<p>Please confirm to sponsorin.13@gmail.com if you think there's a misunderstanding.</p>",
                     icon: "error",
-                    title: "Your account is banned.",
-                    text: "Please confirm to sponsorin.13@gmail.com if you think there's a misunderstanding.",
+                    iconColor: "#dc2626", // red-600
+                    showCancelButton: false,
+                    confirmButtonText: "OK",
+                    background: "#fff",
+                    color: "#1f2937",
+                    buttonsStyling: false,
+                    customClass: {
+                        popup: 'rounded-2xl shadow-md px-6 py-4',
+                        title: 'text-xl font-semibold mb-2',
+                        htmlContainer: 'text-sm text-gray-700',
+                        confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                    },
                 });
                 return;
-            }    
+            }
             if (res.role === "Sponsor") {
                 const sponsorRes = await axios.get(`/api/sponsors/${res.username}`);
                 const sponsorStatus = sponsorRes.data.status;
                 if (sponsorStatus !== "Approved") {
                     dispatch(reset());
                     Swal.fire({
+                        title: "<strong>Account Not Approved</strong>",
+                        html: "<p>Your sponsor account is not approved yet</p>",
                         icon: "error",
-                        title: "Account Not Approved",
-                        text: "Your sponsor account is not approved yet",
+                        iconColor: "#dc2626", // red-600
+                        showCancelButton: false,
+                        confirmButtonText: "OK",
+                        background: "#fff",
+                        color: "#1f2937",
+                        buttonsStyling: false,
+                        customClass: {
+                            popup: 'rounded-2xl shadow-md px-6 py-4',
+                            title: 'text-xl font-semibold mb-2',
+                            htmlContainer: 'text-sm text-gray-700',
+                            confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                        },
                     });
                     return;
                 }
-            }    
+            }
         } catch (error) {
             Swal.fire({
+                title: "<strong>Login Failed</strong>",
+                html: `<p>${error.message || "Invalid username or password"}</p>`,
                 icon: "error",
-                title: "Login Failed",
-                text: error.message || "Invalid username or password",
+                iconColor: "#dc2626", // red-600
+                showCancelButton: false,
+                confirmButtonText: "OK",
+                background: "#fff",
+                color: "#1f2937",
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-2xl shadow-md px-6 py-4',
+                    title: 'text-xl font-semibold mb-2',
+                    htmlContainer: 'text-sm text-gray-700',
+                    confirmButton: 'bg-red-600 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                },
             });
         }
     };

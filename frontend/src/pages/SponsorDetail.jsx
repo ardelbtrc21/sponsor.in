@@ -39,18 +39,40 @@ const SponsorDetail = () => {
         username: sponsor.username
       })
       Swal.fire({
-        title: "Ban Account Successful!",
+        title: "<strong>Ban Account Successful!</strong>",
+        html: "<p>Your request has been successfully added</p>",
         icon: "success",
-        confirmButtonColor: "#3085d6",
+        iconColor: "#10b981",
+        showCancelButton: false,
         confirmButtonText: "OK",
-        text: "Your request has been successfully added"
+        background: "#fff",
+        color: "#1f2937",
+        buttonsStyling: false,
+        customClass: {
+          popup: 'rounded-2xl shadow-md px-6 py-4',
+          title: 'text-xl font-semibold mb-2 text-green-600',
+          htmlContainer: 'text-sm text-gray-700',
+          confirmButton: 'bg-indigo-500 text-white hover:bg-indigo-600 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5',
+        },
       });
       navigate(-1);
     } catch (error) {
       Swal.fire({
+        title: "<strong>Oops...</strong>",
+        html: `<p>${error.response.data.msg}</p>`,
         icon: "error",
-        title: "Oops...",
-        text: error.response.data.msg,
+        iconColor: "#dc2626",
+        showCancelButton: false,
+        confirmButtonText: "OK",
+        background: "#fff",
+        color: "#1f2937",
+        buttonsStyling: false,
+        customClass: {
+          popup: 'rounded-2xl shadow-md px-6 py-4',
+          title: 'text-xl font-semibold mb-2 text-red-600',
+          htmlContainer: 'text-sm text-gray-700',
+          confirmButton: 'bg-[#dc2626] text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+        },
       });
     }
   }

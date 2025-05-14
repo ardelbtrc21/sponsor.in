@@ -51,17 +51,41 @@ const ViewDetailProposal = () => {
     try {
       await axios.put(`/api/proposals/${latestStatus.proposal_status_id}/complete`);
       Swal.fire({
+        title: "<strong>Success</strong>",
+        html: "<p>Agreement marked as completed!</p>",
         icon: "success",
-        title: "Success",
-        text: "Agreement marked as completed!"
+        iconColor: "#10b981",
+        showCancelButton: false,
+        confirmButtonText: "OK",
+        background: "#fff",
+        color: "#1f2937",
+        buttonsStyling: false,
+        customClass: {
+          popup: 'rounded-2xl shadow-md px-6 py-4',
+          title: 'text-xl font-semibold mb-2 text-green-600',
+          htmlContainer: 'text-sm text-gray-700',
+          confirmButton: 'bg-indigo-500 text-white hover:bg-indigo-600 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5',
+        },
       });
       getDetailProposal();
     } catch (error) {
       console.error("error: ", error);
       Swal.fire({
+        title: "<strong>Oops...</strong>",
+        html: `<p>${error.response?.data?.message || "Something went wrong."}</p>`,
         icon: "error",
-        title: "Oops...",
-        text: error.response?.data?.message || "Something went wrong."
+        iconColor: "#dc2626",
+        showCancelButton: false,
+        confirmButtonText: "OK",
+        background: "#fff",
+        color: "#1f2937",
+        buttonsStyling: false,
+        customClass: {
+          popup: 'rounded-2xl shadow-md px-6 py-4',
+          title: 'text-xl font-semibold mb-2 text-red-600',
+          htmlContainer: 'text-sm text-gray-700',
+          confirmButton: 'bg-[#dc2626] text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+        },
       });
     }
   };
@@ -74,9 +98,21 @@ const ViewDetailProposal = () => {
     } catch (error) {
       console.error("Error: ", error);
       Swal.fire({
+        title: "<strong>Oops...</strong>",
+        html: `<p>${error.message}</p>`,
         icon: "error",
-        title: "Oops...",
-        text: error.message
+        iconColor: "#dc2626",
+        showCancelButton: false,
+        confirmButtonText: "OK",
+        background: "#fff",
+        color: "#1f2937",
+        buttonsStyling: false,
+        customClass: {
+          popup: 'rounded-2xl shadow-md px-6 py-4',
+          title: 'text-xl font-semibold mb-2 text-red-600',
+          htmlContainer: 'text-sm text-gray-700',
+          confirmButton: 'bg-[#dc2626] text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+        },
       });
     }
   };
@@ -98,17 +134,41 @@ const ViewDetailProposal = () => {
     try {
       await axios.put(`/api/proposals/${latestStatus.proposal_status_id}/approve`);
       Swal.fire({
+        title: "<strong>Success</strong>",
+        html: "<p>Proposal approved successfully.</p>",
         icon: "success",
-        title: "Success",
-        text: "Proposal approved successfully."
+        iconColor: "#10b981",
+        showCancelButton: false,
+        confirmButtonText: "OK",
+        background: "#fff",
+        color: "#1f2937",
+        buttonsStyling: false,
+        customClass: {
+          popup: 'rounded-2xl shadow-md px-6 py-4',
+          title: 'text-xl font-semibold mb-2 text-green-600',
+          htmlContainer: 'text-sm text-gray-700',
+          confirmButton: 'bg-indigo-500 text-white hover:bg-indigo-600 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5',
+        },
       });
       getDetailProposal();
     } catch (error) {
       console.error("Error: ", error);
       Swal.fire({
+        title: "<strong>Oops...</strong>",
+        html: `<p>${error.message}</p>`,
         icon: "error",
-        title: "Oops...",
-        text: error.message
+        iconColor: "#dc2626",
+        showCancelButton: false,
+        confirmButtonText: "OK",
+        background: "#fff",
+        color: "#1f2937",
+        buttonsStyling: false,
+        customClass: {
+          popup: 'rounded-2xl shadow-md px-6 py-4',
+          title: 'text-xl font-semibold mb-2 text-red-600',
+          htmlContainer: 'text-sm text-gray-700',
+          confirmButton: 'bg-[#dc2626] text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+        },
       });
     }
   };
@@ -117,17 +177,41 @@ const ViewDetailProposal = () => {
     try {
       await axios.put(`/api/proposals/${latestStatus.proposal_status_id}/reject`);
       Swal.fire({
+        title: "<strong>Success</strong>",
+        html: "<p>Successfully rejected proposal.</p>",
         icon: "success",
-        title: "Success",
-        text: "Successfully rejected proposal."
+        iconColor: "#10b981",
+        showCancelButton: false,
+        confirmButtonText: "OK",
+        background: "#fff",
+        color: "#1f2937",
+        buttonsStyling: false,
+        customClass: {
+          popup: 'rounded-2xl shadow-md px-6 py-4',
+          title: 'text-xl font-semibold mb-2 text-green-600',
+          htmlContainer: 'text-sm text-gray-700',
+          confirmButton: 'bg-indigo-500 text-white hover:bg-indigo-600 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5',
+        },
       });
       getDetailProposal();
     } catch (error) {
       console.error("Error: ", error);
       Swal.fire({
+        title: "<strong>Oops...</strong>",
+        html: `<p>${error.message}</p>`,
         icon: "error",
-        title: "Oops...",
-        text: error.message
+        iconColor: "#dc2626",
+        showCancelButton: false,
+        confirmButtonText: "OK",
+        background: "#fff",
+        color: "#1f2937",
+        buttonsStyling: false,
+        customClass: {
+          popup: 'rounded-2xl shadow-md px-6 py-4',
+          title: 'text-xl font-semibold mb-2 text-red-600',
+          htmlContainer: 'text-sm text-gray-700',
+          confirmButton: 'bg-[#dc2626] text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+        },
       });
     }
   };
@@ -167,14 +251,26 @@ const ViewDetailProposal = () => {
       setPdfBlobUrl(blobUrl);
     } catch (error) {
       Swal.fire({
+        title: "<strong>Oops...</strong>",
+        html: `<p>${error.response?.status === 403
+          ? "Access Forbidden"
+          : error.response?.status === 404
+            ? "File Not Found"
+            : "Failed to preview file"
+          }</p>`,
         icon: "error",
-        title: "Oops...",
-        text:
-          error.response?.status === 403
-            ? "Access Forbidden"
-            : error.response?.status === 404
-              ? "File Not Found"
-              : "Failed to preview file",
+        iconColor: "#dc2626",
+        showCancelButton: false,
+        confirmButtonText: "OK",
+        background: "#fff",
+        color: "#1f2937",
+        buttonsStyling: false,
+        customClass: {
+          popup: 'rounded-2xl shadow-md px-6 py-4',
+          title: 'text-xl font-semibold mb-2 text-red-600',
+          htmlContainer: 'text-sm text-gray-700',
+          confirmButton: 'bg-[#dc2626] text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+        },
       });
       console.error(error);
     }
@@ -275,13 +371,23 @@ const ViewDetailProposal = () => {
                   className="bg-primary hover:bg-gray-700 tracking-wider text-white font-semibold py-2 px-6 rounded-lg shadow-md mx-2"
                   onClick={async () => {
                     const result = await Swal.fire({
-                      title: 'Are you sure?',
-                      text: 'This will mark the proposal as approved.',
-                      icon: 'warning',
+                      title: "<strong>Are you sure?</strong>",
+                      html: "<p>This will mark the proposal as approved.</p>",
+                      icon: "warning",
+                      iconColor: "#fbbf24", // yellow for warning
                       showCancelButton: true,
-                      confirmButtonColor: '#16a34a',
-                      cancelButtonColor: '#d33',
-                      confirmButtonText: 'Yes, approve it!',
+                      confirmButtonText: "Yes, approve it!",
+                      cancelButtonText: "Cancel",
+                      background: "#fff",
+                      color: "#1f2937",
+                      buttonsStyling: false,
+                      customClass: {
+                        popup: 'rounded-2xl shadow-md px-6 py-4',
+                        title: 'text-xl font-semibold mb-2 text-yellow-600',
+                        htmlContainer: 'text-sm text-gray-700',
+                        confirmButton: 'bg-[#16a34a] text-white hover:bg-green-600 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2',
+                        cancelButton: 'bg-[#d33] text-white hover:bg-red-600 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                      },
                     });
 
                     if (result.isConfirmed) {
@@ -312,13 +418,23 @@ const ViewDetailProposal = () => {
                   className="bg-green-600 hover:bg-green-700 text-white font-semibold tracking-wider py-2 px-6 rounded-lg shadow-md"
                   onClick={async () => {
                     const result = await Swal.fire({
-                      title: 'Are you sure?',
-                      text: 'This will mark the agreement as complete.',
-                      icon: 'warning',
+                      title: "<strong>Are you sure?</strong>",
+                      html: "<p>This will mark the agreement as complete.</p>",
+                      icon: "warning",
+                      iconColor: "#fbbf24", // yellow for warning
                       showCancelButton: true,
-                      confirmButtonColor: '#16a34a',
-                      cancelButtonColor: '#d33',
-                      confirmButtonText: 'Yes, complete it!',
+                      confirmButtonText: "Yes, complete it!",
+                      cancelButtonText: "Cancel",
+                      background: "#fff",
+                      color: "#1f2937",
+                      buttonsStyling: false,
+                      customClass: {
+                        popup: 'rounded-2xl shadow-md px-6 py-4',
+                        title: 'text-xl font-semibold mb-2 text-yellow-600',
+                        htmlContainer: 'text-sm text-gray-700',
+                        confirmButton: 'bg-[#16a34a] text-white hover:bg-green-600 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2',
+                        cancelButton: 'bg-[#d33] text-white hover:bg-red-600 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                      },
                     });
 
                     if (result.isConfirmed) {
