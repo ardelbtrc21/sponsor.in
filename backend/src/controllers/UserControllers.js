@@ -444,9 +444,18 @@ export const editProfile = async (req, res) => {
             });
             // fs.unlinkSync(path.join(__dirname, "..", "..", "data", "sponsorship_photo", item));
         });
+        const fotoSponsor = await SponsorshipPhotos.findAll({
+            where: {
+                username: username
+            }
+        })
+        console.log(fotoSponsor.length, fotoSponsor)
 
         const backgroundPhoto = req.files?.background_photo || null;
         const sponsorshipPhotos = req.files?.sponsorship_photos || null;
+        if(sponsorshipPhotos && fotoSponsor.length+sponsorshipPhotos.length > 3){
+            return res.status(400).json({ msg: "You can upload max 3 files." });
+        }
         const user = await User.findOne({ where: { username } });
 
         if (user.role === "Sponsor") {

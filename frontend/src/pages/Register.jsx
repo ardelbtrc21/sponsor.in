@@ -82,7 +82,7 @@ export default function RegisterPage() {
                         popup: 'rounded-2xl shadow-md px-6 py-4',
                         title: 'text-xl font-semibold mb-2 text-red-600',
                         htmlContainer: 'text-sm text-gray-700',
-                        confirmButton: 'bg-[#dc2626] text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                        confirmButton: 'bg-indigo-500 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
                     },
                 });
 
@@ -162,7 +162,7 @@ export default function RegisterPage() {
                         title: "<strong>Oops...</strong>",
                         html: `<p>${error.response.data.msg}</p>`,
                         icon: "error",
-                        iconColor: "#dc2626", 
+                        iconColor: "#dc2626",
                         showCancelButton: false,
                         confirmButtonText: "OK",
                         background: "#fff",
@@ -172,7 +172,7 @@ export default function RegisterPage() {
                             popup: 'rounded-2xl shadow-md px-6 py-4',
                             title: 'text-xl font-semibold mb-2 text-red-600',
                             htmlContainer: 'text-sm text-gray-700',
-                            confirmButton: 'bg-[#dc2626] text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+                            confirmButton: 'bg-indigo-500 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
                         },
                     });
                 }
@@ -181,23 +181,24 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="w-full h-full flex items-center justify-center bg-white text-black">
-            <div className="flex w-screen h-full overflow-hidden shadow-lg">
+        <div className="w-full min-h-screen flex items-center justify-center bg-white text-black">
+            <div className="flex flex-col md:flex-row w-full h-full md:h-auto overflow-hidden shadow-lg">
+
                 {/* Left Panel */}
-                <div className="w-1/2 flex-1 bg-gradient-to-b from-secondary via-primary to-black p-10 md:p-16 flex flex-col justify-center rounded-r-3xl">
+                <div className="w-full md:w-1/2 bg-gradient-to-b from-secondary via-primary to-black p-6 md:p-10 flex flex-col justify-center rounded-b-3xl md:rounded-b-none md:rounded-r-3xl">
                     <div className="text-center text-white">
-                        <h2 className="text-3xl font-bold mb-2">Get Started with Us</h2>
-                        <p className="text-sm mb-8">Complete these easy steps to register your account.</p>
+                        <h2 className="text-2xl md:text-3xl font-bold mb-2">Get Started with Us</h2>
+                        <p className="text-sm mb-6">Complete these easy steps to register your account.</p>
                         <div className="space-y-4">
-                            <div className="flex items-center space-x-4 bg-white text-black px-4 py-2 rounded-xl">
+                            <div className="flex items-center space-x-4 bg-white text-black px-4 py-2 rounded-xl text-sm">
                                 <div className="font-bold">1</div>
                                 <span>Register your account</span>
                             </div>
-                            <div className="flex items-center space-x-4 bg-[#223A59] px-4 py-2 rounded-xl">
+                            <div className="flex items-center space-x-4 bg-[#223A59] px-4 py-2 rounded-xl text-sm text-white">
                                 <div className="font-bold">2</div>
                                 <span>Set up your profile</span>
                             </div>
-                            <div className="flex items-center space-x-4 bg-[#223A59] px-4 py-2 rounded-xl">
+                            <div className="flex items-center space-x-4 bg-[#223A59] px-4 py-2 rounded-xl text-sm text-white">
                                 <div className="font-bold">3</div>
                                 <span>Start the sponsorship</span>
                             </div>
@@ -206,26 +207,26 @@ export default function RegisterPage() {
                 </div>
 
                 {/* Right Panel */}
-                <div className="w-3/5 bg-white p-10 text-black mt-4">
-                    <h2 className="text-2xl font-bold mb-6 text-center">Register Account</h2>
+                <div className="w-full md:w-3/5 bg-white p-6 md:p-10 text-black">
+                    <h2 className="text-xl md:text-2xl font-bold mb-6 text-center">Register Account</h2>
 
                     {/* Toggle Switch */}
-                    <div className="mx-auto mb-6 bg-blue-300 rounded-full p-1 flex w-7/12 justify-center">
+                    <div className="mx-auto mb-6 bg-blue-300 rounded-full p-1 flex w-full sm:w-10/12 md:w-7/12 justify-center text-sm">
                         <button
-                            className={`w-1/2 px-6 py-2 rounded-full text-sm font-semibold focus:outline-none transition-all duration-300 ${formData.role === 'Sponsoree' ? 'bg-white text-black' : 'text-white'}`}
+                            className={`w-1/2 px-3 py-2 rounded-full font-semibold focus:outline-none transition-all duration-300 ${formData.role === 'Sponsoree' ? 'bg-white text-black' : 'text-white'}`}
                             onClick={() => { handleRoleChange('Sponsoree') }}
                         >
                             Sponsor Seeker
                         </button>
                         <button
-                            className={`w-1/2 px-6 py-2 rounded-full text-sm font-semibold focus:outline-none transition-all duration-300 ${formData.role === 'Sponsor' ? 'bg-white text-black' : 'text-white'}`}
+                            className={`w-1/2 px-3 py-2 rounded-full font-semibold focus:outline-none transition-all duration-300 ${formData.role === 'Sponsor' ? 'bg-white text-black' : 'text-white'}`}
                             onClick={() => { handleRoleChange('Sponsor') }}
                         >
                             Sponsor Provider
                         </button>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-4 text-sm">
                         <input
                             type="text"
                             name="username"
@@ -234,30 +235,30 @@ export default function RegisterPage() {
                             onChange={handleChange}
                             className="w-full p-3 border rounded-xl"
                         />
-                        <span className="text-sm text-red-800 p-3">{formErrors.username}</span>
+                        <span className="text-xs text-red-800 p-1">{formErrors.username}</span>
 
                         <input
                             type="text"
                             name="name"
-                            placeholder={`${formData.role === 'Sponsoree' ? "Name" : "Company Name"}`}
+                            placeholder={formData.role === 'Sponsoree' ? "Name" : "Company Name"}
                             value={formData.name}
                             onChange={handleChange}
                             className="w-full p-3 border rounded-xl"
                         />
-                        <span className="text-sm text-red-800 p-3">{formErrors.name}</span>
+                        <span className="text-xs text-red-800 p-1">{formErrors.name}</span>
 
                         <input
                             type="email"
                             name="email"
-                            placeholder={`${formData.role === 'Sponsoree' ? "Email" : "Company Email"}`}
+                            placeholder={formData.role === 'Sponsoree' ? "Email" : "Company Email"}
                             value={formData.email}
                             onChange={handleChange}
                             className="w-full p-3 border rounded-xl"
                         />
-                        <span className="text-sm text-red-800 p-3">{formErrors.email}</span>
+                        <span className="text-xs text-red-800 p-1">{formErrors.email}</span>
 
                         {formData.role === 'Sponsoree' && (
-                            <div className="relative w-full mb-4">
+                            <div className="relative w-full">
                                 <select
                                     name="category"
                                     value={formData.category}
@@ -274,16 +275,15 @@ export default function RegisterPage() {
                                     <option value="personal">Personal</option>
                                     <option value="others">Others</option>
                                 </select>
-
                                 <div className="pointer-events-none absolute right-4 inset-y-0 flex items-center">
                                     <ChevronDownIcon className="w-5 h-5 text-gray-600" />
                                 </div>
-                                <span className="text-sm text-red-800 p-3">{formErrors.category}</span>
+                                <span className="text-xs text-red-800 p-1">{formErrors.category}</span>
                             </div>
                         )}
 
                         {/* Password */}
-                        <div className="relative w-full mb-4">
+                        <div className="relative w-full">
                             <input
                                 type={showPassword ? "text" : "password"}
                                 name="password"
@@ -296,17 +296,13 @@ export default function RegisterPage() {
                                 className="absolute right-4 inset-y-0 flex items-center cursor-pointer text-gray-600"
                                 onClick={() => setShowPassword(!showPassword)}
                             >
-                                {showPassword ? (
-                                    <EyeSlashIcon className="h-5 w-5" />
-                                ) : (
-                                    <EyeIcon className="h-5 w-5" />
-                                )}
+                                {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
                             </div>
-                            <span className="text-sm text-red-800 p-3">{formErrors.password}</span>
+                            <span className="text-xs text-red-800 p-1">{formErrors.password}</span>
                         </div>
 
                         {/* Confirm Password */}
-                        <div className="relative w-full mb-4">
+                        <div className="relative w-full">
                             <input
                                 type={showConfirmPassword ? "text" : "password"}
                                 name="confirmPassword"
@@ -319,37 +315,13 @@ export default function RegisterPage() {
                                 className="absolute right-4 inset-y-0 flex items-center cursor-pointer text-gray-600"
                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                             >
-                                {showConfirmPassword ? (
-                                    <EyeSlashIcon className="h-5 w-5" />
-                                ) : (
-                                    <EyeIcon className="h-5 w-5" />
-                                )}
+                                {showConfirmPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
                             </div>
-                            <span className="text-sm text-red-800 p-3">{formErrors.confirmPassword}</span>
+                            <span className="text-xs text-red-800 p-1">{formErrors.confirmPassword}</span>
                         </div>
 
-                        {/* <input
-                            type="password"
-                            name="password"
-                            placeholder="Password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            className="w-full p-3 border rounded-xl"
-                        />
-                        <span className="text-sm text-red-800 p-3">{formErrors.password}</span>
-
-                        <input
-                            type="password"
-                            name="confirmPassword"
-                            placeholder="Confirm Password"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            className="w-full p-3 border rounded-xl"
-                        />
-                        <span className="text-sm text-red-800 p-3">{formErrors.confirmPassword}</span> */}
-
                         {formData.role === 'Sponsor' && (
-                            <div>
+                            <div className="space-y-4">
                                 <input
                                     type="text"
                                     name="nib"
@@ -358,8 +330,9 @@ export default function RegisterPage() {
                                     onChange={handleChange}
                                     className="w-full p-3 border rounded-xl"
                                 />
-                                <span className="text-sm text-red-800 p-3">{formErrors.nib}</span>
-                                <div className="col-span-full pt-3">
+                                <span className="text-xs text-red-800 p-1">{formErrors.nib}</span>
+
+                                <div>
                                     <label htmlFor="cover-photo" className="block text-base font-medium leading-6 text-gray-900">
                                         NIB File
                                     </label>
@@ -368,26 +341,27 @@ export default function RegisterPage() {
                                             <InboxOutlined />
                                         </p>
                                         <p className="ant-upload-text">Click or drag file to this area to upload</p>
-                                        <p className="ant-upload-hint">
-                                            Only Accept PDF File and Accept Size Max (10 Mb)
-                                        </p>
+                                        <p className="ant-upload-hint">Only Accept PDF File and Accept Size Max (10 Mb)</p>
                                     </Dragger>
-                                    <span className="text-sm text-red-800">{formErrors.document}</span>
+                                    <span className="text-xs text-red-800">{formErrors.document}</span>
                                 </div>
                             </div>
                         )}
 
-                        <div className="flex justify-center">
+                        <div className="flex justify-center pt-4">
                             <button
                                 type="submit"
-                                className="w-1/2 justify-center items-center bg-primary text-white py-3 rounded-xl hover:opacity-90"
+                                className="w-full sm:w-1/2 bg-primary text-white py-3 rounded-xl hover:opacity-90"
                             >
                                 Sign Up
                             </button>
                         </div>
 
                         <p className="text-center text-sm mt-4">
-                            Already have an account? <a href="/SignIn" className="font-semibold hover:underline">Log in</a>
+                            Already have an account?{" "}
+                            <a href="/SignIn" className="font-semibold hover:underline">
+                                Log in
+                            </a>
                         </p>
                     </form>
                 </div>

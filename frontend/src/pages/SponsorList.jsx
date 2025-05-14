@@ -3,6 +3,7 @@ import SponsorCard from '../components/SponsorCard';
 import NavbarCard from '../components/NavbarCard';
 import emptyImage from '../assets/empty_folder.png';
 import ModernLayout from '../components/Layout';
+import { MagnifyingGlassIcon } from "@heroicons/react/24/solid"
 
 const SponsorList = () => {
   const [sponsors, setSponsors] = useState([]);
@@ -31,9 +32,10 @@ const SponsorList = () => {
     fetchSponsors();
   }, [searchQuery, sortOrder]);
 
-  const handleSearchSubmit = (e) => {
+  const handleSearchSubmit = async (e) => {
     e.preventDefault();
     setSearchQuery(inputValue.trim());
+    await fetchSponsors()
   };
 
   const toggleSortOrder = () => {
@@ -47,25 +49,30 @@ const SponsorList = () => {
     <ModernLayout>
       <div className="max-w-6xl mx-auto px-4 py-6">
         <h2 className="text-2xl font-semibold text-[#031930] mb-8 text-center">
-          MEET YOUR PERFECT SPONSOR!
+          Meet Your Perfect Sponsor!
         </h2>
 
         {/* Search and Sort Controls */}
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4 w-full">
-          <form onSubmit={handleSearchSubmit} className="w-full sm:flex-1">
+        <div className="flex items-center mb-4 w-full gap-2">
+          {/* Search Input */}
+          <div className="relative flex-grow">
+            <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
             <input
               type="text"
               placeholder="Type the Company Name to Search"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded w-full text-sm"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-3 py-2 border border-gray-300 rounded-md w-full text-sm focus:outline-none"
             />
-          </form>
+          </div>
+
+          {/* Sort Button */}
           <button
             onClick={toggleSortOrder}
-            className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary whitespace-nowrap text-sm"
+            className="bg-primary text-white text-sm px-4 py-2 rounded-md hover:bg-secondary whitespace-nowrap"
+            style={{ flexShrink: 0 }}
           >
-            Sort by Name {sortOrder === 'asc' ? '↑' : '↓'}
+            Sort by Name {sortOrder === "asc" ? "↑" : "↓"}
           </button>
         </div>
 
