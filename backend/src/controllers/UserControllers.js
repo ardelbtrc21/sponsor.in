@@ -184,12 +184,13 @@ export const getUsers = async (req, res) => {
         const sortBy = req.query.sortBy || "name";
         const order = req.query.order || "ASC";
         const keyword = req.query.keyword || "";
-        const role_req = req.query.role_req | ""
-
+        const role_req = req.query.role_req !== "" ? req.query.role_req : ""
+        console.log( req.query.keyword )
+        
         // pagination
         const page = parseInt(req.query.page) || 0;
         const limit = parseInt(req.query.limit) || 10;
-
+        
         let where = {
             [Op.or]: [
                 {
@@ -206,15 +207,17 @@ export const getUsers = async (req, res) => {
                     username: {
                         [Op.not]: req.session.username
                     }
-                }, {
-                    role: role_req
                 }
             ]
-
+            
         };
+        if(role_req !== ""){
+            where.role = role_req
+        }
+        where.is_banned = false
         let include;
-
-        if (role_req == "Sponsor") {
+        
+        if (role_req === "Sponsor") {
             include = [
                 {
                     model: Sponsor,
@@ -225,7 +228,7 @@ export const getUsers = async (req, res) => {
                 }
             ];
         }
-        if (role_req == "Sponsoree") {
+        if (role_req === "Sponsoree") {
             include = [
                 {
                     model: Sponsoree,
@@ -236,25 +239,25 @@ export const getUsers = async (req, res) => {
                 }
             ];
         }
-        if (role_req == "") {
+        if (role_req === "") {
             include = [
                 {
                     model: Sponsor,
                     as: "user_sponsors",
-                    required: true,
+                    required: false,
                     attributes: ["username", "nib", "document"],
                     duplicating: false
                 },
                 {
                     model: Sponsoree,
                     as: "user_sponsorees",
-                    required: true,
+                    required: false,
                     attributes: ["username", "category"],
                     duplicating: false
                 }
             ];
         }
-
+        
         let result = await User.findAll({
             where: where,
             include: include,
@@ -263,10 +266,10 @@ export const getUsers = async (req, res) => {
             ],
             attributes: ["username", "name", "email", "role", "profile_photo", "last_login"]
         });
-
+        
         const totalRows = Object.keys(result).length;
         const totalPage = Math.ceil(totalRows / limit);
-
+        
         const lastIndex = (page + 1) * limit;
         const firstIndex = lastIndex - limit;
         result = result.slice(firstIndex, lastIndex);
@@ -281,6 +284,7 @@ export const getUsers = async (req, res) => {
 
 
     } catch (error) {
+        console.log(error)
         res.status(500).json({ msg: error.message });
     }
 };

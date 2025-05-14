@@ -11,7 +11,7 @@ const Navbar = ({ onToggleSidebar }) => {
   const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
   const handleProfileClick = () => {
-    if (user?.username) {
+    if (user?.username && user?.role !== "Admin") {
       navigate(`/my-profile`);
     }
   };
@@ -127,6 +127,11 @@ const Sidebar = ({ isOpen, onClose }) => {
           )}
           {user && user.role === "Admin" && (
             <>
+              <li>
+                <Link to="/list-users" onClick={onClose} className="w-full block py-2 rounded-md hover:bg-gray-100 transition">
+                  List Users
+                </Link>
+              </li>
               <li>
                 <Link to="/pending-sponsors" onClick={onClose} className="w-full block py-2 rounded-md hover:bg-gray-100 transition">
                   Sponsors Request Lists

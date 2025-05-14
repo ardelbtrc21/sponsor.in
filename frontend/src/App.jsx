@@ -27,6 +27,7 @@ import EditProfile from "./pages/EditProfile";
 import MilestoneDetailPage from "./pages/MilestoneDetail";
 import HistoryAgreementWrapper from "./components/HistoryAgreementWrapper";
 import SponsoreeDetail from "./pages/SponsoreeDetail";
+import ListUser from "./pages/ListUser";
 
 function ThemeProvider({ children }) {
   return (
@@ -96,6 +97,7 @@ function App() {
           <Route path="/home" element={user ? <Home /> : <Navigate to="/" />} />
           <Route path="/signUp" element={<Register />} />
           <Route path="/signIn" element={<Login />} />
+          <Route path="/list-users" element={user && user.role === "Admin" ? <ListUser /> : <Navigate to="/" />} />
           {/* <Route path="/welcome" element={user ? <ApproveButton /> : <Navigate to="/" />} /> */}
           <Route path="/sponsoree-submissions" element={user ? <ViewMySubmissions /> : <Navigate to="/" />} />
           <Route path="/sponsors" element={user ? <SponsorList /> : <Navigate to="/" />} />
