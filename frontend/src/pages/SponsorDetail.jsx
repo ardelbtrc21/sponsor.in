@@ -71,7 +71,7 @@ const SponsorDetail = () => {
           popup: 'rounded-2xl shadow-md px-6 py-4',
           title: 'text-xl font-semibold mb-2 text-red-600',
           htmlContainer: 'text-sm text-gray-700',
-          confirmButton: 'bg-[#dc2626] text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
+          confirmButton: 'bg-indigo-500 text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5',
         },
       });
     }
