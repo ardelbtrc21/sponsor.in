@@ -158,7 +158,7 @@ const CreateProposalForm = () => {
       if (file.size > 20 * 1024 * 1024) {
         Swal.fire({
           title: "<strong>Oops...</strong>",
-          html: "<p>File must be smaller than 10MB.</p>",
+          html: "<p>File must be smaller than 20MB.</p>",
           icon: "error",
           iconColor: "#dc2626", // warna merah (red-600)
           showCancelButton: false,
@@ -351,7 +351,7 @@ const CreateProposalForm = () => {
                   <span>-</span>
                   <InputNumber min={0} max={100} value={targetAgeMax} onChange={(value) => setTargetAgeMax(value)} placeholder="Max Age" />
                 </div>
-                <div className="mt-2 text-sm">Usia: {targetAgeMin || 0} - {targetAgeMax || 100} tahun</div>
+                <div className="mt-2 text-sm">Age: {targetAgeMin || 0} - {targetAgeMax || 100} y.o</div>
                 <span className="text-sm text-red-800 mt-2 block">{formErrors.target_age}</span>
               </div>
 

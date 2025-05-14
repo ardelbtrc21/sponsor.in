@@ -285,7 +285,7 @@ const MilestoneDetailPage = () => {
                       Optional. PDF, DOCX, JPG, or PNG supported.
                     </p>
                     <div className="mt-4">
-                      <Button type="primary" onClick={handleSendRevision}>
+                      <Button type="primary" onClick={handleSendRevision} className="bg-primary hover:bg-gray-700 ">
                         Send Revision
                       </Button>
                     </div>
