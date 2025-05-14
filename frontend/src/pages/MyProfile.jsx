@@ -29,7 +29,6 @@ const MyProfile = () => {
                 }
                 if (user.role === "Sponsoree") {
                     setSponsoree(data);
-                    console.log(data)
                 }
                 setLoading(false);
             })
@@ -46,7 +45,6 @@ const MyProfile = () => {
         ? `/profile_photo/${user.profile_photo}`
         : defaultProfile;
     const photoPreviewBanner = user?.background_photo ? `/api/background_photo/preview/${user?.background_photo}` : defaultProfile
-    console.log(photoPreviewBanner)
 
     return (
         <ModernLayout>

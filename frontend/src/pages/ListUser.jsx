@@ -48,7 +48,6 @@ const ListUser = () => {
     const handleViewAccount = async (username) => {
         try {
             const response = await axios.get(`/api/user/${username}`)
-            console.log(response.data)
             if (response.data.user_sponsors) {
                 navigate(`/sponsors/${username}`)
             }

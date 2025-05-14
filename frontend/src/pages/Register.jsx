@@ -26,7 +26,6 @@ export default function RegisterPage() {
     });
 
     const handleChange = (e) => {
-        console.log(e)
         const { name, value, files } = e.target;
         if (name === 'document') {
             setFormData({ ...formData, [name]: files[0] });
@@ -94,7 +93,6 @@ export default function RegisterPage() {
             const file = info.file;
             const newFileList = info.fileList.slice(-1);
             setFileList(newFileList);
-            console.log(file)
             if (file) {
                 setFormData({ ...formData, document: file })
             }
@@ -125,7 +123,6 @@ export default function RegisterPage() {
                     data.append(key, JSON.stringify(value)); // untuk object
                 }
             });
-            console.log(formData)
             for (let [key, value] of data.entries()) {
                 console.log(`${key}:`, value);
             }

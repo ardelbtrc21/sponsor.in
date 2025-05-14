@@ -9,7 +9,6 @@ const Home = () => {
     if (user && user.role) {
         role = user.role
     }
-    console.log("User role disini apa isinya woi: " + role);
     useEffect(() => {
         if (!role) return;
         if (role === "Sponsoree") {
