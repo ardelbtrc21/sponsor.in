@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url';
 import sequelize, { Op } from "sequelize";
 import { promisify } from "util";
 import { error } from "console";
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -315,20 +316,50 @@ export const addReplyMilestone = async (req, res) => {
 export const patchMilestoneRevision = async (req, res) => {
   const { milestone_id } = req.params;
   const { milestone_description } = req.body;
+  const document = req.files?.milestone_attachment;
 
   try {
+    const existing = await Milestone.findByPk(milestone_id);
+    if (!existing) {
+      return res.status(404).json({ message: "Milestone not found" });
+    }
+
+    let fileName = existing.milestone_attachment;
+
+    if (document) {
+      const errors = {};
+      const ext = path.extname(document.name).toLowerCase();
+      const allowed = [".pdf", ".jpg", ".jpeg", ".png", ".csv"];
+      if (!allowed.includes(ext)) {
+        errors.document = `File "${document.name}" not supported. Allowed: ${allowed.join(", ")}`;
+      }
+      if (document.size > 10 * 1024 * 1024) {
+        errors.document = `File "${document.name}" is too large. Max 10MB.`;
+      }
+      if (Object.keys(errors).length) {
+        return res.status(400).json({ message: "Invalid file", errors });
+      }
+
+      if (existing.milestone_attachment) {
+        const oldPath = path.join(__dirname, "..", "..", "data", "milestone", existing.milestone_attachment);
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+
+      fileName = `${existing.proposal_id}_${Date.now()}${ext}`;
+      const uploadPath = path.join(process.cwd(), "data", "milestone", fileName);
+      await document.mv(uploadPath);
+    }
+
     const [updatedCount] = await Milestone.update(
-      { milestone_description },
+      { milestone_description, milestone_attachment: fileName },
       { where: { milestone_id } }
     );
-
     if (updatedCount === 0) {
       return res.status(404).json({ message: "Milestone not found" });
     }
 
     return res.json({ message: "Revision sent successfully" });
   } catch (error) {
-    console.error("patchMilestoneRevision error:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
