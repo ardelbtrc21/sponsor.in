@@ -123,13 +123,23 @@ const SponsorDetail = () => {
           <div className="flex gap-3 mt-4 justify-center">
             {user?.role === "Sponsoree" && (
               <>
-                <Link
-                  to={`/proposal/create/${sponsor.user_sponsors?.sponsor_id}`}
-                  state={{ sponsor }}
-                  className="border text-primary font-semibold text-xs px-4 py-2 rounded-lg transition border-primary bg-transparent hover:bg-primary hover:text-white"
-                >
-                  Submit a Proposal
-                </Link>
+                {sponsor.user_sponsors?.is_available ? (
+                  <Link
+                    to={`/proposal/create/${sponsor.user_sponsors?.sponsor_id}`}
+                    state={{ sponsor }}
+                    className="border text-primary font-semibold text-xs px-4 py-2 rounded-lg transition border-primary bg-transparent hover:bg-primary hover:text-white"
+                  >
+                    Submit a Proposal
+                  </Link>
+                ) : (
+                  <button
+                    disabled
+                    className="border text-primary font-semibold text-xs px-4 py-2 rounded-lg border-primary bg-transparent opacity-50 cursor-not-allowed"
+                  >
+                    Submit a Proposal
+                  </button>
+                )}
+
                 <Link
                   to={`/report/${sponsor.username}`}
                   className="bg-black text-white px-5 py-2 rounded-md text-sm hover:opacity-90 transition"
