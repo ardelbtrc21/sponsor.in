@@ -286,16 +286,22 @@ const ViewDetailProposal = () => {
         <div className="bg-white rounded-xl shadow p-6 space-y-6">
           {/* Title */}
           <div className="space-y-1">
-            <div className="flex flex-row items-center">
-              <img
-                src={proposals.user?.profile_photo ? `/profile_photo/${proposals.user?.profile_photo}` : defaultProfile}
-                alt="User Avatar"
-                onClick={handleProfileClick}
-                className="w-10 h-10 rounded-full border-2 border-white cursor-pointer"
-              />
-              <div className="pl-2">
-                <p className="text-gray-900 font-semibold text-base">{proposals.user?.name}</p>
-                <p className="text-gray-500 text-sm">{proposals.user?.username}</p>
+            <div className="flex flex-row justify-between items-center w-full">
+              <div className="flex flex-row items-center">
+                <img
+                  src={proposals.user?.profile_photo ? `/api/profile_photo/${proposals.user?.profile_photo}` : defaultProfile}
+                  alt="User Avatar"
+                  onClick={handleProfileClick}
+                  className="w-10 h-10 rounded-full border-2 border-white cursor-pointer"
+                />
+                <div className="pl-2">
+                  <p className="text-gray-900 font-semibold text-base">{proposals.user?.name}</p>
+                  <p className="text-gray-500 text-sm">{proposals.user?.username}</p>
+                </div>
+              </div>
+
+              <div className="text-sm text-gray-700 font-medium">
+                To: {proposals?.sponsor_proposals?.username}
               </div>
             </div>
             <div className="flex flex-col items-center pt-5">

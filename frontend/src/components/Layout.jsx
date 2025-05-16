@@ -20,7 +20,7 @@ const Navbar = ({ onToggleSidebar }) => {
       {/* Left Side */}
       <div className="flex items-center gap-4">
         <img
-          src={user.profile_photo ? `/profile_photo/${user.profile_photo}` : defaultProfile}
+          src={user.profile_photo ? `/api/profile_photo/${user.profile_photo}` : defaultProfile}
           alt="User Avatar"
           onClick={handleProfileClick}
           className="w-10 h-10 rounded-full border-2 border-white cursor-pointer"

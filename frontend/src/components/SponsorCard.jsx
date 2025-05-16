@@ -12,7 +12,7 @@ const SponsorCard = ({ sponsor }) => {
       {/* Profile Image */}
       <div className="h-48 bg-gray-200 flex items-center justify-center">
         <img
-          src={sponsor.profile_photo ? `/profile_photo/${sponsor.profile_photo}` : defaultProfile}
+          src={sponsor.profile_photo ? `/api/profile_photo/${sponsor.profile_photo}` : defaultProfile}
           alt={sponsor.name}
           className="h-full w-full object-cover"
         />

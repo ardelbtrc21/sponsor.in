@@ -42,7 +42,7 @@ const MyProfile = () => {
     if (error) return <div className="text-center mt-10 text-red-500">Error: {error}</div>;
 
     const photoPreviewProfile = user?.profile_photo
-        ? `/profile_photo/${user.profile_photo}`
+        ? `/api/profile_photo/${user.profile_photo}`
         : defaultProfile;
     const photoPreviewBanner = user?.background_photo ? `/api/background_photo/preview/${user?.background_photo}` : defaultProfile
 
@@ -98,7 +98,7 @@ const MyProfile = () => {
                         {/* Category Provides */}
                         <p className="text-sm text-gray-700 mb-2">
                             <span className="font-semibold">Category Provides:</span>{" "}
-                            {sponsor.user_sponsors.category_provides?.length > 0 ? (
+                            {sponsor.user_sponsors?.category_provides?.length > 0 ? (
                                 sponsor.user_sponsors.category_provides.split(',').map((cat, idx) => (
                                     <span
                                         key={idx}

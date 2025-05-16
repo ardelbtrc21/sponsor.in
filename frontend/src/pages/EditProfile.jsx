@@ -60,7 +60,7 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                 name: sponsorData.name,
                 background_photo: sponsorData.background_photo,
                 is_available: sponsorData.user_sponsors?.is_available || false,
-                category_provides: sponsorData.user_sponsors?.category_provides.split(',') || [],
+                category_provides: sponsorData.user_sponsors?.category_provides?.length > 0 ? sponsorData.user_sponsors.category_provides?.split(',') : [],
                 description: sponsorData.user_sponsors?.description || "",
                 sponsorship_photos: sponsorData.photo_sponsorship_users || [],
                 tags: sponsorData.user_sponsors?.tags_sponsors || [],
@@ -309,7 +309,7 @@ const EditProfile = ({ sponsor: sponsoree }) => {
     //testing
 
     const profilePhoto = user?.profile_photo
-        ? `/profile_photo/${user.profile_photo}`
+        ? `/api/profile_photo/${user.profile_photo}`
         : defaultProfile;
     let bannerPhoto;
     if (!formData?.background_photo && !sponsorData?.background_photo && !sponsoreeData?.background_photo) {
@@ -461,6 +461,8 @@ const EditProfile = ({ sponsor: sponsoree }) => {
 
                         {sponsorData && sponsorData !== null && (
                             <div className="relative">
+                                {console.log(formData.category_provides.length)}
+                                {console.log(formData.category_provides)}
                                 <label className="block text-sm font-medium mb-1">Category Provides</label>
                                 <div className="relative">
                                     <Select

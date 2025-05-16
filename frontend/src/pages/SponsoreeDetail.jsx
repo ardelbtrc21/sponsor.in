@@ -83,7 +83,7 @@ const SponsoreeDetail = () => {
     if (error) return <div className="text-center mt-10 text-red-500">Error: {error}</div>;
 
     const photoPreviewProfile = sponsoree?.profile_photo
-        ? `/profile_photo/${sponsoree.profile_photo}`
+        ? `/api/profile_photo/${sponsoree.profile_photo}`
         : defaultProfile;
     const photoPreviewBanner = sponsoree?.background_photo ? `/api/background_photo/preview/${sponsoree?.background_photo}` : defaultProfile;
 

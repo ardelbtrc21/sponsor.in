@@ -434,15 +434,13 @@ export const editProfile = async (req, res) => {
             name,
             category
         } = req.body;
-        console.log("disini", category_provides)
 
         const removedPhotos = JSON.parse(req.body.removed_photos || '[]');
-        console.log(req.body)
         removedPhotos.forEach(async (item) => {
             await SponsorshipPhotos.destroy({
                 where: { photo: item }
             });
-            // fs.unlinkSync(path.join(__dirname, "..", "..", "data", "sponsorship_photo", item));
+            fs.unlinkSync(path.join(__dirname, "..", "..", "data", "sponsorship_photo", item));
         });
         const fotoSponsor = await SponsorshipPhotos.findAll({
             where: {
@@ -450,27 +448,32 @@ export const editProfile = async (req, res) => {
             }
         })
         console.log(fotoSponsor.length, fotoSponsor)
-
+        
         const backgroundPhoto = req.files?.background_photo || null;
         const sponsorshipPhotos = req.files?.sponsorship_photos || null;
         if(sponsorshipPhotos && fotoSponsor.length+sponsorshipPhotos.length > 3){
             return res.status(400).json({ msg: "You can upload max 3 files." });
         }
         const user = await User.findOne({ where: { username } });
-
+        
         if (user.role === "Sponsor") {
             const sponsor = await Sponsor.findOne({ where: { username } });
-
+            
             if (!sponsor || !user) {
                 return res.status(404).json({ msg: "Sponsor not found!" });
             }
-
+            
             // Update sponsor fields
             if (is_available !== undefined) sponsor.is_available = is_available;
-            if (category_provides !== undefined) sponsor.category_provides = category_provides;
+            if (category_provides !== undefined && category_provides.length > 0) sponsor.category_provides = category_provides;
             if (description !== undefined) sponsor.description = description;
-
+            
             // Update background photo
+            if(!backgroundPhoto && user.background_photo){
+                console.log(user.background_photo)
+                fs.unlinkSync(path.join(__dirname, "..", "..", "data", "background_photo", user.background_photo));
+                user.background_photo = null
+            }
             if (backgroundPhoto) {
                 const ext = path.extname(backgroundPhoto.name).toLowerCase();
                 const allowedExt = [".jpg", ".jpeg", ".png"];

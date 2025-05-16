@@ -26,7 +26,7 @@ const Navbar = () => {
         {/* Kiri: Avatar + Dot menu */}
         <div className="flex items-center gap-3">
           <img
-            src={user.profile_photo ? `/profile_photo/${user.profile_photo}` : defaultProfile}
+            src={user.profile_photo ? `/api/profile_photo/${user.profile_photo}` : defaultProfile}
             alt="User"
             onClick={handleProfileClick}
             className="w-8 h-8 rounded-full border-2 border-white cursor-pointer"

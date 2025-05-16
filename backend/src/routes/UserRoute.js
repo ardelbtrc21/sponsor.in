@@ -11,6 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const sponsorshipFolder = path.join(__dirname, "../../data/sponsorship_photo");
 const backgroundFolder = path.join(__dirname, "../../data/background_photo");
+const photoProfileFolder = path.join(__dirname, "../../data/profile_photo");
 router.post("/api/user", createUser);
 router.get("/api/users", verifyUser, checkUserRole(["Admin", "Sponsor", "Sponsoree"]), getUsers);
 router.get("/api/user/:username", verifyUser, getUserById);
@@ -27,7 +28,7 @@ router.get("/api/sponsorship_photos/preview/:filename", (req, res) => {
         return res.status(404).json({ message: "File not found" });
     }
 
-    res.setHeader("Content-Type", "image/jpeg"); // atau sesuaikan berdasarkan ekstensi file
+    res.setHeader("Content-Type", "image/jpeg");
     res.sendFile(filePath);
 });
 router.get("/api/background_photo/preview/:filename", (req, res) => {
@@ -38,8 +39,20 @@ router.get("/api/background_photo/preview/:filename", (req, res) => {
         return res.status(404).json({ message: "File not found" });
     }
 
-    res.setHeader("Content-Type", "image/jpeg"); // atau sesuaikan berdasarkan ekstensi file
+    res.setHeader("Content-Type", "image/jpeg");
     res.sendFile(filePath);
 });
+router.get("/api/profile_photo/:filename", (req, res) => {
+    const { filename } = req.params;
+    const filePath = path.join(photoProfileFolder, filename);
+
+    if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ message: "File not found" });
+    }
+
+    res.setHeader("Content-Type", "image/jpeg");
+    res.sendFile(filePath);
+});
+
 
 export default router;

@@ -110,7 +110,7 @@ const AccountSettingForm = () => {
   const photoPreview = photo
     ? URL.createObjectURL(photo)
     : user?.profile_photo
-      ? `/profile_photo/${user.profile_photo}`
+      ? `/api/profile_photo/${user.profile_photo}`
       : defaultProfile;
 
   return (

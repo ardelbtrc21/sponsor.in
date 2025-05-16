@@ -82,7 +82,7 @@ const SponsorDetail = () => {
   if (!sponsor) return null;
 
   const photoPreviewProfile = sponsor.profile_photo
-    ? `/profile_photo/${sponsor.profile_photo}`
+    ? `/api/profile_photo/${sponsor.profile_photo}`
     : defaultProfile;
   const photoPreviewBanner = sponsor.background_photo
     ? `/api/background_photo/preview/${sponsor.background_photo}`

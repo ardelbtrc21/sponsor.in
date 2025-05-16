@@ -72,7 +72,7 @@ app.use(UserRoute);
 app.use(AuthRoute);
 app.use(TagRoute);
 app.use(TargetRoute);
-app.use('/profile_photo', express.static('data/profile_photo'));
+// app.use('/profile_photo', express.static('data/profile_photo'));
 app.listen(process.env.APP_PORT, () => {
     console.log("Server up and running...")
 });
