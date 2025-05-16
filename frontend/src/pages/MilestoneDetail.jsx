@@ -185,10 +185,6 @@ const MilestoneDetailPage = () => {
       if (milestoneReplyAttachment?.originFileObj || milestoneReplyAttachment !== null) {
         formData.append("milestone_reply_attachment", milestoneReplyAttachment?.originFileObj);
       }
-      // for (let [key, value] of formData.entries()) {
-      //   console.log(`${key}:`, value);
-      // }
-
 
       await axios.patch("/api/milestones/reply", formData, {
         headers: {

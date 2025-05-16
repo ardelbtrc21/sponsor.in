@@ -241,11 +241,6 @@ const EditProfile = ({ sponsor: sponsoree }) => {
         getTargets()
     }, []);
 
-
-    const handleSave = () => {
-        console.log(formData);
-    };
-
     const handleSubmit = async (e) => {
 
         e.preventDefault();
@@ -461,8 +456,6 @@ const EditProfile = ({ sponsor: sponsoree }) => {
 
                         {sponsorData && sponsorData !== null && (
                             <div className="relative">
-                                {console.log(formData.category_provides.length)}
-                                {console.log(formData.category_provides)}
                                 <label className="block text-sm font-medium mb-1">Category Provides</label>
                                 <div className="relative">
                                     <Select
@@ -489,17 +482,6 @@ const EditProfile = ({ sponsor: sponsoree }) => {
                             </div>
                         )}
 
-                        {/* <div>
-                        <label className="block text-sm font-medium mb-1">Category Provides</label>
-                        <input
-                            type="text"
-                            name="category_provides"
-                            value={formData.category_provides}
-                            onChange={handleChange}
-                            className="w-full p-3 border rounded-xl"
-                        />
-                    </div>
-                    {console.log(formData.sponsorship_photos.length)} */}
                         {sponsorData && sponsorData !== null && (
                             <div>
                                 <label className="block text-sm font-medium mb-1">About Us (Description)</label>

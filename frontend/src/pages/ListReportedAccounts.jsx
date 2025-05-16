@@ -496,7 +496,6 @@ const ListReportedAccount = () => {
                                         >
                                             REJECT REPORT
                                         </button>
-                                        {console.log(report.created_for_report.is_banned + report.description)}
                                         <button
                                             disabled={report.status !== "submitted"}
                                             className={`text-white text-xs px-3 py-1.5 rounded-lg transition 

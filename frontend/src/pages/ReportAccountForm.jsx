@@ -15,10 +15,6 @@ const ReportAccountForm = () => {
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    console.log("User from Redux:", user);
-  }, [user]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
