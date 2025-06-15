@@ -412,7 +412,7 @@ const ViewDetailProposal = () => {
                 </button>
               )}
 
-              {user.role === 'Sponsor' && (latestStatus?.status_name === "Processing Agreement" || latestStatus?.status_name === "Accepted") && canComplete && (
+              {user.role === 'Sponsor' && (latestStatus?.status_name === "Processing Agreement" || latestStatus?.status_name === "Accepted") && (
                 <button
                   className="bg-green-600 hover:bg-green-700 text-white font-semibold tracking-wider py-2 px-6 rounded-lg shadow-md"
                   onClick={async () => {
@@ -439,6 +439,11 @@ const ViewDetailProposal = () => {
                     if (result.isConfirmed) {
                       handleCompleteMilestone();
                     }
+                  }}
+                  disabled={!canComplete}
+                  style={{
+                    opacity: canComplete ? 1 : 0.5,
+                    cursor: canComplete ? 'pointer' : 'not-allowed'
                   }}
                 >
                   COMPLETE PROPOSAL

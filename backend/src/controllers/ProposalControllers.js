@@ -216,6 +216,9 @@ export const doRejectProposal = async (req, res) => {
       });
     }
 
+    currentStatus.endAt = new Date();
+    await currentStatus.save();
+
     const newStatus = await ProposalStatus.create({
       proposal_id: currentStatus.proposal_id,
       status_name: "Rejected",
@@ -300,7 +303,7 @@ export const getProposalByStatus = async (req, res) => {
           ]
         }
       ],
-      order: [['createdAt', 'DESC']]
+      order: [['updatedAt', 'DESC']]
     });
 
     if (!proposals || proposals.length === 0) {

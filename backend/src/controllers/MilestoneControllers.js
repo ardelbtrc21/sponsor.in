@@ -209,7 +209,7 @@ export const getMilestonesByProposalId = async (req, res) => {
 
     console.log("Fetched milestones: ", milestones);
 
-    const allCompleted = milestones.length === 0 ||
+    const allCompleted = milestones.length > 0 &&
       milestones.every(milestone => {
         const latestStatus = milestone.status_milestones[0];
         return latestStatus && latestStatus.status_name === "Completed";
@@ -224,7 +224,6 @@ export const getMilestonesByProposalId = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch milestones" });
   }
 };
-
 
 export const updateMilestoneStatus = async (req, res) => {
   const { status_name } = req.body;
